@@ -1,7 +1,7 @@
 """
 Video database model
 """
-from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Float, JSON
+from sqlalchemy import Column, Integer, String, Text, DateTime, Boolean, ForeignKey, Float, JSON, Enum
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import enum

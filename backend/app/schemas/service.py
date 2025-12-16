@@ -1,9 +1,10 @@
+
 """
 Service Pydantic schemas
 """
 from typing import Optional, List
 from datetime import datetime
-from pydantic import BaseModel, Field, validator, HttpUrl
+from pydantic import BaseModel, Field, validator, HttpUrl, ConfigDict
 
 # Base schemas
 class ServiceBase(BaseModel):
@@ -71,8 +72,7 @@ class ServiceInDB(ServiceBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ServiceResponse(ServiceInDB):
     """Response schema with additional fields"""
@@ -108,8 +108,7 @@ class ServiceCategoryInDB(ServiceCategoryBase):
     service_count: int = 0
     created_at: datetime
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ServiceCategoryResponse(ServiceCategoryInDB):
     """Response schema with services"""

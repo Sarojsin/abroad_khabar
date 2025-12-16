@@ -109,7 +109,7 @@ async def register_user(
     return custom_response(
         message="User registered successfully",
         data={
-            "user": UserResponse.from_orm(user).dict(),
+            "user": UserResponse.model_validate(user).model_dump(),
             "tokens": {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
@@ -159,7 +159,7 @@ async def login_user(
     return custom_response(
         message="Login successful",
         data={
-            "user": UserResponse.from_orm(user).dict(),
+            "user": UserResponse.model_validate(user).model_dump(),
             "tokens": {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
@@ -213,7 +213,7 @@ async def get_current_user_info(
 ) -> Any:
     """Get current user information"""
     return custom_response(
-        data={"user": UserResponse.from_orm(current_user).dict()}
+        data={"user": UserResponse.model_validate(current_user).model_dump()}
     )
 
 @router.put("/me", response_model=dict)
@@ -248,7 +248,7 @@ async def update_current_user(
             )
     
     # Update user fields
-    update_data = user_in.dict(exclude_unset=True)
+    update_data = user_in.model_dump(exclude_unset=True)
     if "password" in update_data:
         update_data["hashed_password"] = get_password_hash(update_data.pop("password"))
     
@@ -260,7 +260,7 @@ async def update_current_user(
     
     return custom_response(
         message="Profile updated successfully",
-        data={"user": UserResponse.from_orm(current_user).dict()}
+        data={"user": UserResponse.model_validate(current_user).model_dump()}
     )
 
 @router.post("/logout", response_model=dict)
@@ -369,7 +369,7 @@ async def get_users(
     
     return custom_response(
         data={
-            "users": [UserResponse.from_orm(user).dict() for user in users],
+            "users": [UserResponse.model_validate(user).model_dump() for user in users],
             "total": total,
             "page": skip // limit + 1 if limit > 0 else 1,
             "pages": (total + limit - 1) // limit if limit > 0 else 1

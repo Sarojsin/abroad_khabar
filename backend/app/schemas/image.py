@@ -1,9 +1,10 @@
+
 """
 Image Pydantic schemas
 """
 from typing import Optional, List
 from datetime import datetime
-from pydantic import BaseModel, Field, validator, HttpUrl
+from pydantic import BaseModel, Field, validator, HttpUrl, ConfigDict
 
 # Base schemas
 class ImageBase(BaseModel):
@@ -41,8 +42,7 @@ class ImageInDB(ImageBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ImageResponse(ImageInDB):
     """Response schema with additional fields"""
@@ -75,8 +75,7 @@ class ImageAlbumInDB(ImageAlbumBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class ImageAlbumResponse(ImageAlbumInDB):
     """Response schema with cover image"""

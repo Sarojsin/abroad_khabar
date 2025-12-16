@@ -1,9 +1,10 @@
+
 """
 Video Pydantic schemas
 """
 from typing import Optional, List
 from datetime import datetime
-from pydantic import BaseModel, Field, validator, HttpUrl
+from pydantic import BaseModel, Field, validator, HttpUrl, ConfigDict
 from enum import Enum
 
 class VideoType(str, Enum):
@@ -83,8 +84,7 @@ class VideoInDB(VideoBase):
     updated_at: Optional[datetime] = None
     published_at: Optional[datetime] = None
 
-    class Config:
-        orm_mode = True
+    model_config = ConfigDict(from_attributes=True)
 
 class VideoResponse(VideoInDB):
     """Response schema with additional fields"""

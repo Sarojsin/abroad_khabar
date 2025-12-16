@@ -1,0 +1,50 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Environment Variables
+.env
+
+# Logs
+*.log
+server.log
+server_v2.log
+
+# Temporary Debug Scripts
+debug_*.py
+test_*.py
+create_db.py
+init_db_script.py
+minimal_app.py
+app/main_backup.py
+
+# IDEs
+.idea/
+.vscode/
+
+# Database
+*.sqlite3
+*.db

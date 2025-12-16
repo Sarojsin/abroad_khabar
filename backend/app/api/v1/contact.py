@@ -31,7 +31,7 @@ async def submit_contact_form(
     
     return custom_response(
         message="Thank you for your message. We'll get back to you soon.",
-        data={"submission": ContactResponse.from_orm(contact).dict()}
+        data={"submission": ContactResponse.model_validate(contact).model_dump()}
     )
 
 @router.get("/", response_model=dict)
@@ -69,7 +69,7 @@ async def get_contact_submissions(
     
     return custom_response(
         data={
-            "submissions": [ContactResponse.from_orm(sub).dict() for sub in submissions],
+            "submissions": [ContactResponse.model_validate(sub).model_dump() for sub in submissions],
             "total": total,
             "page": skip // limit + 1 if limit > 0 else 1,
             "pages": (total + limit - 1) // limit if limit > 0 else 1
@@ -97,7 +97,7 @@ async def get_contact_submission(
         db.commit()
     
     return custom_response(
-        data={"submission": ContactResponse.from_orm(submission).dict()}
+        data={"submission": ContactResponse.model_validate(submission).model_dump()}
     )
 
 @router.put("/{submission_id}", response_model=dict)
@@ -125,7 +125,7 @@ async def update_contact_submission(
     
     return custom_response(
         message="Contact submission updated successfully",
-        data={"submission": ContactResponse.from_orm(submission).dict()}
+        data={"submission": ContactResponse.model_validate(submission).model_dump()}
     )
 
 @router.delete("/{submission_id}", response_model=dict)

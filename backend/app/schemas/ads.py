@@ -3,7 +3,7 @@ Advertisement Pydantic schemas
 """
 from typing import Optional, List
 from datetime import datetime
-from pydantic import BaseModel, Field, validator, HttpUrl
+from pydantic import BaseModel, Field, validator, HttpUrl, ConfigDict
 from enum import Enum
 
 class AdType(str, Enum):
@@ -81,9 +81,7 @@ class AdInDB(AdBase):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
-    class Config:
-        orm_mode = True
-        use_enum_values = True
+    model_config = ConfigDict(from_attributes=True, use_enum_values=True)
 
 class AdResponse(AdInDB):
     """Response schema with additional fields"""

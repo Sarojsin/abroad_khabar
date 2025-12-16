@@ -62,7 +62,7 @@ async def get_service_categories(
     # Format response
     category_responses = []
     for category in categories:
-        category_dict = ServiceCategoryResponse.from_orm(category).dict()
+        category_dict = ServiceCategoryResponse.model_validate(category).model_dump()
         
         if include_services:
             services = db.query(Service).filter(
@@ -70,7 +70,7 @@ async def get_service_categories(
                 Service.status == "active"
             ).all()
             category_dict["services"] = [
-                ServiceResponse.from_orm(service).dict() 
+                ServiceResponse.model_validate(service).model_dump() 
                 for service in services
             ]
         
@@ -100,7 +100,7 @@ async def get_service_category(
             detail="Category not found"
         )
     
-    category_dict = ServiceCategoryResponse.from_orm(category).dict()
+    category_dict = ServiceCategoryResponse.model_validate(category).model_dump()
     
     if include_services:
         services = db.query(Service).filter(
@@ -108,7 +108,7 @@ async def get_service_category(
             Service.status == "active"
         ).all()
         category_dict["services"] = [
-            ServiceResponse.from_orm(service).dict() 
+            ServiceResponse.model_validate(service).model_dump() 
             for service in services
         ]
     
@@ -129,7 +129,7 @@ async def get_service_category_by_slug(
             detail="Category not found"
         )
     
-    category_dict = ServiceCategoryResponse.from_orm(category).dict()
+    category_dict = ServiceCategoryResponse.model_validate(category).model_dump()
     
     if include_services:
         services = db.query(Service).filter(
@@ -137,7 +137,7 @@ async def get_service_category_by_slug(
             Service.status == "active"
         ).all()
         category_dict["services"] = [
-            ServiceResponse.from_orm(service).dict() 
+            ServiceResponse.model_validate(service).model_dump() 
             for service in services
         ]
     
@@ -170,7 +170,7 @@ async def create_service_category(
     
     return custom_response(
         message="Category created successfully",
-        data={"category": ServiceCategoryResponse.from_orm(category).dict()}
+        data={"category": ServiceCategoryResponse.model_validate(category).model_dump()}
     )
 
 @router.put("/categories/{category_id}", response_model=dict)
@@ -216,7 +216,7 @@ async def update_service_category(
     
     return custom_response(
         message="Category updated successfully",
-        data={"category": ServiceCategoryResponse.from_orm(category).dict()}
+        data={"category": ServiceCategoryResponse.model_validate(category).model_dump()}
     )
 
 @router.delete("/categories/{category_id}", response_model=dict)
@@ -316,7 +316,7 @@ async def get_services(
     # Format response
     service_responses = []
     for service in services:
-        service_dict = ServiceResponse.from_orm(service).dict()
+        service_dict = ServiceResponse.model_validate(service).model_dump()
         service_dict["category_name"] = service.category.name if service.category else None
         service_dict["category_slug"] = service.category.slug if service.category else None
         service_responses.append(service_dict)
@@ -343,7 +343,7 @@ async def get_featured_services(
     
     service_responses = []
     for service in services:
-        service_dict = ServiceResponse.from_orm(service).dict()
+        service_dict = ServiceResponse.model_validate(service).model_dump()
         service_dict["category_name"] = service.category.name if service.category else None
         service_responses.append(service_dict)
     
@@ -362,7 +362,7 @@ async def get_popular_services(
     
     service_responses = []
     for service in services:
-        service_dict = ServiceResponse.from_orm(service).dict()
+        service_dict = ServiceResponse.model_validate(service).model_dump()
         service_dict["category_name"] = service.category.name if service.category else None
         service_responses.append(service_dict)
     
@@ -393,7 +393,7 @@ async def get_service(
     service.views += 1
     db.commit()
     
-    service_dict = ServiceResponse.from_orm(service).dict()
+    service_dict = ServiceResponse.model_validate(service).model_dump()
     service_dict["category_name"] = service.category.name if service.category else None
     service_dict["category_slug"] = service.category.slug if service.category else None
     
@@ -424,7 +424,7 @@ async def get_service_by_slug(
     service.views += 1
     db.commit()
     
-    service_dict = ServiceResponse.from_orm(service).dict()
+    service_dict = ServiceResponse.model_validate(service).model_dump()
     service_dict["category_name"] = service.category.name if service.category else None
     service_dict["category_slug"] = service.category.slug if service.category else None
     
@@ -472,7 +472,7 @@ async def create_service(
         )
         db.commit()
     
-    service_dict = ServiceResponse.from_orm(service).dict()
+    service_dict = ServiceResponse.model_validate(service).model_dump()
     service_dict["category_name"] = service.category.name if service.category else None
     
     return custom_response(
@@ -603,7 +603,7 @@ async def update_service(
         
         db.commit()
     
-    service_dict = ServiceResponse.from_orm(service).dict()
+    service_dict = ServiceResponse.model_validate(service).model_dump()
     service_dict["category_name"] = service.category.name if service.category else None
     
     return custom_response(
@@ -780,7 +780,7 @@ async def get_service_stats(
     # Recent services
     recent_services = db.query(Service).order_by(desc(Service.created_at)).limit(5).all()
     recent_services_list = [
-        ServiceResponse.from_orm(service).dict() 
+        ServiceResponse.model_validate(service).model_dump() 
         for service in recent_services
     ]
     

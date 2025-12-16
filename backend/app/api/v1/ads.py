@@ -104,7 +104,7 @@ async def get_ads(
     # Format response
     ad_responses = []
     for ad in ads:
-        ad_dict = AdResponse.from_orm(ad).dict()
+        ad_dict = AdResponse.model_validate(ad).model_dump()
         ad_dict["created_by_name"] = ad.created_by.full_name if ad.created_by else None
         
         # Calculate CTR
@@ -164,7 +164,7 @@ async def get_active_ads(
     # Format response
     ad_responses = []
     for ad in ads:
-        ad_dict = AdResponse.from_orm(ad).dict()
+        ad_dict = AdResponse.model_validate(ad).model_dump()
         ad_dict["created_by_name"] = ad.created_by.full_name if ad.created_by else None
         
         # Track impression
@@ -201,7 +201,7 @@ async def get_ad(
             detail="Advertisement not found"
         )
     
-    ad_dict = AdResponse.from_orm(ad).dict()
+    ad_dict = AdResponse.model_validate(ad).model_dump()
     ad_dict["created_by_name"] = ad.created_by.full_name if ad.created_by else None
     
     return custom_response(data={"ad": ad_dict})
@@ -223,7 +223,7 @@ async def create_ad(
     db.commit()
     db.refresh(ad)
     
-    ad_dict = AdResponse.from_orm(ad).dict()
+    ad_dict = AdResponse.model_validate(ad).model_dump()
     ad_dict["created_by_name"] = current_user.full_name
     
     return custom_response(
@@ -262,7 +262,7 @@ async def update_ad(
     db.commit()
     db.refresh(ad)
     
-    ad_dict = AdResponse.from_orm(ad).dict()
+    ad_dict = AdResponse.model_validate(ad).model_dump()
     ad_dict["created_by_name"] = ad.created_by.full_name if ad.created_by else None
     
     return custom_response(
@@ -611,7 +611,7 @@ async def get_ad_detailed_stats(
     
     top_performing_list = []
     for top_ad in top_performing:
-        ad_dict = AdResponse.from_orm(top_ad).dict()
+        ad_dict = AdResponse.model_validate(top_ad).model_dump()
         ad_dict["created_by_name"] = top_ad.created_by.full_name if top_ad.created_by else None
         top_performing_list.append(ad_dict)
     

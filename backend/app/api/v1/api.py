@@ -4,28 +4,25 @@ Main API Router
 from fastapi import APIRouter
 from app.api.v1 import (
     auth,
-    blogs,
     services,
     videos,
     images,
     ads,
-    contact,
-    seo,
-    stats
+    contact
 )
 
 api_router = APIRouter()
 
 # Include all API routers
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
-api_router.include_router(blogs.router, prefix="/blogs", tags=["Blogs"])
+
 api_router.include_router(services.router, prefix="/services", tags=["Services"])
 api_router.include_router(videos.router, prefix="/videos", tags=["Videos"])
 api_router.include_router(images.router, prefix="/images", tags=["Images"])
 api_router.include_router(ads.router, prefix="/ads", tags=["Advertisements"])
 api_router.include_router(contact.router, prefix="/contact", tags=["Contact"])
-api_router.include_router(seo.router, prefix="/seo", tags=["SEO"])
-api_router.include_router(stats.router, prefix="/stats", tags=["Statistics"])
+
+
 
 @api_router.get("/")
 async def api_root():

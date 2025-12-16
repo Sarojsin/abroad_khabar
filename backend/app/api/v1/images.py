@@ -71,13 +71,13 @@ async def get_image_albums(
     # Format response
     album_responses = []
     for album in albums:
-        album_dict = ImageAlbumResponse.from_orm(album).dict()
+        album_dict = ImageAlbumResponse.model_validate(album).model_dump()
         album_dict["cover_image_url"] = album.cover_image.url if album.cover_image else None
         
         if include_images:
             images = db.query(Image).filter(Image.album_id == album.id).all()
             album_dict["images"] = [
-                ImageResponse.from_orm(image).dict() 
+                ImageResponse.model_validate(image).model_dump() 
                 for image in images
             ]
         
@@ -111,13 +111,13 @@ async def get_image_album(
     album.views += 1
     db.commit()
     
-    album_dict = ImageAlbumResponse.from_orm(album).dict()
+    album_dict = ImageAlbumResponse.model_validate(album).model_dump()
     album_dict["cover_image_url"] = album.cover_image.url if album.cover_image else None
     
     if include_images:
         images = db.query(Image).filter(Image.album_id == album.id).all()
         album_dict["images"] = [
-            ImageResponse.from_orm(image).dict() 
+            ImageResponse.model_validate(image).model_dump() 
             for image in images
         ]
     
@@ -150,7 +150,7 @@ async def create_image_album(
     
     return custom_response(
         message="Album created successfully",
-        data={"album": ImageAlbumResponse.from_orm(album).dict()}
+        data={"album": ImageAlbumResponse.model_validate(album).model_dump()}
     )
 
 @router.put("/albums/{album_id}", response_model=dict)
@@ -194,7 +194,7 @@ async def update_image_album(
     db.commit()
     db.refresh(album)
     
-    album_dict = ImageAlbumResponse.from_orm(album).dict()
+    album_dict = ImageAlbumResponse.model_validate(album).model_dump()
     album_dict["cover_image_url"] = album.cover_image.url if album.cover_image else None
     
     return custom_response(
@@ -292,7 +292,7 @@ async def get_images(
     # Format response
     image_responses = []
     for image in images:
-        image_dict = ImageResponse.from_orm(image).dict()
+        image_dict = ImageResponse.model_validate(image).model_dump()
         image_dict["uploaded_by_name"] = image.uploaded_by.full_name if image.uploaded_by else None
         image_dict["album_name"] = image.album.name if image.album else None
         image_responses.append(image_dict)
@@ -325,7 +325,7 @@ async def get_image(
     image.last_used = db.func.now()
     db.commit()
     
-    image_dict = ImageResponse.from_orm(image).dict()
+    image_dict = ImageResponse.model_validate(image).model_dump()
     image_dict["uploaded_by_name"] = image.uploaded_by.full_name if image.uploaded_by else None
     image_dict["album_name"] = image.album.name if image.album else None
     
@@ -364,7 +364,7 @@ async def create_image(
         )
         db.commit()
     
-    image_dict = ImageResponse.from_orm(image).dict()
+    image_dict = ImageResponse.model_validate(image).model_dump()
     image_dict["uploaded_by_name"] = current_user.full_name
     
     return custom_response(
@@ -435,7 +435,7 @@ async def upload_image(
         )
         db.commit()
     
-    image_dict = ImageResponse.from_orm(image).dict()
+    image_dict = ImageResponse.model_validate(image).model_dump()
     image_dict["uploaded_by_name"] = current_user.full_name
     
     return custom_response(
@@ -523,7 +523,7 @@ async def upload_multiple_images(
     # Format response
     image_responses = []
     for image in uploaded_images:
-        image_dict = ImageResponse.from_orm(image).dict()
+        image_dict = ImageResponse.model_validate(image).model_dump()
         image_dict["uploaded_by_name"] = current_user.full_name
         image_responses.append(image_dict)
     
@@ -587,7 +587,7 @@ async def update_image(
         
         db.commit()
     
-    image_dict = ImageResponse.from_orm(image).dict()
+    image_dict = ImageResponse.model_validate(image).model_dump()
     image_dict["uploaded_by_name"] = image.uploaded_by.full_name if image.uploaded_by else None
     
     return custom_response(
@@ -797,7 +797,7 @@ async def get_image_stats(
     # Recent uploads
     recent_uploads = db.query(Image).order_by(desc(Image.created_at)).limit(10).all()
     recent_uploads_list = [
-        ImageResponse.from_orm(image).dict() 
+        ImageResponse.model_validate(image).model_dump() 
         for image in recent_uploads
     ]
     

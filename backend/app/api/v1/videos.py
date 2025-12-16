@@ -90,7 +90,7 @@ async def get_videos(
     # Format response
     video_responses = []
     for video in videos:
-        video_dict = VideoResponse.from_orm(video).dict()
+        video_dict = VideoResponse.model_validate(video).model_dump()
         video_dict["uploaded_by_name"] = video.uploaded_by.full_name if video.uploaded_by else None
         video_dict["service_title"] = video.service.title if video.service else None
         video_responses.append(video_dict)
@@ -117,7 +117,7 @@ async def get_featured_videos(
     
     video_responses = []
     for video in videos:
-        video_dict = VideoResponse.from_orm(video).dict()
+        video_dict = VideoResponse.model_validate(video).model_dump()
         video_dict["uploaded_by_name"] = video.uploaded_by.full_name if video.uploaded_by else None
         video_responses.append(video_dict)
     
@@ -148,7 +148,7 @@ async def get_video(
     video.views += 1
     db.commit()
     
-    video_dict = VideoResponse.from_orm(video).dict()
+    video_dict = VideoResponse.model_validate(video).model_dump()
     video_dict["uploaded_by_name"] = video.uploaded_by.full_name if video.uploaded_by else None
     video_dict["service_title"] = video.service.title if video.service else None
     
@@ -184,7 +184,7 @@ async def create_video(
     db.commit()
     db.refresh(video)
     
-    video_dict = VideoResponse.from_orm(video).dict()
+    video_dict = VideoResponse.model_validate(video).model_dump()
     video_dict["uploaded_by_name"] = current_user.full_name
     
     return custom_response(
@@ -228,7 +228,7 @@ async def update_video(
     db.commit()
     db.refresh(video)
     
-    video_dict = VideoResponse.from_orm(video).dict()
+    video_dict = VideoResponse.model_validate(video).model_dump()
     video_dict["uploaded_by_name"] = video.uploaded_by.full_name if video.uploaded_by else None
     
     return custom_response(
@@ -327,7 +327,7 @@ async def upload_video(
     db.commit()
     db.refresh(video)
     
-    video_dict = VideoResponse.from_orm(video).dict()
+    video_dict = VideoResponse.model_validate(video).model_dump()
     video_dict["uploaded_by_name"] = current_user.full_name
     
     return custom_response(
