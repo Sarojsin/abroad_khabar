@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services - Global Education Consultants</title>
+    <meta name="description" content="Comprehensive education consultancy services for international students including visa assistance, university selection, and scholarship guidance.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="icon" href="../public/favicon.ico">
+</head>
+<body>
+    <div id="app">
+        <nav id="navbar-container"></nav>
+
+        <main class="page-content">
+            <!-- Hero Section -->
+            <section class="hero-section services-hero">
+                <div class="hero-overlay"></div>
+                <div class="container">
+                    <div class="hero-content animate-fade-in">
+                        <h1 class="hero-title">Our Comprehensive Services</h1>
+                        <p class="hero-subtitle">End-to-end support for your international education journey</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Filter -->
+            <section class="section services-filter-section">
+                <div class="container">
+                    <div class="filter-container glass-card">
+                        <div class="filter-header">
+                            <h2 class="filter-title">Find Your Service</h2>
+                            <p class="filter-description">Filter services by category</p>
+                        </div>
+                        <div class="filter-controls">
+                            <div class="filter-buttons">
+                                <button class="filter-btn active" data-filter="all">All Services</button>
+                                <button class="filter-btn" data-filter="pre-departure">Pre-Departure</button>
+                                <button class="filter-btn" data-filter="application">Application</button>
+                                <button class="filter-btn" data-filter="visa">Visa & Immigration</button>
+                                <button class="filter-btn" data-filter="post-arrival">Post-Arrival</button>
+                                <button class="filter-btn" data-filter="financial">Financial</button>
+                            </div>
+                            <div class="search-box">
+                                <input type="text" id="service-search" placeholder="Search services..." class="search-input">
+                                <button class="search-btn">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Grid -->
+            <section class="section services-grid-section">
+                <div class="container">
+                    <div id="services-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Services will be loaded dynamically from API -->
+                        <div class="service-skeleton glass-card">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-text short"></div>
+                        </div>
+                        <!-- More skeletons will be added by JS -->
+                    </div>
+                    
+                    <!-- Load More Button -->
+                    <div class="load-more-container">
+                        <button id="load-more-services" class="btn btn-outline">Load More Services</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Process Timeline -->
+            <section class="section process-section">
+                <div class="container">
+                    <h2 class="section-title">Our 4-Step Process</h2>
+                    <div class="process-timeline">
+                        <div class="process-step">
+                            <div class="step-number">01</div>
+                            <div class="step-content glass-card">
+                                <h3 class="step-title">Initial Consultation</h3>
+                                <p class="step-description">Free personalized assessment of your profile and goals</p>
+                            </div>
+                        </div>
+                        <div class="process-step">
+                            <div class="step-number">02</div>
+                            <div class="step-content glass-card">
+                                <h3 class="step-title">University Selection</h3>
+                                <p class="step-description">Shortlisting best-fit universities and programs</p>
+                            </div>
+                        </div>
+                        <div class="process-step">
+                            <div class="step-number">03</div>
+                            <div class="step-content glass-card">
+                                <h3 class="step-title">Application & Visa</h3>
+                                <p class="step-description">Complete documentation and visa processing</p>
+                            </div>
+                        </div>
+                        <div class="process-step">
+                            <div class="step-number">04</div>
+                            <div class="step-content glass-card">
+                                <h3 class="step-title">Post-Arrival Support</h3>
+                                <p class="step-description">Settlement assistance and ongoing guidance</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Service Packages -->
+            <section class="section packages-section">
+                <div class="container">
+                    <h2 class="section-title">Service Packages</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="package-card glass-card hover-glow">
+                            <div class="package-header">
+                                <h3 class="package-name">Basic</h3>
+                                <div class="package-price">
+                                    <span class="price">$499</span>
+                                    <span class="period">/one-time</span>
+                                </div>
+                            </div>
+                            <div class="package-features">
+                                <ul class="feature-list">
+                                    <li class="feature-item">University Shortlisting</li>
+                                    <li class="feature-item">Application Review</li>
+                                    <li class="feature-item">Document Checklist</li>
+                                    <li class="feature-item">Basic SOP Review</li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-outline package-btn" data-package="basic">Choose Basic</button>
+                        </div>
+                        
+                        <div class="package-card glass-card hover-glow popular">
+                            <div class="popular-badge">Most Popular</div>
+                            <div class="package-header">
+                                <h3 class="package-name">Premium</h3>
+                                <div class="package-price">
+                                    <span class="price">$999</span>
+                                    <span class="period">/one-time</span>
+                                </div>
+                            </div>
+                            <div class="package-features">
+                                <ul class="feature-list">
+                                    <li class="feature-item">Everything in Basic</li>
+                                    <li class="feature-item">Complete Visa Processing</li>
+                                    <li class="feature-item">Professional SOP Writing</li>
+                                    <li class="feature-item">Scholarship Guidance</li>
+                                    <li class="feature-item">Interview Preparation</li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-primary package-btn" data-package="premium">Choose Premium</button>
+                        </div>
+                        
+                        <div class="package-card glass-card hover-glow">
+                            <div class="package-header">
+                                <h3 class="package-name">Platinum</h3>
+                                <div class="package-price">
+                                    <span class="price">$1999</span>
+                                    <span class="period">/one-time</span>
+                                </div>
+                            </div>
+                            <div class="package-features">
+                                <ul class="feature-list">
+                                    <li class="feature-item">Everything in Premium</li>
+                                    <li class="feature-item">Post-Arrival Support</li>
+                                    <li class="feature-item">Accommodation Assistance</li>
+                                    <li class="feature-item">Airport Pickup</li>
+                                    <li class="feature-item">Bank Account Setup</li>
+                                </ul>
+                            </div>
+                            <button class="btn btn-outline package-btn" data-package="platinum">Choose Platinum</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAQ Section -->
+            <section class="section faq-section">
+                <div class="container">
+                    <h2 class="section-title">Frequently Asked Questions</h2>
+                    <div class="faq-container">
+                        <div class="faq-item glass-card">
+                            <button class="faq-question">
+                                How long does the visa process take?
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>Typically 4-8 weeks, depending on the country and time of year. We ensure all documents are perfect to avoid delays.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item glass-card">
+                            <button class="faq-question">
+                                Do you guarantee admission?
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>While we cannot guarantee admission, our 98% success rate speaks for itself. We only recommend universities where you have a strong chance.</p>
+                            </div>
+                        </div>
+                        <div class="faq-item glass-card">
+                            <button class="faq-question">
+                                What is your refund policy?
+                                <span class="faq-icon">+</span>
+                            </button>
+                            <div class="faq-answer">
+                                <p>We offer a 70% refund if we cannot secure at least one admission offer from your chosen universities.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+    </div>
+
+    <!-- Service Detail Modal -->
+    <div id="service-modal" class="modal">
+        <div class="modal-content glass-card">
+            <button class="modal-close">&times;</button>
+            <div id="service-modal-content"></div>
+        </div>
+    </div>
+
+    <script src="../js/main.js" type="module"></script>
+    <script src="../js/components/navbar.js" type="module"></script>
+    <script src="../js/pages/services.js" type="module"></script>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Service",
+        "serviceType": "Education Consulting",
+        "provider": {
+            "@type": "Organization",
+            "name": "Global Education Consultants"
+        },
+        "offers": {
+            "@type": "AggregateOffer",
+            "lowPrice": "499",
+            "highPrice": "1999",
+            "priceCurrency": "USD"
+        },
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Education Services",
+            "itemListElement": [
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "University Selection"
+                    }
+                },
+                {
+                    "@type": "Offer",
+                    "itemOffered": {
+                        "@type": "Service",
+                        "name": "Visa Assistance"
+                    }
+                }
+            ]
+        }
+    }
+    </script>
+</body>
+</html>

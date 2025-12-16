@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Manager - Admin Dashboard</title>
+    <meta name="description" content="Manage advertisements, banners, and promotional content for the educational consultancy platform.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="icon" href="../public/favicon.ico">
+</head>
+<body class="admin-dashboard">
+    <div id="app">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <div class="admin-brand">
+                    <h1 class="brand-title">Advertisement Manager</h1>
+                    <p class="brand-subtitle">Manage banners, campaigns, and promotional content</p>
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="ad-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Active Campaigns:</span>
+                        <span class="stat-value" id="active-campaigns">12</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Total Impressions:</span>
+                        <span class="stat-value" id="total-impressions">245K</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-layout">
+            <!-- Sidebar -->
+            <aside class="admin-sidebar" id="admin-sidebar">
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <h3 class="nav-title">Ad Management</h3>
+                        <a href="ads.html" class="nav-link active">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"/>
+                            </svg>
+                            <span>All Ads</span>
+                        </a>
+                        <a href="#campaigns" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <span>Campaigns</span>
+                        </a>
+                        <a href="#create" class="nav-link" id="create-ad-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            <span>Create New</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3 class="nav-title">Ad Types</h3>
+                        <a href="#banners" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                            <span>Banner Ads</span>
+                        </a>
+                        <a href="#sidebar" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h8m-8 6h16"/>
+                            </svg>
+                            <span>Sidebar Ads</span>
+                        </a>
+                        <a href="#video" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Video Ads</span>
+                        </a>
+                        <a href="#popup" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                            <span>Popup Ads</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3 class="nav-title">Analytics</h3>
+                        <a href="#performance" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                            <span>Performance</span>
+                        </a>
+                        <a href="#reports" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            <span>Reports</span>
+                        </a>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="admin-main">
+                <!-- Campaign Overview -->
+                <div class="campaign-overview glass-card mb-6">
+                    <div class="campaign-header">
+                        <h3>Active Campaigns Overview</h3>
+                        <button class="btn btn-primary btn-sm" id="new-campaign-btn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            New Campaign
+                        </button>
+                    </div>
+                    <div class="campaign-stats grid grid-cols-4 gap-4">
+                        <div class="campaign-stat">
+                            <div class="stat-value">12</div>
+                            <div class="stat-label">Active Campaigns</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="stat-value">245,832</div>
+                            <div class="stat-label">Impressions</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="stat-value">3.2%</div>
+                            <div class="stat-label">Click Rate</div>
+                        </div>
+                        <div class="campaign-stat">
+                            <div class="stat-value">$1,248</div>
+                            <div class="stat-label">Revenue</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toolbar -->
+                <div class="toolbar glass-card mb-6">
+                    <div class="toolbar-left">
+                        <div class="search-box">
+                            <input type="text" placeholder="Search ads..." id="ad-search">
+                            <button class="search-btn">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <select class="filter-select" id="ad-type-filter">
+                            <option value="">All Types</option>
+                            <option value="banner">Banner</option>
+                            <option value="sidebar">Sidebar</option>
+                            <option value="video">Video</option>
+                            <option value="popup">Popup</option>
+                        </select>
+                        <select class="filter-select" id="ad-status-filter">
+                            <option value="">All Status</option>
+                            <option value="active">Active</option>
+                            <option value="paused">Paused</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="expired">Expired</option>
+                        </select>
+                        <select class="filter-select" id="ad-campaign-filter">
+                            <option value="">All Campaigns</option>
+                            <option value="study-abroad">Study Abroad 2024</option>
+                            <option value="scholarship">Scholarship Drive</option>
+                            <option value="webinar">Webinar Series</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" id="create-ad-btn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Create Ad
+                        </button>
+                        <button class="btn btn-outline" id="bulk-ad-actions">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/>
+                            </svg>
+                            Bulk Actions
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Create Ad Form -->
+                <div class="create-ad-form glass-card mb-6" id="create-ad-form" style="display: none;">
+                    <div class="form-header">
+                        <h3>Create New Advertisement</h3>
+                        <button class="btn-icon close-ad-form">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <form id="new-ad-form">
+                        <div class="form-tabs">
+                            <button type="button" class="form-tab active" data-tab="basic">Basic Info</button>
+                            <button type="button" class="form-tab" data-tab="targeting">Targeting</button>
+                            <button type="button" class="form-tab" data-tab="schedule">Schedule</button>
+                            <button type="button" class="form-tab" data-tab="tracking">Tracking</button>
+                        </div>
+                        
+                        <div class="form-tab-content active" data-tab="basic">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="ad-name">Ad Name *</label>
+                                    <input type="text" id="ad-name" required placeholder="e.g., Study Abroad Banner">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ad-type">Ad Type *</label>
+                                    <select id="ad-type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="banner">Banner Ad</option>
+                                        <option value="sidebar">Sidebar Ad</option>
+                                        <option value="video">Video Ad</option>
+                                        <option value="popup">Popup Ad</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ad-campaign">Campaign</label>
+                                <select id="ad-campaign">
+                                    <option value="">Select Campaign</option>
+                                    <option value="study-abroad">Study Abroad 2024</option>
+                                    <option value="scholarship">Scholarship Drive</option>
+                                    <option value="new">Create New Campaign</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="ad-url">Destination URL *</label>
+                                <input type="url" id="ad-url" required placeholder="https://example.com/landing-page">
+                            </div>
+                            <div class="form-group">
+                                <label for="ad-content">Ad Content</label>
+                                <div class="ad-content-options">
+                                    <div class="option-tabs">
+                                        <button type="button" class="option-tab active" data-option="image">Image</button>
+                                        <button type="button" class="option-tab" data-option="html">HTML</button>
+                                        <button type="button" class="option-tab" data-option="video">Video</button>
+                                    </div>
+                                    <div class="option-content active" data-option="image">
+                                        <div class="image-upload">
+                                            <div class="upload-preview" id="ad-image-preview">
+                                                <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                                </svg>
+                                                <p>Upload ad image</p>
+                                            </div>
+                                            <input type="file" id="ad-image" accept="image/*" style="display: none;">
+                                            <button type="button" class="btn btn-outline btn-sm" id="upload-ad-image">Choose Image</button>
+                                        </div>
+                                    </div>
+                                    <div class="option-content" data-option="html">
+                                        <textarea id="ad-html" rows="6" placeholder="Paste your HTML ad code here..."></textarea>
+                                    </div>
+                                    <div class="option-content" data-option="video">
+                                        <input type="url" id="ad-video-url" placeholder="Video URL (YouTube/Vimeo)">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-tab-content" data-tab="targeting">
+                            <div class="form-group">
+                                <label>Target Pages</label>
+                                <div class="checkbox-grid">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="target-pages" value="home" checked>
+                                        Homepage
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="target-pages" value="services">
+                                        Services
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="target-pages" value="blogs">
+                                        Blogs
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="target-pages" value="contact">
+                                        Contact
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="target-countries">Target Countries</label>
+                                <select id="target-countries" multiple>
+                                    <option value="all">All Countries</option>
+                                    <option value="usa">United States</option>
+                                    <option value="canada">Canada</option>
+                                    <option value="uk">United Kingdom</option>
+                                    <option value="australia">Australia</option>
+                                    <option value="india">India</option>
+                                    <option value="china">China</option>
+                                </select>
+                                <small class="form-hint">Hold Ctrl/Cmd to select multiple</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="target-devices">Target Devices</label>
+                                <select id="target-devices" multiple>
+                                    <option value="all">All Devices</option>
+                                    <option value="desktop">Desktop</option>
+                                    <option value="tablet">Tablet</option>
+                                    <option value="mobile">Mobile</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-tab-content" data-tab="schedule">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="ad-start-date">Start Date</label>
+                                    <input type="date" id="ad-start-date">
+                                </div>
+                                <div class="form-group">
+                                    <label for="ad-end-date">End Date</label>
+                                    <input type="date" id="ad-end-date">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="ad-frequency">Frequency Capping</label>
+                                <select id="ad-frequency">
+                                    <option value="unlimited">No Limit</option>
+                                    <option value="once">Once per session</option>
+                                    <option value="daily">Once per day</option>
+                                    <option value="weekly">Once per week</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="ad-budget">Daily Budget</label>
+                                <div class="input-with-symbol">
+                                    <span class="input-symbol">$</span>
+                                    <input type="number" id="ad-budget" min="0" step="0.01" placeholder="0.00">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-tab-content" data-tab="tracking">
+                            <div class="form-group">
+                                <label for="tracking-pixel">Tracking Pixel</label>
+                                <textarea id="tracking-pixel" rows="4" placeholder="Paste tracking pixel code (Google Analytics, Facebook Pixel, etc.)"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="utm-parameters">UTM Parameters</label>
+                                <div class="utm-grid">
+                                    <input type="text" placeholder="utm_source" class="utm-input">
+                                    <input type="text" placeholder="utm_medium" class="utm-input">
+                                    <input type="text" placeholder="utm_campaign" class="utm-input">
+                                    <input type="text" placeholder="utm_term" class="utm-input">
+                                    <input type="text" placeholder="utm_content" class="utm-input">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancel-ad-form">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Create Advertisement</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Ads Performance Chart -->
+                <div class="performance-chart glass-card mb-6">
+                    <div class="chart-header">
+                        <h3>Ads Performance (Last 7 Days)</h3>
+                        <select class="chart-period" id="performance-period">
+                            <option value="7d">7 Days</option>
+                            <option value="30d">30 Days</option>
+                            <option value="90d">90 Days</option>
+                        </select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="ads-performance-chart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Ads Grid -->
+                <div class="ads-grid" id="ads-container">
+                    <!-- Ads will be loaded dynamically -->
+                    <div class="ad-skeleton glass-card">
+                        <div class="skeleton-image"></div>
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-meta"></div>
+                        <div class="skeleton-stats"></div>
+                    </div>
+                </div>
+
+                <!-- Ad Details Modal -->
+                <div id="ad-details-modal" class="modal modal-lg">
+                    <div class="modal-content glass-card">
+                        <button class="modal-close">&times;</button>
+                        <div id="ad-details-content"></div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="../js/main.js" type="module"></script>
+    <script src="../js/admin/ad-manager.js" type="module"></script>
+</body>
+</html>

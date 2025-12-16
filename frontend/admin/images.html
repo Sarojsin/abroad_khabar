@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Manager - Admin Dashboard</title>
+    <meta name="description" content="Manage images, banners, and galleries for the educational consultancy platform.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="icon" href="../public/favicon.ico">
+</head>
+<body class="admin-dashboard">
+    <div id="app">
+        <!-- Admin Header -->
+        <header class="admin-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebar-toggle">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                    </svg>
+                </button>
+                <div class="admin-brand">
+                    <h1 class="brand-title">Image Manager</h1>
+                    <p class="brand-subtitle">Manage banners, galleries, and media assets</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-layout">
+            <!-- Sidebar -->
+            <aside class="admin-sidebar" id="admin-sidebar">
+                <nav class="sidebar-nav">
+                    <div class="nav-section">
+                        <h3 class="nav-title">Image Management</h3>
+                        <a href="images.html" class="nav-link active">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <span>All Images</span>
+                        </a>
+                        <a href="#upload" class="nav-link" id="upload-image-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                            <span>Upload Images</span>
+                        </a>
+                        <a href="#galleries" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/>
+                            </svg>
+                            <span>Galleries</span>
+                        </a>
+                    </div>
+                    
+                    <div class="nav-section">
+                        <h3 class="nav-title">Image Types</h3>
+                        <a href="#banners" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                            </svg>
+                            <span>Banners</span>
+                        </a>
+                        <a href="#thumbnails" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
+                            <span>Thumbnails</span>
+                        </a>
+                        <a href="#logos" class="nav-link">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
+                            </svg>
+                            <span>Logos & Icons</span>
+                        </a>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- Main Content -->
+            <main class="admin-main">
+                <!-- Toolbar -->
+                <div class="toolbar glass-card">
+                    <div class="toolbar-left">
+                        <div class="search-box">
+                            <input type="text" placeholder="Search images..." id="image-search">
+                            <button class="search-btn">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                            </button>
+                        </div>
+                        <select class="filter-select" id="image-type-filter">
+                            <option value="">All Types</option>
+                            <option value="banner">Banners</option>
+                            <option value="gallery">Gallery</option>
+                            <option value="thumbnail">Thumbnails</option>
+                            <option value="logo">Logos</option>
+                        </select>
+                        <select class="filter-select" id="image-size-filter">
+                            <option value="">All Sizes</option>
+                            <option value="small">Small (< 1MB)</option>
+                            <option value="medium">Medium (1-5MB)</option>
+                            <option value="large">Large (> 5MB)</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="btn btn-primary" id="upload-images-btn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                            Upload Images
+                        </button>
+                        <button class="btn btn-outline" id="create-gallery-btn">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Create Gallery
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Upload Section -->
+                <div class="upload-section glass-card" id="upload-section" style="display: none;">
+                    <div class="upload-header">
+                        <h3>Upload Images</h3>
+                        <button class="btn-icon close-upload">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="upload-container">
+                        <div class="upload-dropzone" id="image-dropzone">
+                            <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                            <p class="upload-text">Drop image files here or click to upload</p>
+                            <p class="upload-subtext">JPG, PNG, WEBP up to 10MB each</p>
+                            <input type="file" id="image-file-input" accept="image/*" multiple style="display: none;">
+                            <button class="btn btn-outline" id="browse-images">Browse Files</button>
+                        </div>
+                        <div class="upload-options">
+                            <div class="option-group">
+                                <label>Optimization Options:</label>
+                                <div class="checkbox-group">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="compress-images" checked>
+                                        Compress images
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="create-thumbnails" checked>
+                                        Create thumbnails
+                                    </label>
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" id="convert-webp">
+                                        Convert to WebP
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Overview -->
+                <div class="stats-overview grid grid-cols-4 gap-4 mb-6">
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="total-images">1,248</div>
+                            <div class="stat-label">Total Images</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="storage-used">4.2 GB</div>
+                            <div class="stat-label">Storage Used</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="galleries-count">24</div>
+                            <div class="stat-label">Galleries</div>
+                        </div>
+                    </div>
+                    <div class="stat-card glass-card">
+                        <div class="stat-icon">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value" id="optimized-percent">87%</div>
+                            <div class="stat-label">Optimized</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gallery Management -->
+                <div class="gallery-management glass-card mb-6">
+                    <div class="card-header">
+                        <h3>Image Galleries</h3>
+                        <button class="btn btn-outline btn-sm" id="manage-galleries">Manage All</button>
+                    </div>
+                    <div class="galleries-grid" id="galleries-container">
+                        <!-- Galleries will be loaded here -->
+                    </div>
+                </div>
+
+                <!-- Image Grid View -->
+                <div class="view-controls glass-card mb-4">
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="grid">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
+                        </button>
+                        <button class="view-btn" data-view="list">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                        </button>
+                        <button class="view-btn" data-view="masonry">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="sort-controls">
+                        <select class="sort-select" id="image-sort">
+                            <option value="newest">Newest First</option>
+                            <option value="oldest">Oldest First</option>
+                            <option value="name">Name A-Z</option>
+                            <option value="size">Size</option>
+                            <option value="popular">Most Used</option>
+                        </select>
+                        <select class="sort-select" id="items-per-page">
+                            <option value="24">24 per page</option>
+                            <option value="48">48 per page</option>
+                            <option value="96">96 per page</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Images Grid -->
+                <div class="images-grid" id="images-container">
+                    <!-- Images will be loaded dynamically -->
+                    <div class="image-skeleton glass-card">
+                        <div class="skeleton-image"></div>
+                        <div class="skeleton-title"></div>
+                        <div class="skeleton-meta"></div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container glass-card">
+                    <button class="pagination-btn prev" disabled>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                        </svg>
+                    </button>
+                    <div class="pagination-numbers">
+                        <button class="pagination-number active">1</button>
+                        <button class="pagination-number">2</button>
+                        <button class="pagination-number">3</button>
+                        <span class="pagination-ellipsis">...</span>
+                        <button class="pagination-number">10</button>
+                    </div>
+                    <button class="pagination-btn next">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Image Details Modal -->
+                <div id="image-details-modal" class="modal modal-lg">
+                    <div class="modal-content glass-card">
+                        <button class="modal-close">&times;</button>
+                        <div id="image-details-content"></div>
+                    </div>
+                </div>
+
+                <!-- Bulk Actions Menu -->
+                <div id="bulk-actions-menu" class="bulk-actions-menu glass-card" style="display: none;">
+                    <div class="bulk-actions-header">
+                        <h4><span id="selected-count">0</span> Image(s) Selected</h4>
+                        <button class="btn-icon close-bulk-menu">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="bulk-actions-list">
+                        <button class="bulk-action-item" data-action="download">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                            </svg>
+                            Download Selected
+                        </button>
+                        <button class="bulk-action-item" data-action="optimize">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                            Optimize Images
+                        </button>
+                        <button class="bulk-action-item" data-action="add-to-gallery">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                            </svg>
+                            Add to Gallery
+                        </button>
+                        <button class="bulk-action-item danger" data-action="delete">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                            Delete Selected
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="../js/main.js" type="module"></script>
+    <script src="../js/admin/image-manager.js" type="module"></script>
+</body>
+</html>

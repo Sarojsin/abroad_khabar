@@ -1,0 +1,811 @@
+/* Hover Effects Collection */
+
+/* Scale Effects */
+.hover-scale {
+    transition: transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.hover-scale-sm:hover {
+    transform: scale(1.02);
+}
+
+.hover-scale-lg:hover {
+    transform: scale(1.1);
+}
+
+.hover-scale-x:hover {
+    transform: scaleX(1.05);
+}
+
+.hover-scale-y:hover {
+    transform: scaleY(1.05);
+}
+
+/* Lift Effects */
+.hover-lift {
+    transition: transform var(--transition-normal) ease, box-shadow var(--transition-normal) ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-xl);
+}
+
+.hover-lift-sm:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.hover-lift-lg:hover {
+    transform: translateY(-12px);
+    box-shadow: var(--shadow-2xl);
+}
+
+/* Glow Effects */
+.hover-glow {
+    transition: box-shadow var(--transition-normal) ease;
+}
+
+.hover-glow:hover {
+    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+}
+
+.hover-glow-primary:hover {
+    box-shadow: 0 10px 30px rgba(79, 70, 229, 0.4);
+}
+
+.hover-glow-secondary:hover {
+    box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+}
+
+.hover-glow-accent:hover {
+    box-shadow: 0 10px 30px rgba(245, 158, 11, 0.4);
+}
+
+/* Border Effects */
+.hover-border {
+    position: relative;
+    transition: border-color var(--transition-normal) ease;
+}
+
+.hover-border:hover {
+    border-color: var(--primary-color);
+}
+
+.hover-border-bottom::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transition: width var(--transition-normal) ease;
+}
+
+.hover-border-bottom:hover::after {
+    width: 100%;
+}
+
+.hover-border-full::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border: 2px solid transparent;
+    border-radius: inherit;
+    transition: border-color var(--transition-normal) ease;
+}
+
+.hover-border-full:hover::before {
+    border-color: var(--primary-color);
+}
+
+/* Color Shift Effects */
+.hover-color-shift {
+    transition: color var(--transition-normal) ease, background-color var(--transition-normal) ease;
+}
+
+.hover-color-shift:hover {
+    color: var(--primary-color);
+}
+
+.hover-bg-shift:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.hover-bg-gradient:hover {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: white;
+}
+
+/* Shadow Effects */
+.hover-shadow {
+    transition: box-shadow var(--transition-normal) ease;
+}
+
+.hover-shadow:hover {
+    box-shadow: var(--shadow-xl);
+}
+
+.hover-shadow-inner:hover {
+    box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Rotate Effects */
+.hover-rotate {
+    transition: transform var(--transition-normal) ease;
+}
+
+.hover-rotate:hover {
+    transform: rotate(5deg);
+}
+
+.hover-rotate-90:hover {
+    transform: rotate(90deg);
+}
+
+.hover-rotate-180:hover {
+    transform: rotate(180deg);
+}
+
+.hover-rotate-3d:hover {
+    transform: rotate3d(1, 1, 0, 15deg);
+}
+
+/* Skew Effects */
+.hover-skew:hover {
+    transform: skewX(-5deg);
+}
+
+.hover-skew-y:hover {
+    transform: skewY(-5deg);
+}
+
+/* Perspective Effects */
+.hover-perspective {
+    perspective: 1000px;
+}
+
+.hover-perspective-inner {
+    transition: transform var(--transition-normal) ease;
+    transform-style: preserve-3d;
+}
+
+.hover-perspective:hover .hover-perspective-inner {
+    transform: rotateY(10deg) rotateX(5deg);
+}
+
+/* Tilt Effects */
+.hover-tilt {
+    transition: transform var(--transition-normal) ease;
+    transform-style: preserve-3d;
+}
+
+.hover-tilt:hover {
+    transform: perspective(1000px) rotateX(5deg) rotateY(5deg);
+}
+
+/* Float Effects */
+.hover-float {
+    animation: float 3s ease-in-out infinite;
+    transition: animation-play-state var(--transition-fast);
+}
+
+.hover-float:hover {
+    animation-play-state: paused;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Pulse Effects */
+.hover-pulse {
+    transition: transform var(--transition-normal) ease;
+}
+
+.hover-pulse:hover {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Bounce Effects */
+.hover-bounce:hover {
+    animation: bounce 1s;
+}
+
+@keyframes bounce {
+    0%, 20%, 60%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-10px);
+    }
+    80% {
+        transform: translateY(-5px);
+    }
+}
+
+/* Shake Effects */
+.hover-shake:hover {
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    10%, 30%, 50%, 70%, 90% {
+        transform: translateX(-5px);
+    }
+    20%, 40%, 60%, 80% {
+        transform: translateX(5px);
+    }
+}
+
+/* Wobble Effects */
+.hover-wobble:hover {
+    animation: wobble 0.5s;
+}
+
+@keyframes wobble {
+    0%, 100% {
+        transform: translateX(0%);
+    }
+    15% {
+        transform: translateX(-5%) rotate(-5deg);
+    }
+    30% {
+        transform: translateX(4%) rotate(3deg);
+    }
+    45% {
+        transform: translateX(-3%) rotate(-3deg);
+    }
+    60% {
+        transform: translateX(2%) rotate(2deg);
+    }
+    75% {
+        transform: translateX(-1%) rotate(-1deg);
+    }
+}
+
+/* Flip Effects */
+.hover-flip {
+    perspective: 1000px;
+}
+
+.hover-flip-inner {
+    transition: transform 0.8s;
+    transform-style: preserve-3d;
+}
+
+.hover-flip:hover .hover-flip-inner {
+    transform: rotateY(180deg);
+}
+
+.hover-flip-front,
+.hover-flip-back {
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hover-flip-back {
+    transform: rotateY(180deg);
+}
+
+/* Magnetic Effects */
+.hover-magnetic {
+    position: relative;
+    overflow: hidden;
+}
+
+.hover-magnetic::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, rgba(79, 70, 229, 0.1) 0%, transparent 70%);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+}
+
+.hover-magnetic:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Ripple Effects */
+.hover-ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.hover-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease, opacity 0.6s ease;
+}
+
+.hover-ripple:hover::after {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+}
+
+/* Underline Effects */
+.hover-underline {
+    position: relative;
+}
+
+.hover-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transition: width var(--transition-normal) ease;
+}
+
+.hover-underline:hover::after {
+    width: 100%;
+}
+
+.hover-underline-center::after {
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.hover-underline-center:hover::after {
+    width: 100%;
+    left: 0;
+    transform: translateX(0);
+}
+
+/* Text Reveal Effects */
+.hover-text-reveal {
+    position: relative;
+    overflow: hidden;
+}
+
+.hover-text-reveal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: var(--primary-color);
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+
+.hover-text-reveal:hover {
+    color: white;
+}
+
+.hover-text-reveal:hover::before {
+    left: 0;
+}
+
+/* Gradient Border Effects */
+.hover-gradient-border {
+    position: relative;
+    background: var(--bg-primary);
+}
+
+.hover-gradient-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--accent-color));
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity var(--transition-normal) ease;
+}
+
+.hover-gradient-border:hover::before {
+    opacity: 1;
+}
+
+/* Neon Glow Effects */
+.hover-neon {
+    transition: text-shadow var(--transition-normal) ease;
+}
+
+.hover-neon:hover {
+    text-shadow: 0 0 10px rgba(79, 70, 229, 0.8),
+                 0 0 20px rgba(79, 70, 229, 0.6),
+                 0 0 30px rgba(79, 70, 229, 0.4);
+}
+
+.hover-neon-border {
+    position: relative;
+}
+
+.hover-neon-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border-radius: inherit;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color), var(--primary-color));
+    opacity: 0;
+    transition: opacity var(--transition-normal) ease;
+    z-index: -1;
+}
+
+.hover-neon-border:hover::before {
+    opacity: 1;
+    animation: neonPulse 2s infinite;
+}
+
+@keyframes neonPulse {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.2);
+    }
+}
+
+/* Glass Morphism Effects */
+.hover-glass {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all var(--transition-normal) ease;
+}
+
+.hover-glass:hover {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Image Overlay Effects */
+.hover-image-overlay {
+    position: relative;
+    overflow: hidden;
+}
+
+.hover-image-overlay::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+    opacity: 0;
+    transition: opacity var(--transition-normal) ease;
+    z-index: 1;
+}
+
+.hover-image-overlay:hover::before {
+    opacity: 1;
+}
+
+.hover-image-zoom {
+    overflow: hidden;
+}
+
+.hover-image-zoom img {
+    transition: transform var(--transition-slow) ease;
+}
+
+.hover-image-zoom:hover img {
+    transform: scale(1.1);
+}
+
+/* Icon Effects */
+.hover-icon-spin:hover i {
+    animation: iconSpin 0.5s ease;
+}
+
+@keyframes iconSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.hover-icon-bounce:hover i {
+    animation: iconBounce 0.5s;
+}
+
+@keyframes iconBounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
+
+.hover-icon-pulse:hover i {
+    animation: iconPulse 1s infinite;
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+}
+
+/* Button Specific Effects */
+.btn-hover-effect {
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.btn-hover-effect::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+    z-index: -1;
+}
+
+.btn-hover-effect:hover::before {
+    width: 300px;
+    height: 300px;
+}
+
+/* Card Specific Effects */
+.card-hover-effect {
+    transition: all var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-hover-effect:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Link Specific Effects */
+.link-hover-effect {
+    position: relative;
+}
+
+.link-hover-effect::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 1px;
+    background: currentColor;
+    transition: width var(--transition-normal) ease;
+}
+
+.link-hover-effect:hover::after {
+    width: 100%;
+}
+
+/* Input Focus Effects */
+.input-hover-effect {
+    transition: all var(--transition-normal) ease;
+}
+
+.input-hover-effect:focus {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.1);
+}
+
+/* Custom Cursor Effects */
+.hover-cursor-pointer:hover {
+    cursor: pointer;
+}
+
+.hover-cursor-grab:hover {
+    cursor: grab;
+}
+
+.hover-cursor-zoom-in:hover {
+    cursor: zoom-in;
+}
+
+/* Performance Optimized Hover Effects */
+.hover-gpu {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .hover-scale,
+    .hover-lift,
+    .hover-rotate,
+    .hover-skew,
+    .hover-perspective-inner,
+    .hover-tilt,
+    .hover-float,
+    .hover-pulse,
+    .hover-bounce,
+    .hover-shake,
+    .hover-wobble,
+    .hover-flip-inner,
+    .hover-magnetic::before,
+    .hover-ripple::after,
+    .hover-underline::after,
+    .hover-text-reveal::before,
+    .hover-gradient-border::before,
+    .hover-neon-border::before,
+    .hover-glass,
+    .hover-image-overlay::before,
+    .hover-image-zoom img,
+    .btn-hover-effect::before,
+    .card-hover-effect,
+    .link-hover-effect::after,
+    .input-hover-effect {
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+    }
+    
+    .hover-image-zoom:hover img {
+        transform: none !important;
+    }
+    
+    .hover-neon:hover {
+        text-shadow: none !important;
+    }
+}
+
+/* Touch Device Optimization */
+@media (hover: none) and (pointer: coarse) {
+    .hover-scale:hover,
+    .hover-lift:hover,
+    .hover-glow:hover,
+    .hover-border:hover,
+    .hover-color-shift:hover,
+    .hover-shadow:hover,
+    .hover-rotate:hover,
+    .hover-skew:hover,
+    .hover-perspective:hover .hover-perspective-inner,
+    .hover-tilt:hover,
+    .hover-float:hover,
+    .hover-pulse:hover,
+    .hover-bounce:hover,
+    .hover-shake:hover,
+    .hover-wobble:hover,
+    .hover-flip:hover .hover-flip-inner,
+    .hover-magnetic:hover::before,
+    .hover-ripple:hover::after,
+    .hover-underline:hover::after,
+    .hover-text-reveal:hover,
+    .hover-text-reveal:hover::before,
+    .hover-gradient-border:hover::before,
+    .hover-neon:hover,
+    .hover-neon-border:hover::before,
+    .hover-glass:hover,
+    .hover-image-overlay:hover::before,
+    .hover-image-zoom:hover img,
+    .hover-icon-spin:hover i,
+    .hover-icon-bounce:hover i,
+    .hover-icon-pulse:hover i,
+    .btn-hover-effect:hover::before,
+    .card-hover-effect:hover,
+    .link-hover-effect:hover::after,
+    .input-hover-effect:focus {
+        transform: none !important;
+        animation: none !important;
+        transition: none !important;
+        box-shadow: none !important;
+        background: none !important;
+        color: inherit !important;
+        border-color: inherit !important;
+        text-shadow: none !important;
+        opacity: 1 !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    
+    .hover-border-bottom::after,
+    .hover-border-full::before,
+    .hover-magnetic::before,
+    .hover-ripple::after,
+    .hover-underline::after,
+    .hover-text-reveal::before,
+    .hover-gradient-border::before,
+    .hover-neon-border::before,
+    .hover-image-overlay::before,
+    .btn-hover-effect::before,
+    .link-hover-effect::after {
+        display: none !important;
+    }
+}
+
+/* Print Mode */
+@media print {
+    .hover-scale,
+    .hover-lift,
+    .hover-glow,
+    .hover-rotate,
+    .hover-skew,
+    .hover-tilt,
+    .hover-float,
+    .hover-pulse,
+    .hover-bounce,
+    .hover-shake,
+    .hover-wobble,
+    .hover-flip,
+    .hover-magnetic,
+    .hover-ripple,
+    .hover-text-reveal,
+    .hover-gradient-border,
+    .hover-neon,
+    .hover-neon-border,
+    .hover-glass,
+    .hover-image-overlay,
+    .hover-image-zoom,
+    .hover-icon-spin,
+    .hover-icon-bounce,
+    .hover-icon-pulse,
+    .btn-hover-effect,
+    .card-hover-effect,
+    .link-hover-effect,
+    .input-hover-effect {
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+        box-shadow: none !important;
+        text-shadow: none !important;
+    }
+}

@@ -1,0 +1,628 @@
+/* Scroll Reveal Animations */
+
+/* Base Scroll Reveal Class */
+.scroll-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Direction Variations */
+.scroll-reveal-left {
+    transform: translateX(-50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal-left.visible {
+    transform: translateX(0);
+}
+
+.scroll-reveal-right {
+    transform: translateX(50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal-right.visible {
+    transform: translateX(0);
+}
+
+.scroll-reveal-up {
+    transform: translateY(50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal-up.visible {
+    transform: translateY(0);
+}
+
+.scroll-reveal-down {
+    transform: translateY(-50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal-down.visible {
+    transform: translateY(0);
+}
+
+/* Scale Variations */
+.scroll-reveal-scale {
+    transform: translateY(30px) scale(0.9);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal-scale.visible {
+    transform: translateY(0) scale(1);
+}
+
+.scroll-reveal-scale-up {
+    transform: translateY(30px) scale(1.1);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal-scale-up.visible {
+    transform: translateY(0) scale(1);
+}
+
+/* Rotation Variations */
+.scroll-reveal-rotate-left {
+    transform: translateX(-50px) rotate(-10deg);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal-rotate-left.visible {
+    transform: translateX(0) rotate(0);
+}
+
+.scroll-reveal-rotate-right {
+    transform: translateX(50px) rotate(10deg);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-reveal-rotate-right.visible {
+    transform: translateX(0) rotate(0);
+}
+
+/* Flip Variations */
+.scroll-reveal-flip {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    transform: rotateX(90deg);
+    transition: transform 1s ease;
+}
+
+.scroll-reveal-flip.visible {
+    transform: rotateX(0);
+}
+
+.scroll-reveal-flip-y {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    transform: rotateY(90deg);
+    transition: transform 1s ease;
+}
+
+.scroll-reveal-flip-y.visible {
+    transform: rotateY(0);
+}
+
+/* Blur Variations */
+.scroll-reveal-blur {
+    filter: blur(10px);
+    transition: opacity 0.8s ease, filter 0.8s ease, transform 0.8s ease;
+    transform: translateY(30px);
+}
+
+.scroll-reveal-blur.visible {
+    filter: blur(0);
+    transform: translateY(0);
+}
+
+/* Staggered Scroll Reveal */
+.scroll-stagger > * {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-stagger.visible > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Stagger delays */
+.scroll-stagger.visible > *:nth-child(1) { transition-delay: 100ms; }
+.scroll-stagger.visible > *:nth-child(2) { transition-delay: 200ms; }
+.scroll-stagger.visible > *:nth-child(3) { transition-delay: 300ms; }
+.scroll-stagger.visible > *:nth-child(4) { transition-delay: 400ms; }
+.scroll-stagger.visible > *:nth-child(5) { transition-delay: 500ms; }
+.scroll-stagger.visible > *:nth-child(6) { transition-delay: 600ms; }
+.scroll-stagger.visible > *:nth-child(7) { transition-delay: 700ms; }
+.scroll-stagger.visible > *:nth-child(8) { transition-delay: 800ms; }
+.scroll-stagger.visible > *:nth-child(9) { transition-delay: 900ms; }
+.scroll-stagger.visible > *:nth-child(10) { transition-delay: 1000ms; }
+
+/* Sequential Scroll Reveal */
+.scroll-sequential {
+    position: relative;
+    overflow: hidden;
+}
+
+.scroll-sequential::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary);
+    transform: translateX(-100%);
+    transition: transform 1.2s ease;
+    z-index: 1;
+}
+
+.scroll-sequential.visible::before {
+    transform: translateX(100%);
+}
+
+/* Text Line Reveal */
+.scroll-text-reveal {
+    overflow: hidden;
+}
+
+.scroll-text-reveal span {
+    display: inline-block;
+    transform: translateY(100%);
+    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.scroll-text-reveal.visible span {
+    transform: translateY(0);
+}
+
+/* Image Reveal */
+.scroll-image-reveal {
+    overflow: hidden;
+    position: relative;
+}
+
+.scroll-image-reveal img {
+    transform: scale(1.2);
+    transition: transform 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.scroll-image-reveal.visible img {
+    transform: scale(1);
+}
+
+.scroll-image-mask {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--bg-primary);
+    transform: translateX(-100%);
+    transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1);
+    z-index: 1;
+}
+
+.scroll-image-mask.visible {
+    transform: translateX(100%);
+}
+
+/* Counter Reveal */
+.scroll-counter {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-counter.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scroll-counter.visible .counter-number {
+    animation: countUp 2s ease forwards;
+}
+
+@keyframes countUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Progress Bar Reveal */
+.scroll-progress {
+    width: 0;
+    transition: width 1.5s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.scroll-progress.visible {
+    width: var(--progress-width, 100%);
+}
+
+/* Grid Item Reveal */
+.scroll-grid-item {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-grid-item.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+/* Masonry Reveal */
+.scroll-masonry-item {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-masonry-item.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Card Stack Reveal */
+.scroll-card-stack > * {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.scroll-card-stack.visible > * {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Timeline Reveal */
+.scroll-timeline-item {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.scroll-timeline-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.scroll-timeline-item:nth-child(even) {
+    transform: translateX(50px);
+}
+
+.scroll-timeline-item:nth-child(even).visible {
+    transform: translateX(0);
+}
+
+/* Parallax Scroll */
+.scroll-parallax {
+    transform: translateY(var(--parallax-offset, 0));
+    transition: transform 0.8s ease;
+}
+
+.scroll-parallax.visible {
+    transform: translateY(0);
+}
+
+/* Gradient Reveal */
+.scroll-gradient-reveal {
+    position: relative;
+    overflow: hidden;
+}
+
+.scroll-gradient-reveal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+    transform: translateX(-100%);
+    transition: transform 1s cubic-bezier(0.19, 1, 0.22, 1);
+    z-index: -1;
+}
+
+.scroll-gradient-reveal.visible::before {
+    transform: translateX(0);
+}
+
+/* Border Reveal */
+.scroll-border-reveal {
+    position: relative;
+}
+
+.scroll-border-reveal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--primary-color);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.8s cubic-bezier(0.19, 1, 0.22, 1);
+}
+
+.scroll-border-reveal.visible::before {
+    transform: scaleX(1);
+}
+
+/* Circle Reveal */
+.scroll-circle-reveal {
+    position: relative;
+    overflow: hidden;
+}
+
+.scroll-circle-reveal::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: var(--primary-color);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 1s ease, height 1s ease, opacity 1s ease;
+    opacity: 0.1;
+    z-index: -1;
+}
+
+.scroll-circle-reveal.visible::before {
+    width: 300px;
+    height: 300px;
+    opacity: 0.05;
+}
+
+/* Wave Reveal */
+.scroll-wave-reveal {
+    position: relative;
+    overflow: hidden;
+}
+
+.scroll-wave-reveal::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+    z-index: 1;
+}
+
+.scroll-wave-reveal.visible::before {
+    left: 100%;
+}
+
+/* Typewriter Effect */
+.scroll-typewriter {
+    overflow: hidden;
+    border-right: 2px solid var(--primary-color);
+    white-space: nowrap;
+    animation: typing 3.5s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+    from { width: 0 }
+    to { width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: var(--primary-color) }
+}
+
+/* Split Text Reveal */
+.scroll-split-text {
+    overflow: hidden;
+}
+
+.scroll-split-text span {
+    display: inline-block;
+    transform: translateY(100%);
+    opacity: 0;
+    transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1), opacity 0.6s ease;
+}
+
+.scroll-split-text.visible span {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+/* Glitch Effect */
+.scroll-glitch {
+    position: relative;
+}
+
+.scroll-glitch::before,
+.scroll-glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.scroll-glitch::before {
+    left: 2px;
+    text-shadow: -1px 0 var(--primary-color);
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim 5s infinite linear alternate-reverse;
+}
+
+.scroll-glitch::after {
+    left: -2px;
+    text-shadow: -1px 0 var(--secondary-color);
+    clip: rect(44px, 450px, 56px, 0);
+    animation: glitch-anim2 5s infinite linear alternate-reverse;
+}
+
+@keyframes glitch-anim {
+    0% { clip: rect(42px, 9999px, 44px, 0) }
+    5% { clip: rect(12px, 9999px, 59px, 0) }
+    10% { clip: rect(48px, 9999px, 29px, 0) }
+    15% { clip: rect(42px, 9999px, 73px, 0) }
+    20% { clip: rect(63px, 9999px, 27px, 0) }
+    25% { clip: rect(34px, 9999px, 55px, 0) }
+    30% { clip: rect(86px, 9999px, 73px, 0) }
+    35% { clip: rect(20px, 9999px, 20px, 0) }
+    40% { clip: rect(26px, 9999px, 60px, 0) }
+    45% { clip: rect(25px, 9999px, 66px, 0) }
+    50% { clip: rect(57px, 9999px, 98px, 0) }
+    55% { clip: rect(5px, 9999px, 46px, 0) }
+    60% { clip: rect(82px, 9999px, 31px, 0) }
+    65% { clip: rect(54px, 9999px, 27px, 0) }
+    70% { clip: rect(28px, 9999px, 99px, 0) }
+    75% { clip: rect(45px, 9999px, 69px, 0) }
+    80% { clip: rect(23px, 9999px, 85px, 0) }
+    85% { clip: rect(54px, 9999px, 84px, 0) }
+    90% { clip: rect(45px, 9999px, 47px, 0) }
+    95% { clip: rect(37px, 9999px, 20px, 0) }
+    100% { clip: rect(4px, 9999px, 91px, 0) }
+}
+
+@keyframes glitch-anim2 {
+    0% { clip: rect(65px, 9999px, 100px, 0) }
+    5% { clip: rect(52px, 9999px, 74px, 0) }
+    10% { clip: rect(79px, 9999px, 85px, 0) }
+    15% { clip: rect(75px, 9999px, 5px, 0) }
+    20% { clip: rect(67px, 9999px, 61px, 0) }
+    25% { clip: rect(14px, 9999px, 79px, 0) }
+    30% { clip: rect(1px, 9999px, 66px, 0) }
+    35% { clip: rect(86px, 9999px, 30px, 0) }
+    40% { clip: rect(23px, 9999px, 98px, 0) }
+    45% { clip: rect(85px, 9999px, 72px, 0) }
+    50% { clip: rect(71px, 9999px, 75px, 0) }
+    55% { clip: rect(2px, 9999px, 48px, 0) }
+    60% { clip: rect(30px, 9999px, 16px, 0) }
+    65% { clip: rect(59px, 9999px, 50px, 0) }
+    70% { clip: rect(41px, 9999px, 62px, 0) }
+    75% { clip: rect(2px, 9999px, 82px, 0) }
+    80% { clip: rect(47px, 9999px, 73px, 0) }
+    85% { clip: rect(3px, 9999px, 27px, 0) }
+    90% { clip: rect(40px, 9999px, 86px, 0) }
+    95% { clip: rect(45px, 9999px, 72px, 0) }
+    100% { clip: rect(23px, 9999px, 49px, 0) }
+}
+
+/* Performance Optimized Scroll Reveal */
+.scroll-reveal-gpu {
+    transform: translate3d(0, 30px, 0);
+    will-change: transform, opacity;
+    backface-visibility: hidden;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+    .scroll-reveal,
+    .scroll-reveal-left,
+    .scroll-reveal-right,
+    .scroll-reveal-up,
+    .scroll-reveal-down,
+    .scroll-reveal-scale,
+    .scroll-reveal-scale-up,
+    .scroll-reveal-rotate-left,
+    .scroll-reveal-rotate-right,
+    .scroll-reveal-flip,
+    .scroll-reveal-flip-y,
+    .scroll-reveal-blur,
+    .scroll-stagger > *,
+    .scroll-sequential::before,
+    .scroll-text-reveal span,
+    .scroll-image-reveal img,
+    .scroll-image-mask,
+    .scroll-counter,
+    .scroll-grid-item,
+    .scroll-masonry-item,
+    .scroll-card-stack > *,
+    .scroll-timeline-item,
+    .scroll-parallax,
+    .scroll-gradient-reveal::before,
+    .scroll-border-reveal::before,
+    .scroll-circle-reveal::before,
+    .scroll-wave-reveal::before,
+    .scroll-typewriter,
+    .scroll-split-text span {
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+        filter: none !important;
+        width: auto !important;
+        height: auto !important;
+    }
+    
+    .scroll-typewriter {
+        border-right: none;
+        white-space: normal;
+    }
+    
+    .scroll-glitch::before,
+    .scroll-glitch::after {
+        display: none;
+    }
+}
+
+/* Print Mode */
+@media print {
+    .scroll-reveal,
+    .scroll-reveal-left,
+    .scroll-reveal-right,
+    .scroll-reveal-up,
+    .scroll-reveal-down,
+    .scroll-reveal-scale,
+    .scroll-reveal-rotate-left,
+    .scroll-reveal-rotate-right,
+    .scroll-reveal-flip,
+    .scroll-reveal-flip-y,
+    .scroll-reveal-blur,
+    .scroll-stagger > *,
+    .scroll-sequential::before,
+    .scroll-text-reveal span,
+    .scroll-image-reveal img,
+    .scroll-image-mask,
+    .scroll-counter,
+    .scroll-grid-item,
+    .scroll-masonry-item,
+    .scroll-card-stack > *,
+    .scroll-timeline-item,
+    .scroll-parallax,
+    .scroll-gradient-reveal::before,
+    .scroll-border-reveal::before,
+    .scroll-circle-reveal::before,
+    .scroll-wave-reveal::before,
+    .scroll-typewriter,
+    .scroll-split-text span,
+    .scroll-glitch::before,
+    .scroll-glitch::after {
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+        filter: none !important;
+    }
+    
+    .scroll-typewriter {
+        border-right: none;
+        white-space: normal;
+    }
+}

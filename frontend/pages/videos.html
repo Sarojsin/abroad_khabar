@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Videos - Global Education Consultants</title>
+    <meta name="description" content="Watch educational videos on study abroad, visa processes, university life, and success stories.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="icon" href="../public/favicon.ico">
+</head>
+<body>
+    <div id="app">
+        <nav id="navbar-container"></nav>
+
+        <main class="page-content">
+            <!-- Hero Section -->
+            <section class="hero-section videos-hero">
+                <div class="hero-overlay"></div>
+                <div class="container">
+                    <div class="hero-content animate-fade-in">
+                        <h1 class="hero-title">Educational Videos</h1>
+                        <p class="hero-subtitle">Learn from experts, success stories, and university tours</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Video Filter -->
+            <section class="section video-filter-section">
+                <div class="container">
+                    <div class="filter-container glass-card">
+                        <div class="filter-tabs">
+                            <button class="filter-tab active" data-category="all">All Videos</button>
+                            <button class="filter-tab" data-category="success-stories">Success Stories</button>
+                            <button class="filter-tab" data-category="university-tours">University Tours</button>
+                            <button class="filter-tab" data-category="visa-guide">Visa Guide</button>
+                            <button class="filter-tab" data-category="webinars">Live Webinars</button>
+                            <button class="filter-tab" data-category="testimonials">Student Testimonials</button>
+                        </div>
+                        <div class="filter-controls">
+                            <div class="search-box">
+                                <input type="text" id="video-search" placeholder="Search videos..." class="search-input">
+                                <button class="search-btn">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <select id="video-sort" class="sort-select">
+                                <option value="latest">Latest First</option>
+                                <option value="popular">Most Popular</option>
+                                <option value="featured">Featured</option>
+                                <option value="duration">Duration</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Video -->
+            <section class="section featured-video-section">
+                <div class="container">
+                    <h2 class="section-title">Featured Video</h2>
+                    <div class="featured-video-container glass-card">
+                        <div class="featured-video-wrapper">
+                            <div class="video-player" id="featured-video-player">
+                                <div class="video-placeholder lazy-video" 
+                                     data-src="https://www.youtube.com/embed/dQw4w9WgXcQ"
+                                     data-thumbnail="../assets/images/videos/featured-thumb.jpg">
+                                    <div class="video-overlay">
+                                        <button class="play-btn">
+                                            <svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                            </svg>
+                                        </button>
+                                        <div class="video-info">
+                                            <h3 class="video-title">Complete Guide to Study Abroad in 2024</h3>
+                                            <p class="video-duration">25:42</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="featured-video-info">
+                                <h3 class="video-title">Complete Guide to Study Abroad in 2024</h3>
+                                <div class="video-meta">
+                                    <span class="video-category badge">Webinar</span>
+                                    <span class="video-date">Posted 2 days ago</span>
+                                    <span class="video-views">1.2K views</span>
+                                </div>
+                                <p class="video-description">Learn everything you need to know about studying abroad in 2024. From choosing the right country to visa application tips.</p>
+                                <div class="video-actions">
+                                    <button class="btn btn-outline">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"/>
+                                        </svg>
+                                        Save
+                                    </button>
+                                    <button class="btn btn-outline">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"/>
+                                        </svg>
+                                        Share
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Video Grid -->
+            <section class="section videos-grid-section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Latest Videos</h2>
+                        <div class="view-toggle">
+                            <button class="view-btn active" data-view="grid">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM11 13a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                                </svg>
+                            </button>
+                            <button class="view-btn" data-view="list">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="videos-container" class="videos-grid">
+                        <!-- Videos will be loaded dynamically -->
+                        <div class="video-skeleton glass-card">
+                            <div class="skeleton-thumbnail"></div>
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-text"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Load More -->
+                    <div class="load-more-container">
+                        <button id="load-more-videos" class="btn btn-outline">Load More Videos</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Playlists -->
+            <section class="section playlists-section">
+                <div class="container">
+                    <h2 class="section-title">Video Playlists</h2>
+                    <div class="playlists-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="playlist-card glass-card hover-glow">
+                            <div class="playlist-thumbnail">
+                                <img src="../assets/images/videos/visa-playlist.jpg" alt="Visa Guide Playlist" class="lazy-image">
+                                <div class="playlist-count">12 videos</div>
+                            </div>
+                            <div class="playlist-info">
+                                <h3 class="playlist-title">Visa Guide 2024</h3>
+                                <p class="playlist-description">Complete visa application process for all countries</p>
+                            </div>
+                        </div>
+                        <div class="playlist-card glass-card hover-glow">
+                            <div class="playlist-thumbnail">
+                                <img src="../assets/images/videos/success-playlist.jpg" alt="Success Stories" class="lazy-image">
+                                <div class="playlist-count">25 videos</div>
+                            </div>
+                            <div class="playlist-info">
+                                <h3 class="playlist-title">Success Stories</h3>
+                                <p class="playlist-description">Real students sharing their study abroad journey</p>
+                            </div>
+                        </div>
+                        <div class="playlist-card glass-card hover-glow">
+                            <div class="playlist-thumbnail">
+                                <img src="../assets/images/videos/university-playlist.jpg" alt="University Tours" class="lazy-image">
+                                <div class="playlist-count">18 videos</div>
+                            </div>
+                            <div class="playlist-info">
+                                <h3 class="playlist-title">University Tours</h3>
+                                <p class="playlist-description">Virtual tours of top universities worldwide</p>
+                            </div>
+                        </div>
+                        <div class="playlist-card glass-card hover-glow">
+                            <div class="playlist-thumbnail">
+                                <img src="../assets/images/videos/webinar-playlist.jpg" alt="Live Webinars" class="lazy-image">
+                                <div class="playlist-count">8 videos</div>
+                            </div>
+                            <div class="playlist-info">
+                                <h3 class="playlist-title">Live Webinars</h3>
+                                <p class="playlist-description">Recorded live sessions with education experts</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Live Events -->
+            <section class="section live-events-section">
+                <div class="container">
+                    <div class="live-events-header">
+                        <h2 class="section-title">Upcoming Live Events</h2>
+                        <div class="live-indicator">
+                            <span class="live-dot"></span>
+                            <span class="live-text">LIVE</span>
+                        </div>
+                    </div>
+                    <div class="live-events-container glass-card">
+                        <div class="live-event">
+                            <div class="live-event-time">
+                                <div class="event-date">Dec 20</div>
+                                <div class="event-time">3:00 PM EST</div>
+                            </div>
+                            <div class="live-event-info">
+                                <h3 class="event-title">Canada Student Visa Q&A Session</h3>
+                                <p class="event-description">Live Q&A with visa experts. Get your questions answered in real-time.</p>
+                                <div class="event-meta">
+                                    <span class="event-speaker">Speaker: Michael Chen</span>
+                                    <span class="event-duration">60 min</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary">Set Reminder</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Video Submission -->
+            <section class="section submission-section">
+                <div class="container">
+                    <div class="submission-content glass-card">
+                        <h2 class="submission-title">Share Your Story</h2>
+                        <p class="submission-text">Are you a successful international student? Share your journey to inspire others!</p>
+                        <button class="btn btn-outline" id="submit-video-btn">Submit Your Video</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+    </div>
+
+    <!-- Video Player Modal -->
+    <div id="video-modal" class="modal modal-lg">
+        <div class="modal-content glass-card">
+            <button class="modal-close">&times;</button>
+            <div id="video-modal-player"></div>
+            <div id="video-modal-info"></div>
+        </div>
+    </div>
+
+    <!-- Submit Video Modal -->
+    <div id="submit-modal" class="modal">
+        <div class="modal-content glass-card">
+            <button class="modal-close">&times;</button>
+            <h2 class="modal-title">Submit Your Video</h2>
+            <form id="video-submission-form" class="video-form">
+                <div class="form-group">
+                    <label for="video-url">Video URL (YouTube/Vimeo)</label>
+                    <input type="url" id="video-url" required placeholder="https://youtube.com/watch?v=...">
+                </div>
+                <div class="form-group">
+                    <label for="video-title">Video Title</label>
+                    <input type="text" id="video-title" required placeholder="My Study Abroad Journey">
+                </div>
+                <div class="form-group">
+                    <label for="video-description">Description</label>
+                    <textarea id="video-description" rows="4" placeholder="Tell us about your experience..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="video-category">Category</label>
+                    <select id="video-category" required>
+                        <option value="">Select Category</option>
+                        <option value="success-stories">Success Story</option>
+                        <option value="tips">Study Tips</option>
+                        <option value="university-life">University Life</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Video</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/main.js" type="module"></script>
+    <script src="../js/components/navbar.js" type="module"></script>
+    <script src="../js/components/video-player.js" type="module"></script>
+    <script src="../js/pages/videos.js" type="module"></script>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": "Complete Guide to Study Abroad in 2024",
+        "description": "Learn everything you need to know about studying abroad in 2024",
+        "thumbnailUrl": "../assets/images/videos/featured-thumb.jpg",
+        "uploadDate": "2024-12-15",
+        "duration": "PT25M42S",
+        "contentUrl": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        "embedUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Global Education Consultants"
+        }
+    }
+    </script>
+</body>
+</html>

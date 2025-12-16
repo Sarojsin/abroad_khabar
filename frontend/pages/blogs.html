@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Education Blog - Study Abroad Tips & Insights</title>
+    <meta name="description" content="Latest articles on study abroad, visa updates, scholarship opportunities, and student experiences.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="icon" href="../public/favicon.ico">
+</head>
+<body>
+    <div id="app">
+        <nav id="navbar-container"></nav>
+
+        <main class="page-content">
+            <!-- Hero Section -->
+            <section class="hero-section blog-hero">
+                <div class="hero-overlay"></div>
+                <div class="container">
+                    <div class="hero-content animate-fade-in">
+                        <h1 class="hero-title">Education Insights Blog</h1>
+                        <p class="hero-subtitle">Expert advice, success stories, and latest updates for international students</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Featured Blog Post -->
+            <section class="section featured-blog-section">
+                <div class="container">
+                    <div class="featured-blog glass-card">
+                        <div class="featured-blog-image">
+                            <img src="../assets/images/blogs/featured-blog.jpg" alt="Study Abroad 2024" class="lazy-image">
+                            <div class="featured-badge">Featured</div>
+                        </div>
+                        <div class="featured-blog-content">
+                            <div class="blog-meta">
+                                <span class="blog-category">Study Guide</span>
+                                <span class="blog-date">December 15, 2024</span>
+                                <span class="blog-read-time">8 min read</span>
+                            </div>
+                            <h2 class="blog-title">Complete Guide to Study Abroad in 2024: Everything You Need to Know</h2>
+                            <p class="blog-excerpt">A comprehensive guide covering university selection, visa processes, scholarships, and preparation tips for students planning to study abroad in 2024.</p>
+                            <div class="blog-author">
+                                <img src="../assets/images/team/counselor.jpg" alt="Priya Sharma" class="author-image">
+                                <div class="author-info">
+                                    <div class="author-name">Priya Sharma</div>
+                                    <div class="author-role">Lead Education Counselor</div>
+                                </div>
+                            </div>
+                            <a href="blog-detail.html?id=1" class="btn btn-primary">Read Full Article</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Blog Filter -->
+            <section class="section blog-filter-section">
+                <div class="container">
+                    <div class="filter-container glass-card">
+                        <div class="filter-tabs">
+                            <button class="filter-tab active" data-category="all">All Articles</button>
+                            <button class="filter-tab" data-category="study-tips">Study Tips</button>
+                            <button class="filter-tab" data-category="visa-updates">Visa Updates</button>
+                            <button class="filter-tab" data-category="scholarships">Scholarships</button>
+                            <button class="filter-tab" data-category="country-guides">Country Guides</button>
+                            <button class="filter-tab" data-category="success-stories">Success Stories</button>
+                        </div>
+                        <div class="filter-controls">
+                            <div class="search-box">
+                                <input type="text" id="blog-search" placeholder="Search articles..." class="search-input">
+                                <button class="search-btn">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <select id="blog-sort" class="sort-select">
+                                <option value="latest">Latest First</option>
+                                <option value="popular">Most Popular</option>
+                                <option value="trending">Trending</option>
+                                <option value="oldest">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Blog Grid -->
+            <section class="section blog-grid-section">
+                <div class="container">
+                    <div class="section-header">
+                        <h2 class="section-title">Latest Articles</h2>
+                        <div class="subscribe-btn">
+                            <button class="btn btn-outline" id="subscribe-blog-btn">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 4.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                Subscribe
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="blogs-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Blog posts will be loaded dynamically -->
+                        <div class="blog-skeleton glass-card">
+                            <div class="skeleton-image"></div>
+                            <div class="skeleton-title"></div>
+                            <div class="skeleton-text"></div>
+                            <div class="skeleton-meta"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="pagination-container">
+                        <button class="pagination-btn prev" disabled>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <div class="pagination-numbers">
+                            <button class="pagination-number active">1</button>
+                            <button class="pagination-number">2</button>
+                            <button class="pagination-number">3</button>
+                            <span class="pagination-ellipsis">...</span>
+                            <button class="pagination-number">10</button>
+                        </div>
+                        <button class="pagination-btn next">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Popular Topics -->
+            <section class="section topics-section">
+                <div class="container">
+                    <h2 class="section-title">Popular Topics</h2>
+                    <div class="topics-grid grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <a href="#" class="topic-card glass-card hover-glow">
+                            <div class="topic-icon">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h3 class="topic-title">SOP Writing</h3>
+                            <p class="topic-count">12 articles</p>
+                        </a>
+                        <a href="#" class="topic-card glass-card hover-glow">
+                            <div class="topic-icon">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 2a1 1 0 10-2 0v4a1 1 0 102 0V6zm5 0a1 1 0 10-2 0v4a1 1 0 102 0V6zm4 0a1 1 0 10-2 0v4a1 1 0 102 0V6z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h3 class="topic-title">Scholarships</h3>
+                            <p class="topic-count">18 articles</p>
+                        </a>
+                        <a href="#" class="topic-card glass-card hover-glow">
+                            <div class="topic-icon">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h3 class="topic-title">Country Guides</h3>
+                            <p class="topic-count">15 articles</p>
+                        </a>
+                        <a href="#" class="topic-card glass-card hover-glow">
+                            <div class="topic-icon">
+                                <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                                </svg>
+                            </div>
+                            <h3 class="topic-title">Visa Success</h3>
+                            <p class="topic-count">22 articles</p>
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Newsletter -->
+            <section class="section newsletter-section">
+                <div class="container">
+                    <div class="newsletter-content glass-card">
+                        <div class="newsletter-info">
+                            <h2 class="newsletter-title">Stay Updated</h2>
+                            <p class="newsletter-text">Get weekly articles, scholarship alerts, and study abroad tips delivered to your inbox.</p>
+                        </div>
+                        <form id="newsletter-form" class="newsletter-form">
+                            <div class="form-group">
+                                <input type="email" id="newsletter-email" required placeholder="Enter your email">
+                                <button type="submit" class="btn btn-primary">Subscribe</button>
+                            </div>
+                            <p class="newsletter-note">No spam. Unsubscribe anytime.</p>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Author Spotlight -->
+            <section class="section author-section">
+                <div class="container">
+                    <h2 class="section-title">Featured Authors</h2>
+                    <div class="authors-grid grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="author-card glass-card hover-glow">
+                            <div class="author-image">
+                                <img src="../assets/images/team/ceo.jpg" alt="Dr. Sarah Johnson" class="lazy-image">
+                            </div>
+                            <div class="author-info">
+                                <h3 class="author-name">Dr. Sarah Johnson</h3>
+                                <p class="author-role">CEO & Founder</p>
+                                <p class="author-bio">15+ years in international education, PhD holder</p>
+                                <div class="author-stats">
+                                    <span class="stat">42 articles</span>
+                                    <span class="stat">10K reads</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="author-card glass-card hover-glow">
+                            <div class="author-image">
+                                <img src="../assets/images/team/director.jpg" alt="Michael Chen" class="lazy-image">
+                            </div>
+                            <div class="author-info">
+                                <h3 class="author-name">Michael Chen</h3>
+                                <p class="author-role">Visa Expert</p>
+                                <p class="author-bio">Specialized in visa processes and immigration laws</p>
+                                <div class="author-stats">
+                                    <span class="stat">38 articles</span>
+                                    <span class="stat">8.5K reads</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="author-card glass-card hover-glow">
+                            <div class="author-image">
+                                <img src="../assets/images/team/counselor.jpg" alt="Priya Sharma" class="lazy-image">
+                            </div>
+                            <div class="author-info">
+                                <h3 class="author-name">Priya Sharma</h3>
+                                <p class="author-role">Education Counselor</p>
+                                <p class="author-bio">Scholarship expert and university selection specialist</p>
+                                <div class="author-stats">
+                                    <span class="stat">56 articles</span>
+                                    <span class="stat">12K reads</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+    </div>
+
+    <!-- Subscribe Modal -->
+    <div id="subscribe-modal" class="modal">
+        <div class="modal-content glass-card">
+            <button class="modal-close">&times;</button>
+            <h2 class="modal-title">Subscribe to Our Blog</h2>
+            <form id="subscribe-form" class="subscribe-form">
+                <div class="form-group">
+                    <label for="subscriber-name">Full Name</label>
+                    <input type="text" id="subscriber-name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="subscriber-email">Email Address</label>
+                    <input type="email" id="subscriber-email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Topics of Interest</label>
+                    <div class="interest-checkboxes">
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="interests" value="scholarships">
+                            Scholarships
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="interests" value="visa">
+                            Visa Updates
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="interests" value="country-guides">
+                            Country Guides
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox" name="interests" value="success-stories">
+                            Success Stories
+                        </label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Subscribe Now</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/main.js" type="module"></script>
+    <script src="../js/components/navbar.js" type="module"></script>
+    <script src="../js/pages/blogs.js" type="module"></script>
+    
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Blog",
+        "mainEntityOfPage": {
+            "@type": "WebPage",
+            "@id": "https://example.com/blogs"
+        },
+        "headline": "Education Insights Blog",
+        "description": "Expert advice, success stories, and latest updates for international students",
+        "publisher": {
+            "@type": "Organization",
+            "name": "Global Education Consultants",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://example.com/logo.png"
+            }
+        }
+    }
+    </script>
+</body>
+</html>
