@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact - Global Education Consultants</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="section-title">Contact Us</h1>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="glass-card text-center">
+                    <i class="fas fa-envelope" style="font-size: 2rem; color: #2563eb;"></i>
+                    <h3 class="mt-4">Email</h3>
+                    <p>info@globaledu.com</p>
+                </div>
+                <div class="glass-card text-center">
+                    <i class="fas fa-phone" style="font-size: 2rem; color: #2563eb;"></i>
+                    <h3 class="mt-4">Phone</h3>
+                    <p>+1 (555) 123-4567</p>
+                </div>
+                <div class="glass-card text-center">
+                    <i class="fas fa-map-marker-alt" style="font-size: 2rem; color: #2563eb;"></i>
+                    <h3 class="mt-4">Address</h3>
+                    <p>123 Education St, New York</p>
+                </div>
+            </div>
+
+            <div class="glass-card" style="max-width: 800px; margin: 0 auto;">
+                <h2>Send Us a Message</h2>
+                <form id="contact-form" onsubmit="handleSubmit(event)">
+                    <div class="form-group">
+                        <label for="name">Full Name *</label>
+                        <input type="text" id="name" name="name" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" name="email" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="service">Interested In</label>
+                        <select id="service" name="service" class="form-control">
+                            <option value="">Select a service...</option>
+                            <option value="university">University Admission</option>
+                            <option value="visa">Visa Assistance</option>
+                            <option value="scholarship">Scholarship Guidance</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message *</label>
+                        <textarea id="message" name="message" rows="5" required class="form-control"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-glow">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script type="module">
+        import { loadNavbar } from '/js/components/navbar.js';
+        import { loadFooter } from '/js/components/footer.js';
+
+        loadNavbar();
+        loadFooter();
+
+        window.handleSubmit = function (event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+
+            console.log('Form submitted:', data);
+
+            // Show success message
+            alert('Thank you! Your message has been sent. (This is a demo - in production, this would send to the backend API)');
+
+            // Reset form
+            form.reset();
+        };
+    </script>
+</body>
+
+</html>

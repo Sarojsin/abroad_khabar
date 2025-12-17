@@ -17,10 +17,16 @@ security = HTTPBearer()
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""
+    if len(plain_password) > 72:
+        plain_password = plain_password[:72]
     return pwd_context.verify(plain_password, hashed_password)
 
 def get_password_hash(password: str) -> str:
     """Generate password hash"""
+    # BCrypt has a max length limit of 72 bytes.
+    # While we validate in schemas, we safeguard here too.
+    if len(password) > 72:
+        password = password[:72]
     return pwd_context.hash(password)
 
 def create_access_token(data: dict, expires_delta: Optional[int] = None) -> str:
@@ -92,7 +98,20 @@ def setup_security_middleware(app: FastAPI):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-        response.headers["Content-Security-Policy"] = "default-src 'self'"
+        
+        # CSP: Allow Swagger UI resources while maintaining security
+        # Swagger UI needs:
+        # - External CSS/JS from CDNs (cdn.jsdelivr.net, fastapi.tiangolo.com)
+        # - Inline styles and scripts ('unsafe-inline')
+        # - Data URIs for images ('data:')
+        response.headers["Content-Security-Policy"] = (
+            "default-src 'self'; "
+            "script-src 'self' 'unsafe-inline' cdn.jsdelivr.net; "
+            "style-src 'self' 'unsafe-inline' cdn.jsdelivr.net; "
+            "img-src 'self' data: cdn.jsdelivr.net; "
+            "font-src 'self' data: cdn.jsdelivr.net; "
+            "connect-src 'self'"
+        )
         
         return response
     

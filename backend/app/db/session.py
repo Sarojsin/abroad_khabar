@@ -48,7 +48,7 @@ def init_db() -> None:
     Initialize database by creating all tables.
     This should be called once at application startup.
     """
-    from app.models import user, blog, service, video, image, ads
+    from app.models import user, blog, service, video, image, ads, country, faq, testimonial, homepage
     Base.metadata.create_all(bind=engine)
 
 def drop_db() -> None:

@@ -3,7 +3,19 @@ File handling utilities for uploads
 """
 import os
 import uuid
-import magic
+import uuid
+# import magic  <-- Wrapped below
+# try:
+#     import magic
+#     HAVE_MAGIC = True
+# except ImportError:
+#     HAVE_MAGIC = False
+#     print("WARNING: python-magic not found, falling back to extension validation.")
+# except Exception as e:
+#     HAVE_MAGIC = False
+#     print(f"WARNING: python-magic failed to load ({e}), falling back to extension validation.")
+HAVE_MAGIC = False
+
 from typing import Dict, Any, Optional
 from fastapi import UploadFile, HTTPException
 from PIL import Image as PILImage
@@ -33,12 +45,13 @@ def validate_image_file(file: UploadFile) -> Dict[str, Any]:
     file_extension = file.filename.split('.')[-1].lower() if '.' in file.filename else ''
     
     # Validate MIME type and extension
-    valid_mime_types = [f"image/{ext}" for ext in settings.ALLOWED_IMAGE_TYPES]
-    if mime_type not in valid_mime_types:
-        return {
-            "valid": False,
-            "error": f"Invalid file type. Allowed types: {', '.join(settings.ALLOWED_IMAGE_TYPES)}"
-        }
+    if mime_type:
+        valid_mime_types = [f"image/{ext}" for ext in settings.ALLOWED_IMAGE_TYPES]
+        if mime_type not in valid_mime_types:
+            return {
+                "valid": False,
+                "error": f"Invalid file type. Allowed types: {', '.join(settings.ALLOWED_IMAGE_TYPES)}"
+            }
     
     if file_extension not in settings.ALLOWED_IMAGE_TYPES:
         return {
@@ -76,12 +89,13 @@ def validate_video_file(file: UploadFile) -> Dict[str, Any]:
     file_extension = file.filename.split('.')[-1].lower() if '.' in file.filename else ''
     
     # Validate MIME type and extension
-    valid_mime_types = [f"video/{ext}" for ext in settings.ALLOWED_VIDEO_TYPES]
-    if not mime_type.startswith('video/'):
-        return {
-            "valid": False,
-            "error": f"Invalid file type. Allowed types: {', '.join(settings.ALLOWED_VIDEO_TYPES)}"
-        }
+    if mime_type:
+        valid_mime_types = [f"video/{ext}" for ext in settings.ALLOWED_VIDEO_TYPES]
+        if not mime_type.startswith('video/'):
+            return {
+                "valid": False,
+                "error": f"Invalid file type. Allowed types: {', '.join(settings.ALLOWED_VIDEO_TYPES)}"
+            }
     
     if file_extension not in settings.ALLOWED_VIDEO_TYPES:
         return {
@@ -259,7 +273,9 @@ def get_file_size(file_path: str) -> Optional[int]:
 def get_mime_type(file_path: str) -> Optional[str]:
     """Get MIME type of file"""
     try:
-        mime = magic.Magic(mime=True)
-        return mime.from_file(file_path)
+        if HAVE_MAGIC:
+            mime = magic.Magic(mime=True)
+            return mime.from_file(file_path)
     except Exception:
-        return None
+        pass
+    return None

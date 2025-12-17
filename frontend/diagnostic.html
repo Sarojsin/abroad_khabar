@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Full Navigation Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            background: #000;
+            color: #0f0;
+            line-height: 1.6;
+        }
+
+        h1 {
+            color: #0ff;
+            margin-bottom: 20px;
+        }
+
+        .section {
+            background: #111;
+            border: 1px solid #333;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+
+        .log {
+            padding: 5px;
+            margin: 3px 0;
+            font-size: 12px;
+        }
+
+        .error {
+            color: #f00;
+        }
+
+        .success {
+            color: #0f0;
+        }
+
+        .warning {
+            color: #ff0;
+        }
+
+        .info {
+            color: #0ff;
+        }
+
+        button {
+            background: #0f0;
+            color: #000;
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        button:hover {
+            background: #0ff;
+        }
+
+        #main-content-test {
+            background: #222;
+            padding: 20px;
+            min-height: 200px;
+            border: 2px solid #0f0;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔬 Complete Navigation Diagnostic</h1>
+
+    <div class="section">
+        <h2>System Check</h2>
+        <div id="system-check"></div>
+    </div>
+
+    <div class="section">
+        <h2>Router Test</h2>
+        <div id="router-check"></div>
+        <button onclick="testRouter()">Test Router Load</button>
+        <button onclick="testManualFetch()">Test Manual Fetch</button>
+    </div>
+
+    <div class="section">
+        <h2>Test Content Area</h2>
+        <div id="main-content-test">
+            <p style="color: #ff0;">Content will appear here when navigation works...</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <h2>Debug Log</h2>
+        <div id="debug-log"></div>
+    </div>
+
+    <script type="module">
+        const systemCheck = document.getElementById('system-check');
+        const routerCheck = document.getElementById('router-check');
+        const debugLog = document.getElementById('debug-log');
+        const testContent = document.getElementById('main-content-test');
+
+        function log(msg, type = 'info') {
+            const time = new Date().toLocaleTimeString();
+            debugLog.innerHTML += `<div class="log ${type}">[${time}] ${msg}</div>`;
+            debugLog.scrollTop = debugLog.scrollHeight;
+        }
+
+        function check(msg, success) {
+            const el = success ? 'success' : 'error';
+            const symbol = success ? '✓' : '✗';
+            return `<div class="log ${el}">${symbol} ${msg}</div>`;
+        }
+
+        // System checks
+        log('Running system checks...', 'info');
+
+        // Check if main-content exists in the real page
+        const realMainContent = window.opener?.document?.getElementById('main-content');
+        systemCheck.innerHTML += check(
+            `#main-content in main page: ${realMainContent ? 'FOUND' : 'NOT FOUND'}`,
+            !!realMainContent
+        );
+
+        // Test router import
+        let router = null;
+        setTimeout(async () => {
+            try {
+                log('Attempting to import router...', 'info');
+                const routerModule = await import('/js/core/router.js');
+                router = routerModule.default;
+
+                routerCheck.innerHTML += check('Router module loaded', true);
+                routerCheck.innerHTML += check(`Router has ${router.routes?.length || 0} routes`, router.routes?.length > 0);
+
+                if (router.routes && router.routes.length > 0) {
+                    log('Routes registered:', 'success');
+                    router.routes.slice(0, 5).forEach(r => {
+                        log(`  → ${r.path}: ${r.component}`, 'info');
+                    });
+                } else {
+                    log('ERROR: No routes registered!', 'error');
+                    log('Router needs generateRoutes() called', 'warning');
+                }
+
+                // Check appContent
+                routerCheck.innerHTML += check(
+                    `Router.appContent: ${router.appContent ? router.appContent.id : 'NULL'}`,
+                    !!router.appContent
+                );
+
+            } catch (e) {
+                routerCheck.innerHTML += check(`Router import failed: ${e.message}`, false);
+                log(`Router error: ${e.stack}`, 'error');
+            }
+        }, 500);
+
+        // Test manual fetch
+        window.testManualFetch = async function () {
+            log('Testing manual fetch of /pages/index.html...', 'info');
+            try {
+                const response = await fetch('/pages/index.html');
+                log(`Fetch status: ${response.status} ${response.statusText}`, response.ok ? 'success' : 'error');
+
+                if (response.ok) {
+                    const html = await response.text();
+                    log(`Received ${html.length} bytes`, 'success');
+                    log(`First 100 chars: ${html.substring(0, 100)}...`, 'info');
+
+                    // Try to parse and extract
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+
+                    const routerView = doc.querySelector('[data-router-view]');
+                    const main = doc.querySelector('main');
+                    const body = doc.body;
+
+                    log(`Found [data-router-view]: ${!!routerView}`, routerView ? 'success' : 'warning');
+                    log(`Found <main>: ${!!main}`, main ? 'success' : 'warning');
+                    log(`Body children: ${body.children.length}`, 'info');
+
+                    // Show what would be injected
+                    const content = routerView || main || body;
+                    testContent.innerHTML = `<div style="color: #0ff; padding: 10px; background: #000;">
+                        <h3>Extracted Content Preview:</h3>
+                        <div style="color: #fff; max-height: 300px; overflow: auto; background: #222; padding: 10px; margin-top: 10px;">
+                            ${content.innerHTML.substring(0, 1000)}...
+                        </div>
+                    </div>`;
+                }
+            } catch (e) {
+                log(`Fetch error: ${e.message}`, 'error');
+            }
+        };
+
+        // Test router navigation
+        window.testRouter = async function () {
+            if (!router) {
+                log('Router not loaded yet!', 'error');
+                return;
+            }
+
+            log('Testing router.navigate("/services")...', 'info');
+            try {
+                // Replace appContent temporarily to our test area
+                const originalContent = router.appContent;
+                router.appContent = testContent;
+
+                await router.navigate('/services');
+
+                log('Navigation completed!', 'success');
+                log(`Content updated: ${testContent.innerHTML.length} bytes`, 'success');
+
+                // Restore
+                router.appContent = originalContent;
+            } catch (e) {
+                log(`Navigation error: ${e.message}`, 'error');
+                log(e.stack, 'error');
+            }
+        };
+
+        log('Diagnostic ready. Click buttons to test.', 'success');
+    </script>
+</body>
+
+</html>

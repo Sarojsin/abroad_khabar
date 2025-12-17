@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services - Global Education Consultants</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script type="module" src="/js/components/navbar.js"></script>
+    <script type="module" src="/js/components/footer.js"></script>
+</head>
+
+<body>
+    <div id="navbar-container"></div>
+
+    <section class="section">
+        <div class="container">
+            <h1 class="section-title">Our Services</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="package-card glass-card hover-glow">
+                    <div class="package-header">
+                        <h3 class="package-name">Basic</h3>
+                        <div class="package-price">
+                            <span class="price">$499</span>
+                            <span class="period">/one-time</span>
+                        </div>
+                    </div>
+                    <div class="package-features">
+                        <ul class="feature-list">
+                            <li class="feature-item">University Shortlisting</li>
+                            <li class="feature-item">Application Review</li>
+                            <li class="feature-item">Document Checklist</li>
+                            <li class="feature-item">Basic SOP Review</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="package-card glass-card hover-glow popular" style="border: 2px solid #2563eb;">
+                    <div class="popular-badge">Most Popular</div>
+                    <div class="package-header">
+                        <h3 class="package-name">Premium</h3>
+                        <div class="package-price">
+                            <span class="price">$999</span>
+                            <span class="period">/one-time</span>
+                        </div>
+                    </div>
+                    <div class="package-features">
+                        <ul class="feature-list">
+                            <li class="feature-item">Everything in Basic</li>
+                            <li class="feature-item">Complete Visa Processing</li>
+                            <li class="feature-item">Professional SOP Writing</li>
+                            <li class="feature-item">Scholarship Guidance</li>
+                            <li class="feature-item">Interview Preparation</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="package-card glass-card hover-glow">
+                    <div class="package-header">
+                        <h3 class="package-name">Platinum</h3>
+                        <div class="package-price">
+                            <span class="price">$1999</span>
+                            <span class="period">/one-time</span>
+                        </div>
+                    </div>
+                    <div class="package-features">
+                        <ul class="feature-list">
+                            <li class="feature-item">Everything in Premium</li>
+                            <li class="feature-item">Post-Arrival Support</li>
+                            <li class="feature-item">Accommodation Assistance</li>
+                            <li class="feature-item">Airport Pickup</li>
+                            <li class="feature-item">Bank Account Setup</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div id="footer-container"></div>
+
+    <script type="module">
+        import { loadNavbar } from '/js/components/navbar.js';
+        import { loadFooter } from '/js/components/footer.js';
+        loadNavbar();
+        loadFooter();
+    </script>
+    body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f5f5f5;
+    }
+
+    nav {
+    background: #2563eb;
+    padding: 1rem 2rem;
+    }
+
+    nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    gap: 2rem;
+    }
+
+    nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: 500;
+    }
+
+    nav a:hover {
+    text-decoration: underline;
+    }
+
+    .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    }
+
+    h1 {
+    color: #1f2937;
+    }
+
+    .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+    }
+
+    .service-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .service-card h3 {
+    color: #2563eb;
+    margin-top: 0;
+    }
+
+    .service-card ul {
+    padding-left: 1.5rem;
+    }
+
+    .price {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #059669;
+    margin: 1rem 0;
+    }
+
+    footer {
+    background: #1f2937;
+    color: white;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 4rem;
+    }
+    </style>
+    </head>
+
+    <body>
+        <nav>
+            <ul>
+                <li><a href="/home.html">🏠 Home</a></li>
+                <li><a href="/services_simple.html">📋 Services</a></li>
+                <li><a href="/videos_simple.html">🎥 Videos</a></li>
+                <li><a href="/contact_simple.html">📧 Contact</a></li>
+            </ul>
+        </nav>
+
+        <div class="container">
+            <h1>Our Services</h1>
+            <div class="services-grid">
+                <div class="service-card">
+                    <h3>Basic Package</h3>
+                    <div class="price">$499</div>
+                    <ul>
+                        <li>University Shortlisting</li>
+                        <li>Application Review</li>
+                        <li>Document Checklist</li>
+                        <li>Basic SOP Review</li>
+                    </ul>
+                </div>
+
+                <div class="service-card" style="border: 2px solid #2563eb;">
+                    <div
+                        style="background: #2563eb; color: white; padding: 0.5rem; margin: -2rem -2rem 1rem; text-align: center; border-radius: 6px 6px 0 0;">
+                        Most Popular
+                    </div>
+                    <h3>Premium Package</h3>
+                    <div class="price">$999</div>
+                    <ul>
+                        <li>Everything in Basic</li>
+                        <li>Complete Visa Processing</li>
+                        <li>Professional SOP Writing</li>
+                        <li>Scholarship Guidance</li>
+                        <li>Interview Preparation</li>
+                    </ul>
+                </div>
+
+                <div class="service-card">
+                    <h3>Platinum Package</h3>
+                    <div class="price">$1999</div>
+                    <ul>
+                        <li>Everything in Premium</li>
+                        <li>Post-Arrival Support</li>
+                        <li>Accommodation Assistance</li>
+                        <li>Airport Pickup</li>
+                        <li>Bank Account Setup</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Global Education Consultants. All rights reserved.</p>
+        </footer>
+    </body>
+
+</html>

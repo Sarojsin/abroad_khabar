@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, Field
 
 # Shared properties
 class UserBase(BaseModel):
@@ -11,11 +11,11 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     email: EmailStr
     username: str
-    password: str
+    password: str = Field(..., max_length=72)
 
 # Properties to receive via API on update
 class UserUpdate(UserBase):
-    password: Optional[str] = None
+    password: Optional[str] = Field(None, max_length=72)
     bio: Optional[str] = None
     phone: Optional[str] = None
     country: Optional[str] = None
@@ -40,7 +40,7 @@ class UserResponse(UserInDBBase):
 # Login request
 class LoginRequest(BaseModel):
     email_or_username: str
-    password: str
+    password: str = Field(..., max_length=72)
 
 # Refresh token request
 class RefreshTokenRequest(BaseModel):

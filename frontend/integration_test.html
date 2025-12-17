@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Test</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: 2rem auto; padding: 0 1rem; }
+        .card { border: 1px solid #ddd; padding: 1rem; border-radius: 4px; margin-bottom: 1rem; }
+        .hidden { display: none; }
+        button { cursor: pointer; padding: 0.5rem 1rem; }
+        pre { background: #f4f4f4; padding: 1rem; overflow-x: auto; }
+        .success { color: green; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Integration Test</h1>
+    
+    <!-- Auth Section -->
+    <div id="auth-section" class="card">
+        <h2>Authentication</h2>
+        <div id="login-form">
+            <input type="text" id="email" placeholder="Email/Username" value="admin@example.com">
+            <input type="password" id="password" placeholder="Password" value="password123">
+            <button onclick="handleLogin()">Login</button>
+        </div>
+        <div id="user-info" class="hidden">
+            <p>Logged in as: <span id="username-display"></span></p>
+            <button onclick="handleLogout()">Logout</button>
+            <button onclick="checkAuth()">Verify Token</button>
+        </div>
+        <div id="auth-status"></div>
+    </div>
+
+    <!-- Data Section -->
+    <div id="data-section" class="card hidden">
+        <h2>Data Fetching (Videos)</h2>
+        <button onclick="fetchVideos()">Fetch Videos</button>
+        <div id="data-display"></div>
+    </div>
+
+    <script type="module">
+        import auth from './js/core/auth.js';
+        import api from './js/core/api.js';
+
+        // Initialize auth
+        await auth.init();
+
+        // Expose to window for onclick handlers
+        window.handleLogin = async () => {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            const result = await auth.login(email, password);
+            if (result.success) {
+                showMessage('auth-status', 'Login successful!', 'success');
+                updateUI(true);
+            } else {
+                showMessage('auth-status', `Login failed: ${result.error}`, 'error');
+            }
+        };
+
+        window.handleLogout = async () => {
+            await auth.logout();
+            showMessage('auth-status', 'Logged out', 'success');
+            updateUI(false);
+        };
+
+        window.checkAuth = async () => {
+            const isValid = await auth.verifyToken();
+            showMessage('auth-status', `Token valid: ${isValid}`, isValid ? 'success' : 'error');
+        };
+
+        window.fetchVideos = async () => {
+            try {
+                // Fetch videos (public or private depending on implementation)
+                const data = await api.get('/videos'); // Ensure this matches backend endpoint list/pagination
+                document.getElementById('data-display').innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            } catch (error) {
+                document.getElementById('data-display').innerHTML = `<p class="error">Error: ${error.message}</p>`;
+            }
+        };
+
+        function showMessage(elementId, text, type) {
+            const el = document.getElementById(elementId);
+            el.textContent = text;
+            el.className = type;
+        }
+
+        function updateUI(isAuthenticated) {
+            const loginForm = document.getElementById('login-form');
+            const userInfo = document.getElementById('user-info');
+            const dataSection = document.getElementById('data-section');
+            const usernameDisplay = document.getElementById('username-display');
+
+            if (isAuthenticated) {
+                loginForm.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                dataSection.classList.remove('hidden');
+                if (auth.currentUser) {
+                    usernameDisplay.textContent = auth.currentUser.email || auth.currentUser.username;
+                }
+            } else {
+                loginForm.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+                dataSection.classList.add('hidden');
+            }
+        }
+
+        // Initial UI state
+        updateUI(auth.isAuthenticated);
+
+        // Listen for auth changes
+        auth.subscribe(({ isAuthenticated }) => {
+            updateUI(isAuthenticated);
+        });
+
+    </script>
+</body>
+</html>

@@ -77,7 +77,7 @@ class Video(Base):
     
     # Relationships
     uploaded_by = relationship("User", back_populates="videos")
-    service = relationship("Service")
+    service = relationship("Service", foreign_keys=[service_id])
     
     def __repr__(self):
         return f"<Video(id={self.id}, title={self.title}, type={self.video_type})>"

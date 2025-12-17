@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Router Debug</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #0f0;
+        }
+
+        .log {
+            margin: 5px 0;
+            padding: 5px;
+            background: #000;
+        }
+
+        .error {
+            color: #f00;
+        }
+
+        .success {
+            color: #0f0;
+        }
+
+        .info {
+            color: #0ff;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Router Diagnostic</h1>
+    <div id="output"></div>
+
+    <script type="module">
+        const output = document.getElementById('output');
+        function log(msg, type = 'info') {
+            output.innerHTML += `<div class="log ${type}">[${new Date().toLocaleTimeString()}] ${msg}</div>`;
+        }
+
+        try {
+            log('Starting diagnostic...', 'info');
+
+            // Check if main.js loaded
+            log('Checking for router...', 'info');
+
+            setTimeout(async () => {
+                try {
+                    const router = (await import('/js/core/router.js')).default;
+                    log('✓ Router module loaded', 'success');
+
+                    // Check routes
+                    log(`Routes registered: ${router.routes?.length || 0}`, 'info');
+
+                    // Check appContent
+                    const mainContent = document.querySelector('#main-content');
+                    if (mainContent) {
+                        log('✓ #main-content found in DOM', 'success');
+                    } else {
+                        log('✗ #main-content NOT found!', 'error');
+                    }
+
+                    // Test navigation
+                    log('Testing navigation to /services...', 'info');
+                    await router.navigate('/services');
+
+                    setTimeout(() => {
+                        const content = document.querySelector('#main-content')?.innerHTML;
+                        if (content && content.includes('service')) {
+                            log('✓ Services page loaded!', 'success');
+                        } else {
+                            log('✗ Services page failed to load', 'error');
+                            log(`Content: ${content?.substring(0, 100)}`, 'info');
+                        }
+                    }, 2000);
+
+                } catch (e) {
+                    log(`✗ Error: ${e.message}`, 'error');
+                }
+            }, 1000);
+
+        } catch (e) {
+            log(`✗ Fatal error: ${e.message}`, 'error');
+        }
+    </script>
+</body>
+
+</html>

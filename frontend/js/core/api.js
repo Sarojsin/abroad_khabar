@@ -1,7 +1,7 @@
 // API Service - Fetch wrapper with error handling and authentication
 class ApiService {
     constructor() {
-        this.baseURL = import.meta.env?.VITE_API_URL || 'http://localhost:8000/api/v1';
+        this.baseURL = import.meta.env?.VITE_API_URL || '/api/v1';
         this.defaultHeaders = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'

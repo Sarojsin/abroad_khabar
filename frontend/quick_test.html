@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Nav Test</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <script type="module" src="/js/main.js" defer></script>
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial;
+            background: #1a1a1a;
+            color: #fff;
+        }
+
+        .test-nav {
+            margin: 20px 0;
+            padding: 20px;
+            background: #333;
+            border-radius: 8px;
+        }
+
+        .test-nav a {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            background: #0066cc;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .test-nav a:hover {
+            background: #0052a3;
+        }
+
+        #main-content {
+            margin-top: 20px;
+            padding: 20px;
+            background: #222;
+            border-radius: 8px;
+            min-height: 400px;
+        }
+
+        .page-loader {
+            text-align: center;
+            padding: 100px 20px;
+        }
+
+        .loader-spinner {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 5px solid #333;
+            border-top-color: #0066cc;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔗 Quick Navigation Test</h1>
+
+    <div class="test-nav">
+        <h2>Click Links to Test Navigation:</h2>
+        <a href="/" data-router>Home</a>
+        <a href="/about" data-router>About</a>
+        <a href="/services" data-router>Services</a>
+        <a href="/countries" data-router>Countries</a>
+        <a href="/videos" data-router>Videos</a>
+        <a href="/contact" data-router>Contact</a>
+    </div>
+
+    <div style="padding: 15px; background: #444; border-radius: 8px; margin: 20px 0;">
+        <strong>Status:</strong>
+        <div id="status" style="margin-top: 10px; font-family: monospace; color: #0f0;"></div>
+    </div>
+
+    <main id="main-content">
+        <div class="page-loader">
+            <div class="loader-spinner"></div>
+            <p style="margin-top: 20px; color: #888;">Loading page...</p>
+        </div>
+    </main>
+
+    <script type="module">
+        // Log initialization
+        const status = document.getElementById('status');
+        function log(msg) {
+            status.innerHTML += `[${new Date().toLocaleTimeString()}] ${msg}<br>`;
+        }
+
+        log('Page loaded');
+
+        // Wait for app initialization
+        setTimeout(() => {
+            if (window.app) {
+                log('✓ App instance found');
+                log(`✓ Router has ${window.app.router.routes?.length || 0} routes`);
+            } else {
+                log('✗ App NOT initialized!');
+            }
+        }, 1000);
+
+        // Listen for route changes
+        window.addEventListener('routechange', (e) => {
+            log(`✓ Navigation to: ${e.detail.route.path}`);
+        });
+    </script>
+</body>
+
+</html>

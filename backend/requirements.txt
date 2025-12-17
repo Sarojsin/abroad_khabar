@@ -20,4 +20,5 @@ cryptography
 httpx
 aiofiles
 itsdangerous
+bcrypt==3.2.2
 typing-extensions

@@ -13,18 +13,18 @@ class AuthService {
         // Check for stored user
         const userData = localStorage.getItem('user_data');
         const token = localStorage.getItem('auth_token');
-        
+
         if (userData && token) {
             try {
                 this.currentUser = JSON.parse(userData);
                 this.isAuthenticated = true;
-                
+
                 // Verify token is still valid
                 await this.verifyToken();
-                
+
                 // Start token refresh interval
                 this.startTokenRefresh();
-                
+
             } catch (error) {
                 console.error('Failed to restore auth state:', error);
                 this.clearAuth();
@@ -77,27 +77,27 @@ class AuthService {
 
     async setAuth(authResponse) {
         const { access_token, refresh_token, user } = authResponse;
-        
+
         // Store tokens
         api.setAuthToken(access_token);
         localStorage.setItem('refresh_token', refresh_token);
-        
+
         // Store user data
         this.currentUser = user;
         localStorage.setItem('user_data', JSON.stringify(user));
-        
+
         this.isAuthenticated = true;
-        
+
         // Start token refresh
         this.startTokenRefresh();
-        
+
         // Dispatch auth change event
         this.dispatchAuthChange();
     }
 
     async verifyToken() {
         try {
-            await api.get('/auth/verify');
+            await api.get('/auth/me');
             return true;
         } catch (error) {
             console.error('Token verification failed:', error);
@@ -152,22 +152,22 @@ class AuthService {
         api.removeAuthToken();
         localStorage.removeItem('refresh_token');
         localStorage.removeItem('user_data');
-        
+
         // Clear user state
         this.currentUser = null;
         this.isAuthenticated = false;
-        
+
         // Clear refresh interval
         if (this.tokenRefreshInterval) {
             clearInterval(this.tokenRefreshInterval);
             this.tokenRefreshInterval = null;
         }
-        
+
         // Dispatch auth change event
         this.dispatchAuthChange();
-        
+
         // Redirect to login if not already there
-        if (!window.location.pathname.includes('/login.html') && 
+        if (!window.location.pathname.includes('/login.html') &&
             !window.location.pathname.includes('/register.html')) {
             window.location.href = '/login.html';
         }
@@ -201,14 +201,14 @@ class AuthService {
 
     hasAnyRole(roles) {
         if (!this.isAuthenticated || !this.currentUser) return false;
-        return roles.some(role => 
+        return roles.some(role =>
             this.currentUser.roles?.includes(role) || this.currentUser.role === role
         );
     }
 
     hasAllRoles(roles) {
         if (!this.isAuthenticated || !this.currentUser) return false;
-        return roles.every(role => 
+        return roles.every(role =>
             this.currentUser.roles?.includes(role) || this.currentUser.role === role
         );
     }
@@ -216,17 +216,17 @@ class AuthService {
     // Check permissions
     can(permission) {
         if (!this.isAuthenticated || !this.currentUser) return false;
-        
+
         // Check direct permissions
         if (this.currentUser.permissions?.includes(permission)) {
             return true;
         }
-        
+
         // Check role-based permissions
         if (this.currentUser.role_permissions?.includes(permission)) {
             return true;
         }
-        
+
         return false;
     }
 
@@ -291,12 +291,12 @@ class AuthService {
     // Update profile
     async updateProfile(userData) {
         try {
-            const response = await api.put('/auth/profile', userData);
-            
+            const response = await api.put('/auth/me', userData);
+
             // Update local user data
             this.currentUser = { ...this.currentUser, ...response.user };
             localStorage.setItem('user_data', JSON.stringify(this.currentUser));
-            
+
             return { success: true, user: this.currentUser };
         } catch (error) {
             console.error('Profile update failed:', error);
@@ -344,7 +344,7 @@ class AuthService {
         window.addEventListener('authchange', (event) => {
             callback(event.detail);
         });
-        
+
         // Return unsubscribe function
         return () => {
             window.removeEventListener('authchange', callback);

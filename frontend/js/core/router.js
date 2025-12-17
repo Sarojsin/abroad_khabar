@@ -7,7 +7,7 @@ class Router {
     constructor() {
         this.routes = [];
         this.currentRoute = null;
-        this.appContent = document.getElementById('app-content');
+        this.appContent = document.getElementById('main-content');
         this.initEventListeners();
     }
 
@@ -51,16 +51,16 @@ class Router {
 
     async navigate(path, pushState = true) {
         path = this.normalizePath(path);
-        
+
         // Close any open modals
         closeAllModals();
-        
+
         // Show loader
         showLoader();
-        
+
         // Check authentication and permissions
         const route = this.matchRoute(path);
-        
+
         if (!route) {
             await this.load404();
             hideLoader();
@@ -88,16 +88,16 @@ class Router {
 
         // Load the route
         await this.loadRoute(route);
-        
+
         // Update page title
         document.title = route.title;
-        
+
         // Scroll to top
         window.scrollTo(0, 0);
-        
+
         // Update active nav link
         this.updateActiveLink(path);
-        
+
         hideLoader();
     }
 
@@ -116,25 +116,31 @@ class Router {
 
             // Load the component
             const html = await this.fetchComponent(route.component);
-            
+
             // Parse and render
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
-            
+
             // Extract main content
-            const mainContent = doc.querySelector('[data-router-view]') || 
-                               doc.querySelector('main') || 
-                               doc.body;
-            
+            const mainContent = doc.querySelector('[data-router-view]') ||
+                doc.querySelector('main') ||
+                doc.body;
+
             // Clear current content
             this.appContent.innerHTML = '';
-            
+
             // Append new content
             this.appContent.appendChild(mainContent.cloneNode(true));
-            
+
+            // CRITICAL: Hide the initial page loader after content loads
+            const pageLoader = document.querySelector('.page-loader');
+            if (pageLoader) {
+                pageLoader.style.display = 'none';
+            }
+
             // Execute page-specific JavaScript
             await this.executePageScript(route);
-            
+
             // Dispatch route change event
             this.dispatchRouteChange(route);
 
@@ -149,40 +155,40 @@ class Router {
         if (typeof component === 'function') {
             return await component();
         }
-        
+
         // If component is a string URL, fetch it
         if (typeof component === 'string') {
             const response = await fetch(component);
             if (!response.ok) throw new Error(`Failed to fetch ${component}`);
             return await response.text();
         }
-        
+
         // If component is HTML string, return it
         if (typeof component === 'string' && component.trim().startsWith('<')) {
             return component;
         }
-        
+
         throw new Error('Invalid component format');
     }
 
     matchRoute(path) {
         path = this.normalizePath(path);
-        
+
         // Exact match
         let route = this.routes.find(r => r.path === path);
         if (route) return route;
-        
+
         // Parameterized match (e.g., /blog/:id)
         for (const route of this.routes) {
             if (route.path.includes(':')) {
                 const routeParts = route.path.split('/');
                 const pathParts = path.split('/');
-                
+
                 if (routeParts.length !== pathParts.length) continue;
-                
+
                 let match = true;
                 const params = {};
-                
+
                 for (let i = 0; i < routeParts.length; i++) {
                     if (routeParts[i].startsWith(':')) {
                         const paramName = routeParts[i].substring(1);
@@ -192,28 +198,28 @@ class Router {
                         break;
                     }
                 }
-                
+
                 if (match) {
                     return { ...route, params };
                 }
             }
         }
-        
+
         return null;
     }
 
     normalizePath(path) {
         // Remove query string and hash
         path = path.split('?')[0].split('#')[0];
-        
+
         // Ensure path starts with /
         if (!path.startsWith('/')) path = '/' + path;
-        
+
         // Remove trailing slash (except for root)
         if (path.length > 1 && path.endsWith('/')) {
             path = path.slice(0, -1);
         }
-        
+
         return path;
     }
 
@@ -222,7 +228,7 @@ class Router {
         document.querySelectorAll('[data-router-link]').forEach(link => {
             link.classList.remove('active');
         });
-        
+
         // Add active class to current link
         const activeLink = document.querySelector(`[data-router-link="${path}"]`);
         if (activeLink) {
@@ -233,27 +239,27 @@ class Router {
     async executePageScript(route) {
         // Look for page-specific script
         const scriptElement = this.appContent.querySelector('script[data-page]');
-        
+
         if (scriptElement) {
             try {
                 // Create new script element
                 const newScript = document.createElement('script');
                 newScript.type = 'module';
                 newScript.textContent = scriptElement.textContent;
-                
+
                 // Execute script
                 document.head.appendChild(newScript);
                 document.head.removeChild(newScript);
-                
+
             } catch (error) {
                 console.error('Failed to execute page script:', error);
             }
         }
-        
+
         // Also look for external script modules
         const pageName = route.component.split('/').pop().replace('.html', '');
         const pageModule = `./pages/${pageName}.js`;
-        
+
         try {
             const module = await import(pageModule);
             if (module.default && typeof module.default === 'function') {
@@ -322,32 +328,32 @@ class Router {
         this.registerRoute('/login', '/pages/login.html', { title: 'Login | EduConsult' });
 
         // Admin pages (protected)
-        this.registerRoute('/admin/dashboard', '/admin/dashboard.html', { 
+        this.registerRoute('/admin/dashboard', '/admin/dashboard.html', {
             title: 'Dashboard | Admin',
             requiresAuth: true,
             requiredRoles: ['admin', 'editor']
         });
-        this.registerRoute('/admin/videos', '/admin/videos.html', { 
+        this.registerRoute('/admin/videos', '/admin/videos.html', {
             title: 'Video Manager | Admin',
             requiresAuth: true,
             requiredRoles: ['admin', 'editor']
         });
-        this.registerRoute('/admin/images', '/admin/images.html', { 
+        this.registerRoute('/admin/images', '/admin/images.html', {
             title: 'Image Manager | Admin',
             requiresAuth: true,
             requiredRoles: ['admin', 'editor']
         });
-        this.registerRoute('/admin/ads', '/admin/ads.html', { 
+        this.registerRoute('/admin/ads', '/admin/ads.html', {
             title: 'Ad Manager | Admin',
             requiresAuth: true,
             requiredRoles: ['admin']
         });
-        this.registerRoute('/admin/blogs', '/admin/blogs.html', { 
+        this.registerRoute('/admin/blogs', '/admin/blogs.html', {
             title: 'Blog Manager | Admin',
             requiresAuth: true,
             requiredRoles: ['admin', 'editor']
         });
-        this.registerRoute('/admin/services', '/admin/services.html', { 
+        this.registerRoute('/admin/services', '/admin/services.html', {
             title: 'Service Manager | Admin',
             requiresAuth: true,
             requiredRoles: ['admin', 'editor']
@@ -367,14 +373,14 @@ class Router {
         const params = {};
         const queryString = window.location.search.substring(1);
         const pairs = queryString.split('&');
-        
+
         pairs.forEach(pair => {
             const [key, value] = pair.split('=');
             if (key) {
                 params[decodeURIComponent(key)] = decodeURIComponent(value || '');
             }
         });
-        
+
         return params;
     }
 

@@ -42,8 +42,8 @@ app = FastAPI(
     version=settings.VERSION,
     description="Educational Consultancy Platform API",
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
-    docs_url="/docs" if settings.DEBUG else None,
-    redoc_url="/redoc" if settings.DEBUG else None,
+    docs_url="/docs",  # Always enable Swagger UI for testing
+    redoc_url="/redoc",  # Always enable ReDoc for testing
     lifespan=lifespan
 )
 
@@ -77,17 +77,17 @@ if os.path.exists(settings.MEDIA_ROOT):
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-@app.get("/")
-async def root():
-    """Root endpoint"""
-    return custom_response(
-        message="Educational Consultancy Platform API",
-        data={
-            "version": settings.VERSION,
-            "docs": "/docs" if settings.DEBUG else None,
-            "status": "operational"
-        }
-    )
+# @app.get("/")
+# async def root():
+#     """Root endpoint"""
+#     return custom_response(
+#         message="Educational Consultancy Platform API",
+#         data={
+#             "version": settings.VERSION,
+#             "docs": "/docs" if settings.DEBUG else None,
+#             "status": "operational"
+#         }
+#     )
 
 @app.get("/health")
 async def health_check():
@@ -98,14 +98,35 @@ async def health_check():
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
     """Global exception handler"""
-    return JSONResponse(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content=custom_response(
-            success=False,
-            message="Internal server error",
-            error=str(exc)
-        )
+    return custom_response(
+        success=False,
+        message="Internal server error",
+        error=str(exc),
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR
     )
+
+
+# Mount frontend
+# NOTE: Mounting at "/" will catch ALL routes including /docs, /redoc, /openapi.json
+# To serve frontend AND keep /docs working, we have a few options:
+# 1. Mount frontend at a specific path like /app or /web
+# 2. Use a middleware to handle routing priority
+# 3. Don't mount frontend here if using a separate frontend server
+# 
+# For now, commenting out to allow /docs to work. 
+# Use a separate static file server or configure nginx/apache for production.
+
+from pathlib import Path
+
+# .../backend/app/main.py -> .../backend/app -> .../backend -> .../
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
+FRONTEND_DIR = BASE_DIR / "frontend"
+
+# Temporarily disabled to allow /docs to work
+# if FRONTEND_DIR.exists():
+#     app.mount("/", StaticFiles(directory=str(FRONTEND_DIR), html=True), name="frontend")
+# else:
+#     print(f"WARNING: Frontend directory not found at {FRONTEND_DIR}")
 
 if __name__ == "__main__":
     print("Imports complete. Starting uvicorn...")
@@ -114,7 +135,7 @@ if __name__ == "__main__":
         print("Uvicorn imported. Running...")
         uvicorn.run(
             app,
-            host="127.0.0.1",
+            host="0.0.0.0",
             port=8002,
             reload=False,
             log_level="info"

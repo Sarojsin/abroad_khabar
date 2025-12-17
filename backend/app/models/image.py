@@ -43,7 +43,7 @@ class Image(Base):
     
     # Relationships
     uploaded_by = relationship("User", back_populates="images")
-    album = relationship("ImageAlbum", back_populates="images")
+    album = relationship("ImageAlbum", foreign_keys=[album_id], back_populates="images")
     
     def __repr__(self):
         return f"<Image(id={self.id}, filename={self.filename}, category={self.category})>"
@@ -71,7 +71,7 @@ class ImageAlbum(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     # Relationships
-    images = relationship("Image", back_populates="album")
+    images = relationship("Image", foreign_keys="[Image.album_id]", back_populates="album")
     cover_image = relationship("Image", foreign_keys=[cover_image_id])
     
     def __repr__(self):

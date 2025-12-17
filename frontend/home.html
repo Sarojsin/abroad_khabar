@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Global Education Consultants</title>
+    <link rel="stylesheet" href="/css/main.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f5f5f5;
+        }
+
+        nav {
+            background: #2563eb;
+            padding: 1rem 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            gap: 2rem;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 4rem 2rem;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.9;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .feature-card h3 {
+            color: #2563eb;
+            margin-top: 0;
+        }
+
+        footer {
+            background: #1f2937;
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            margin-top: 4rem;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <div id="navbar-container"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section parallax-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title animate-fade-up">Your Gateway to Global Education</h1>
+            <p class="hero-subtitle animate-fade-up" style="animation-delay: 0.2s">Expert guidance for studying abroad
+                in 50+ countries</p>
+            <a href="/contact_simple.html" class="btn btn-primary btn-glow animate-fade-up"
+                style="animation-delay: 0.4s">
+                Start Your Journey
+            </a>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section">
+        <div class="container">
+            <h2 class="section-title">Why Choose Us?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="glass-card hover-glow">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>University Selection</h3>
+                    <p>We help you find the perfect university match based on your profile and goals.</p>
+                </div>
+                <div class="glass-card hover-glow">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-plane-departure"></i>
+                    </div>
+                    <h3>Visa Assistance</h3>
+                    <p>Complete visa application support with a 98% success rate.</p>
+                </div>
+                <div class="glass-card hover-glow">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h3>Scholarship Guidance</h3>
+                    <p>Unlock funding opportunities and maximize your financial aid options.</p>
+                </div>
+                <div class="glass-card hover-glow">
+                    <div class="icon-wrapper">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3>Application Support</h3>
+                    <p>Professional SOP writing and application review services.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <div id="footer-container"></div>
+
+    <script type="module">
+        // Initialize navbar and footer
+        import { loadNavbar } from '/js/components/navbar.js';
+        import { loadFooter } from '/js/components/footer.js';
+
+        loadNavbar();
+        loadFooter();
+    </script>
+</body>
+
+</html>

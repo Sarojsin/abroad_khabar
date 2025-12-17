@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .test-section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 8px;
+        }
+
+        h1 {
+            color: #2563eb;
+        }
+
+        h2 {
+            color: #059669;
+            margin-top: 0;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .nav-links a {
+            padding: 12px 24px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: background 0.3s;
+        }
+
+        .nav-links a:hover {
+            background: #1d4ed8;
+        }
+
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            background: #f0f9ff;
+            border-left: 4px solid #2563eb;
+        }
+
+        #current-page {
+            font-weight: bold;
+            color: #dc2626;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔗 Navigation Test Page</h1>
+
+    <div class="test-section">
+        <h2>Current Status</h2>
+        <div class="status">
+            <p>Current URL: <span id="current-url"></span></p>
+            <p>Current Page: <span id="current-page"></span></p>
+            <p>Router Status: <span id="router-status"></span></p>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Navigation Links (Router-based)</h2>
+        <p>Click these links to test the SPA router navigation:</p>
+        <div class="nav-links">
+            <a href="/" data-router>Home</a>
+            <a href="/about" data-router>About</a>
+            <a href="/services" data-router>Services</a>
+            <a href="/countries" data-router>Countries</a>
+            <a href="/videos" data-router>Videos</a>
+            <a href="/blogs" data-router>Blogs</a>
+            <a href="/contact" data-router>Contact</a>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>Direct URLs (Full page load)</h2>
+        <p>These links will do a full page reload:</p>
+        <div class="nav-links">
+            <a href="/">Home (direct)</a>
+            <a href="/services">Services (direct)</a>
+            <a href="/videos">Videos (direct)</a>
+            <a href="/contact">Contact (direct)</a>
+        </div>
+    </div>
+
+    <div class="test-section">
+        <h2>JavaScript Navigation Test</h2>
+        <button onclick="testNavigation()"
+            style="padding: 12px 24px; background: #059669; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            Test Router Navigation
+        </button>
+        <div id="test-results" style="margin-top: 15px;"></div>
+    </div>
+
+    <script type="module">
+        // Update current status
+        document.getElementById('current-url').textContent = window.location.href;
+        document.getElementById('current-page').textContent = window.location.pathname;
+
+        // Check if router exists
+        import router from '/js/core/router.js';
+
+        if (router) {
+            document.getElementById('router-status').textContent = '✅ Router initialized';
+            document.getElementById('router-status').style.color = '#059669';
+        } else {
+            document.getElementById('router-status').textContent = '❌ Router not found';
+            document.getElementById('router-status').style.color = '#dc2626';
+        }
+
+        // Test navigation function
+        window.testNavigation = async function () {
+            const results = document.getElementById('test-results');
+            results.innerHTML = '<p>Testing navigation...</p>';
+
+            try {
+                // Test navigating to services
+                results.innerHTML += '<p>→ Navigating to /services...</p>';
+                await router.navigate('/services');
+
+                setTimeout(() => {
+                    const mainContent = document.getElementById('main-content');
+                    if (mainContent && mainContent.innerHTML.includes('servic')) {
+                        results.innerHTML += '<p>✅ Services page loaded successfully!</p>';
+                    } else {
+                        results.innerHTML += '<p>❌ Services page failed to load</p>';
+                    }
+
+                    // Navigate back to home
+                    results.innerHTML += '<p>→ Navigating back to home...</p>';
+                    router.navigate('/');
+                }, 2000);
+
+            } catch (error) {
+                results.innerHTML += `<p>❌ Error: ${error.message}</p>`;
+            }
+        };
+
+        // Listen for route changes
+        window.addEventListener('routechange', (e) => {
+            console.log('Route changed to:', e.detail.route);
+            document.getElementById('current-page').textContent = window.location.pathname;
+        });
+    </script>
+</body>
+
+</html>

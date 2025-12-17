@@ -6,6 +6,7 @@ from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from jose import JWTError
 
 from app.core.security import (
@@ -143,7 +144,7 @@ async def login_user(
         )
     
     # Update last login
-    user.last_login = db.func.now()
+    user.last_login = func.now()
     db.commit()
     
     # Create tokens

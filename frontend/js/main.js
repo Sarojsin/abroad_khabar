@@ -1,14 +1,16 @@
 // Main Application Entry Point
-import Router from './core/router.js';
+import router from './core/router.js';
 import { initAuth } from './core/auth.js';
-import { loadNavbar, loadFooter } from './components/navbar.js';
+import { loadNavbar } from './components/navbar.js';
+import { loadFooter } from './components/footer.js';
 import { initModalSystem } from './components/modal.js';
 import { initScrollAnimations } from './effects/scroll-animations.js';
 import { initLazyMedia } from './effects/lazy-media.js';
 
 class EduConsultApp {
     constructor() {
-        this.router = new Router();
+        this.router = router;
+        this.router.generateRoutes();
         this.currentPage = null;
         this.init();
     }
@@ -16,13 +18,13 @@ class EduConsultApp {
     async init() {
         // Initialize core systems
         await this.initCore();
-        
+
         // Initialize effects and animations
         this.initEffects();
-        
+
         // Start router
         this.router.init();
-        
+
         console.log('EduConsult App initialized');
     }
 
@@ -31,16 +33,16 @@ class EduConsultApp {
             // Load navigation and footer
             await loadNavbar();
             await loadFooter();
-            
+
             // Initialize auth system
             await initAuth();
-            
+
             // Initialize modal system
             initModalSystem();
-            
+
             // Initialize loading state
             this.initLoadingState();
-            
+
         } catch (error) {
             console.error('Failed to initialize core:', error);
             this.showError('Failed to initialize application. Please refresh the page.');
@@ -50,27 +52,22 @@ class EduConsultApp {
     initEffects() {
         // Initialize scroll animations
         initScrollAnimations();
-        
+
         // Initialize lazy loading for media
         initLazyMedia();
-        
+
         // Initialize back to top button
         this.initBackToTop();
-        
+
         // Initialize page transitions
         this.initPageTransitions();
     }
 
     initLoadingState() {
-        const loader = document.querySelector('.loader-container');
-        if (loader) {
-            setTimeout(() => {
-                loader.style.opacity = '0';
-                setTimeout(() => {
-                    loader.style.display = 'none';
-                }, 300);
-            }, 500);
-        }
+        // Disabled - let the router handle hiding the loader after content loads
+        // The issue was this would hide the loader BEFORE router.init() runs
+        // leaving the page stuck showing nothing
+        console.log('Skipping initial loader hide - router will handle this');
     }
 
     initBackToTop() {
@@ -119,13 +116,13 @@ class EduConsultApp {
                 <span>${message}</span>
             </div>
         `;
-        
+
         document.body.appendChild(errorDiv);
-        
+
         setTimeout(() => {
             errorDiv.style.opacity = '1';
         }, 10);
-        
+
         setTimeout(() => {
             errorDiv.style.opacity = '0';
             setTimeout(() => {
@@ -136,7 +133,7 @@ class EduConsultApp {
 
     updatePageTitle(title) {
         document.title = `${title} | EduConsult`;
-        
+
         // Update meta tags for SEO
         this.updateMetaTags(title);
     }
@@ -145,7 +142,7 @@ class EduConsultApp {
         // Update OpenGraph tags
         const ogTitle = document.querySelector('meta[property="og:title"]');
         if (ogTitle) ogTitle.setAttribute('content', title);
-        
+
         // Update Twitter card
         const twitterTitle = document.querySelector('meta[name="twitter:title"]');
         if (twitterTitle) twitterTitle.setAttribute('content', title);
@@ -170,12 +167,12 @@ class EduConsultApp {
 // Add global error handler
 window.addEventListener('error', (event) => {
     console.error('Global error:', event.error);
-    
+
     // Don't show error for network errors in production
     if (event.error instanceof TypeError && event.error.message.includes('fetch')) {
         return;
     }
-    
+
     const app = EduConsultApp.getInstance();
     if (app) {
         app.showError('An unexpected error occurred. Please try again.');
@@ -194,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('ServiceWorker registration failed:', error);
             });
     }
-    
+
     // Initialize the app
     window.app = EduConsultApp.getInstance();
 });
