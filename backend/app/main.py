@@ -135,7 +135,7 @@ if __name__ == "__main__":
         print("Uvicorn imported. Running...")
         uvicorn.run(
             app,
-            host="0.0.0.0",
+            host="0.0.0.0",#http://localhost:8002/docs
             port=8002,
             reload=False,
             log_level="info"

@@ -9,10 +9,10 @@ from app.db.base import Base
 
 class UserRole(str, enum.Enum):
     """User role enum"""
-    ADMIN = "admin"
-    EDITOR = "editor"
-    VIEWER = "viewer"
-    USER = "user"
+    ADMIN = "ADMIN"
+    EDITOR = "EDITOR"
+    VIEWER = "VIEWER"
+    USER = "USER"
 
 class UserStatus(str, enum.Enum):
     """User status enum"""
