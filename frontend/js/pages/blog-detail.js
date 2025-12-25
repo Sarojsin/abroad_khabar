@@ -13,7 +13,7 @@ class BlogDetailPage {
         this.comments = [];
         this.isLiked = false;
         this.isBookmarked = false;
-        
+
         this.init();
     }
 
@@ -109,14 +109,14 @@ class BlogDetailPage {
             // In production, this would fetch from API
             // const response = await API.get(`/blogs/${this.blogId}`);
             // this.blogData = await response.json();
-            
+
             // Mock data for demonstration
             this.blogData = this.generateMockBlogDetail();
             this.renderBlogDetail();
-            
+
             // Check if user has liked/bookmarked
             this.checkUserActions();
-            
+
         } catch (error) {
             console.error('Error loading blog detail:', error);
             this.showError('Failed to load blog post. Please try again.');
@@ -125,18 +125,18 @@ class BlogDetailPage {
 
     generateMockBlogDetail() {
         const authors = [
-            { name: 'Priya Sharma', role: 'Lead Education Counselor', image: '../assets/images/team/counselor.jpg' },
-            { name: 'Dr. Sarah Johnson', role: 'CEO & Founder', image: '../assets/images/team/ceo.jpg' },
-            { name: 'Michael Chen', role: 'Visa Expert', image: '../assets/images/team/director.jpg' }
+            { name: 'Priya Sharma', role: 'Lead Education Counselor', image: '/assets/images/team/counselor.jpg' },
+            { name: 'Dr. Sarah Johnson', role: 'CEO & Founder', image: '/assets/images/team/ceo.jpg' },
+            { name: 'Michael Chen', role: 'Visa Expert', image: '/assets/images/team/director.jpg' }
         ];
-        
+
         return {
             id: this.blogId,
             title: 'Complete Guide to Study Abroad in 2024: Everything You Need to Know',
             category: 'Study Guide',
             date: 'December 15, 2024',
             readTime: '8 min read',
-            image: '../assets/images/blogs/featured-blog.jpg',
+            image: '/assets/images/blogs/featured-blog.jpg',
             author: authors[this.blogId % authors.length],
             content: this.generateMockContent(),
             likes: Math.floor(Math.random() * 500) + 100,
@@ -180,7 +180,7 @@ class BlogDetailPage {
 
         // Update meta information
         document.title = `${this.blogData.title} - Global Education Consultants`;
-        
+
         // Update like count
         const likeCount = document.querySelector('.like-count');
         if (likeCount) {
@@ -190,7 +190,7 @@ class BlogDetailPage {
         // Update tags
         const tagsContainer = document.querySelector('.blog-tags');
         if (tagsContainer && this.blogData.tags) {
-            tagsContainer.innerHTML = this.blogData.tags.map(tag => 
+            tagsContainer.innerHTML = this.blogData.tags.map(tag =>
                 `<span class="tag">${tag}</span>`
             ).join('');
         }
@@ -237,11 +237,11 @@ class BlogDetailPage {
             // In production, this would fetch from API
             // const response = await API.get(`/blogs/${this.blogId}/comments`);
             // this.comments = await response.json();
-            
+
             // Mock data for demonstration
             this.comments = this.generateMockComments();
             this.renderComments();
-            
+
         } catch (error) {
             console.error('Error loading comments:', error);
         }
@@ -252,7 +252,7 @@ class BlogDetailPage {
             {
                 id: 1,
                 author: 'Rahul Kumar',
-                avatar: '../assets/images/users/user1.jpg',
+                avatar: '/assets/images/users/user1.jpg',
                 role: 'Student',
                 date: '3 days ago',
                 content: 'Great article! The visa section was particularly helpful. Could you write more about scholarship opportunities for Indian students?',
@@ -262,7 +262,7 @@ class BlogDetailPage {
             {
                 id: 2,
                 author: 'Maria Garcia',
-                avatar: '../assets/images/users/user2.jpg',
+                avatar: '/assets/images/users/user2.jpg',
                 role: 'Working Professional',
                 date: '1 week ago',
                 content: 'Very comprehensive guide. The cost breakdown tables were especially useful for financial planning.',
@@ -272,7 +272,7 @@ class BlogDetailPage {
             {
                 id: 3,
                 author: 'Chen Wei',
-                avatar: '../assets/images/users/user3.jpg',
+                avatar: '/assets/images/users/user3.jpg',
                 role: 'Parent',
                 date: '2 weeks ago',
                 content: 'Thank you for this detailed guide. It helped me understand the entire process for my daughter.',
@@ -320,7 +320,7 @@ class BlogDetailPage {
                     </button>
                 </div>
             `;
-            
+
             container.appendChild(commentElement);
         });
 
@@ -345,14 +345,14 @@ class BlogDetailPage {
         // For now, use localStorage
         this.isLiked = localStorage.getItem(`blog_${this.blogId}_liked`) === 'true';
         this.isBookmarked = localStorage.getItem(`blog_${this.blogId}_bookmarked`) === 'true';
-        
+
         this.updateActionButtons();
     }
 
     updateActionButtons() {
         const likeBtn = document.querySelector('.like-btn');
         const bookmarkBtn = document.querySelector('.bookmark-btn');
-        
+
         if (likeBtn) {
             if (this.isLiked) {
                 likeBtn.classList.add('liked');
@@ -362,7 +362,7 @@ class BlogDetailPage {
                 likeBtn.querySelector('svg').style.fill = 'none';
             }
         }
-        
+
         if (bookmarkBtn) {
             if (this.isBookmarked) {
                 bookmarkBtn.classList.add('bookmarked');
@@ -378,25 +378,25 @@ class BlogDetailPage {
         try {
             // In production, this would call API
             // await API.post(`/blogs/${this.blogId}/like`);
-            
+
             this.isLiked = !this.isLiked;
             if (this.isLiked) {
                 this.blogData.likes++;
             } else {
                 this.blogData.likes--;
             }
-            
+
             // Update localStorage
             localStorage.setItem(`blog_${this.blogId}_liked`, this.isLiked);
-            
+
             this.updateActionButtons();
-            
+
             // Update like count display
             const likeCount = document.querySelector('.like-count');
             if (likeCount) {
                 likeCount.textContent = this.blogData.likes.toLocaleString();
             }
-            
+
         } catch (error) {
             console.error('Error toggling like:', error);
         }
@@ -406,10 +406,10 @@ class BlogDetailPage {
         this.isBookmarked = !this.isBookmarked;
         localStorage.setItem(`blog_${this.blogId}_bookmarked`, this.isBookmarked);
         this.updateActionButtons();
-        
+
         this.showToast(
-            this.isBookmarked 
-                ? 'Article saved to bookmarks' 
+            this.isBookmarked
+                ? 'Article saved to bookmarks'
                 : 'Article removed from bookmarks'
         );
     }
@@ -418,7 +418,7 @@ class BlogDetailPage {
         const form = document.getElementById('comment-form');
         if (form) {
             form.style.display = form.style.display === 'none' ? 'block' : 'none';
-            
+
             if (form.style.display === 'block') {
                 form.querySelector('textarea').focus();
             }
@@ -429,12 +429,12 @@ class BlogDetailPage {
         const name = document.getElementById('comment-name').value;
         const email = document.getElementById('comment-email').value;
         const text = document.getElementById('comment-text').value;
-        
+
         if (!name || !email || !text) {
             this.showToast('Please fill in all fields', 'error');
             return;
         }
-        
+
         try {
             // In production, this would submit to API
             // const response = await API.post(`/blogs/${this.blogId}/comments`, {
@@ -443,27 +443,27 @@ class BlogDetailPage {
             //     content: text
             // });
             // const newComment = await response.json();
-            
+
             // Mock new comment
             const newComment = {
                 id: Date.now(),
                 author: name,
-                avatar: '../assets/images/users/default.jpg',
+                avatar: '/assets/images/users/default.jpg',
                 role: 'Reader',
                 date: 'Just now',
                 content: text,
                 likes: 0,
                 replies: []
             };
-            
+
             this.comments.unshift(newComment);
             this.renderComments();
-            
+
             form.reset();
             form.style.display = 'none';
-            
+
             this.showToast('Comment submitted successfully!');
-            
+
         } catch (error) {
             console.error('Error submitting comment:', error);
             this.showToast('Failed to submit comment. Please try again.', 'error');
@@ -493,7 +493,7 @@ class BlogDetailPage {
         tocContainer.innerHTML = Array.from(headings).map((heading, index) => {
             const id = `section-${index + 1}`;
             heading.id = id;
-            
+
             return `<a href="#${id}" class="toc-item">${heading.textContent}</a>`;
         }).join('');
 
@@ -503,7 +503,7 @@ class BlogDetailPage {
                 e.preventDefault();
                 const targetId = link.getAttribute('href');
                 const targetElement = document.querySelector(targetId);
-                
+
                 if (targetElement) {
                     targetElement.scrollIntoView({
                         behavior: 'smooth',
@@ -516,7 +516,7 @@ class BlogDetailPage {
 
     setupShareButtons() {
         const shareButtons = document.querySelectorAll('.share-btn');
-        
+
         shareButtons.forEach(button => {
             button.addEventListener('click', (e) => {
                 const platform = e.currentTarget.dataset.platform;
@@ -529,7 +529,7 @@ class BlogDetailPage {
         const url = window.location.href;
         const title = this.blogData?.title || document.title;
         const text = 'Check out this article on Global Education Consultants';
-        
+
         switch (platform) {
             case 'facebook':
                 window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
@@ -574,7 +574,7 @@ class BlogDetailPage {
         toast.className = `toast ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -583,9 +583,5 @@ class BlogDetailPage {
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new BlogDetailPage();
-});
-
+// Export for module usage
 export default BlogDetailPage;

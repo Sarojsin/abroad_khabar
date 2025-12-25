@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Access Denied - Abroad Khabar</title>
+    <meta name="description" content="You do not have permission to access this page.">
+    <link rel="stylesheet" href="../css/main.css">
+    <link rel="icon" href="../public/favicon.ico">
+</head>
+
+<body>
+    <div id="app">
+        <nav id="navbar-container"></nav>
+
+        <main class="page-content">
+            <section class="error-section">
+                <div class="container">
+                    <div class="error-content glass-card">
+                        <div class="error-animation">
+                            <div class="error-number">
+                                <span class="digit">4</span>
+                                <span class="digit zero">
+                                    <div class="zero-inner lock-icon">
+                                        <svg class="w-12 h-12" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd"
+                                                d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                </span>
+                                <span class="digit">3</span>
+                            </div>
+                        </div>
+
+                        <h1 class="error-title">Access Denied</h1>
+                        <p class="error-message">Sorry, you do not have permission to view this page. This area is
+                            reserved for authorized administrators.</p>
+
+                        <div class="error-actions">
+                            <a href="../index.html" class="btn btn-primary">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                                </svg>
+                                Go Home
+                            </a>
+                            <a href="login.html" class="btn btn-outline">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                </svg>
+                                Login as Admin
+                            </a>
+                        </div>
+
+                        <div class="error-technical">
+                            <details>
+                                <summary>Technical Details</summary>
+                                <div class="technical-content">
+                                    <p><strong>Error Code:</strong> 403 Forbidden</p>
+                                    <p><strong>Timestamp:</strong> <span id="error-timestamp"></span></p>
+                                    <p><strong>Requested URL:</strong> <span id="requested-url"></span></p>
+                                </div>
+                            </details>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer id="footer-container"></footer>
+    </div>
+
+    <script src="../js/main.js" type="module"></script>
+</body>
+
+</html>

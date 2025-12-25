@@ -32,15 +32,16 @@ class AuthService {
         }
     }
 
-    async login(email, password) {
+    async login(emailOrUsername, password) {
         try {
             const response = await api.post('/auth/login', {
-                email,
+                email_or_username: emailOrUsername,
                 password
             });
 
-            if (response.access_token) {
-                await this.setAuth(response);
+            // API returns {message, data: {user, tokens}}
+            if (response && response.data && response.data.tokens && response.data.tokens.access_token) {
+                await this.setAuth(response.data);
                 return { success: true, user: this.currentUser };
             }
 
@@ -59,8 +60,9 @@ class AuthService {
         try {
             const response = await api.post('/auth/register', userData);
 
-            if (response.access_token) {
-                await this.setAuth(response);
+            // API returns {message, data: {user, tokens}}
+            if (response && response.data && response.data.tokens && response.data.tokens.access_token) {
+                await this.setAuth(response.data);
                 return { success: true, user: this.currentUser };
             }
 
@@ -75,8 +77,9 @@ class AuthService {
         }
     }
 
-    async setAuth(authResponse) {
-        const { access_token, refresh_token, user } = authResponse;
+    async setAuth(authData) {
+        const { tokens, user } = authData;
+        const { access_token, refresh_token } = tokens;
 
         // Store tokens
         api.setAuthToken(access_token);
@@ -97,10 +100,16 @@ class AuthService {
 
     async verifyToken() {
         try {
-            await api.get('/auth/me');
+            console.log('[Auth] Verifying token...');
+            const token = localStorage.getItem('auth_token');
+            console.log('[Auth] Token from localStorage:', token ? `${token.substring(0, 20)}...` : 'NULL');
+
+            const response = await api.get('/auth/me');
+            console.log('[Auth] Token verification successful:', response);
             return true;
         } catch (error) {
-            console.error('Token verification failed:', error);
+            console.error('[Auth] Token verification failed:', error);
+            console.log('[Auth] Attempting token refresh...');
             await this.refreshToken();
             return false;
         }
@@ -117,7 +126,8 @@ class AuthService {
                 refresh_token: refreshToken
             });
 
-            if (response.access_token) {
+            // API now returns plain {access_token, token_type, expires_in}
+            if (response && response.access_token) {
                 api.setAuthToken(response.access_token);
                 return true;
             }
@@ -196,21 +206,20 @@ class AuthService {
     // Check user roles
     hasRole(role) {
         if (!this.isAuthenticated || !this.currentUser) return false;
-        return this.currentUser.roles?.includes(role) || this.currentUser.role === role;
+        const normalizedRole = role.toUpperCase();
+        const userRole = (this.currentUser.role || '').toUpperCase();
+        const userRoles = (this.currentUser.roles || []).map(r => r.toUpperCase());
+        return userRoles.includes(normalizedRole) || userRole === normalizedRole;
     }
 
     hasAnyRole(roles) {
         if (!this.isAuthenticated || !this.currentUser) return false;
-        return roles.some(role =>
-            this.currentUser.roles?.includes(role) || this.currentUser.role === role
-        );
+        return roles.some(role => this.hasRole(role));
     }
 
     hasAllRoles(roles) {
         if (!this.isAuthenticated || !this.currentUser) return false;
-        return roles.every(role =>
-            this.currentUser.roles?.includes(role) || this.currentUser.role === role
-        );
+        return roles.every(role => this.hasRole(role));
     }
 
     // Check permissions

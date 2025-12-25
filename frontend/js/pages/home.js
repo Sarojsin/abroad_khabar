@@ -2,6 +2,8 @@
  * Home Page JavaScript
  */
 
+import API from '../core/api.js';
+
 class HomePage {
     constructor() {
         this.featuredServices = [];
@@ -21,35 +23,24 @@ class HomePage {
     async loadData() {
         try {
             // Load featured services
-            const servicesResponse = await fetch('/api/v1/services?featured=true&limit=4');
-            if (servicesResponse.ok) {
-                const servicesData = await servicesResponse.json();
-                this.featuredServices = servicesData.services || [];
-                this.renderFeaturedServices();
-            }
+            const servicesData = await API.get('/services', { featured: true, limit: 4 });
+            this.featuredServices = servicesData.services || [];
+            this.renderFeaturedServices();
 
             // Load featured videos
-            const videosResponse = await fetch('/api/v1/videos?featured=true&limit=3');
-            if (videosResponse.ok) {
-                const videosData = await videosResponse.json();
-                this.featuredVideos = videosData.videos || [];
-                this.renderFeaturedVideos();
-            }
+            const videosData = await API.get('/videos', { featured: true, limit: 3 });
+            this.featuredVideos = videosData.videos || [];
+            this.renderFeaturedVideos();
 
             // Load testimonials
-            const testimonialsResponse = await fetch('/api/v1/testimonials?featured=true&limit=5');
-            if (testimonialsResponse.ok) {
-                const testimonialsData = await testimonialsResponse.json();
-                this.testimonials = testimonialsData.testimonials || [];
-                this.renderTestimonials();
-            }
+            const testimonialsData = await API.get('/testimonials', { featured: true, limit: 5 });
+            this.testimonials = testimonialsData.testimonials || [];
+            this.renderTestimonials();
 
             // Load stats
-            const statsResponse = await fetch('/api/v1/stats');
-            if (statsResponse.ok) {
-                this.stats = await statsResponse.json();
-                this.updateStats();
-            }
+            const statsData = await API.get('/stats');
+            this.stats = statsData || {};
+            this.updateStats();
 
             // Load homepage ad
             this.loadHomepageAd();
@@ -84,7 +75,7 @@ class HomePage {
         const card = document.createElement('div');
         card.className = 'service-card animate-fade-in';
         card.dataset.category = service.category?.slug || '';
-        
+
         card.innerHTML = `
             <div class="service-card-inner">
                 <div class="service-icon">
@@ -109,7 +100,7 @@ class HomePage {
                 </div>
             </div>
         `;
-        
+
         return card;
     }
 
@@ -137,11 +128,11 @@ class HomePage {
     createVideoCard(video) {
         const card = document.createElement('div');
         card.className = 'video-card animate-fade-in';
-        
+
         card.innerHTML = `
             <div class="video-card-inner">
                 <div class="video-thumbnail">
-                    <img src="${video.thumbnail_url || '/assets/images/video-placeholder.jpg'}" 
+                    <img src="${video.thumbnail_url || '/assets/images/video-placeholder.png'}" 
                          alt="${video.title}"
                          loading="lazy"
                          class="lazy-image">
@@ -164,7 +155,7 @@ class HomePage {
                 </div>
             </div>
         `;
-        
+
         return card;
     }
 
@@ -232,7 +223,7 @@ class HomePage {
         const dotsContainer = document.getElementById('testimonial-dots');
         const prevBtn = document.getElementById('testimonial-prev');
         const nextBtn = document.getElementById('testimonial-next');
-        
+
         if (!track || !dotsContainer) return;
 
         const slides = track.querySelectorAll('.testimonial-slide');
@@ -252,10 +243,10 @@ class HomePage {
 
         const updateSlider = () => {
             if (slides.length === 0) return;
-            
+
             slideWidth = slides[0].offsetWidth;
             track.style.transform = `translateX(-${currentSlide * slideWidth}px)`;
-            
+
             // Update dots
             document.querySelectorAll('.slider-dot').forEach((dot, index) => {
                 dot.classList.toggle('active', index === currentSlide);
@@ -338,13 +329,10 @@ class HomePage {
         if (!adContainer) return;
 
         try {
-            const response = await fetch('/api/v1/ads?position=homepage&status=active&limit=1');
-            if (response.ok) {
-                const data = await response.json();
-                if (data.ads && data.ads.length > 0) {
-                    const ad = data.ads[0];
-                    this.renderAd(ad, adContainer);
-                }
+            const data = await API.get('/ads', { position: 'homepage', status: 'active', limit: 1 });
+            if (data.ads && data.ads.length > 0) {
+                const ad = data.ads[0];
+                this.renderAd(ad, adContainer);
             }
         } catch (error) {
             console.error('Failed to load ad:', error);
@@ -407,7 +395,7 @@ class HomePage {
                 e.preventDefault();
                 const targetId = e.target.getAttribute('href');
                 if (targetId === '#') return;
-                
+
                 const targetElement = document.querySelector(targetId);
                 if (targetElement) {
                     targetElement.scrollIntoView({
@@ -478,12 +466,9 @@ class HomePage {
 
     async loadSidebarAds() {
         try {
-            const response = await fetch('/api/v1/ads?position=sidebar&status=active&limit=2');
-            if (response.ok) {
-                const data = await response.json();
-                if (data.ads && data.ads.length > 0) {
-                    this.renderSidebarAds(data.ads);
-                }
+            const data = await API.get('/ads', { position: 'sidebar', status: 'active', limit: 2 });
+            if (data.ads && data.ads.length > 0) {
+                this.renderSidebarAds(data.ads);
             }
         } catch (error) {
             console.error('Failed to load sidebar ads:', error);
@@ -516,7 +501,7 @@ class HomePage {
         try {
             const response = await fetch(`/api/v1/services/${serviceId}`);
             if (!response.ok) throw new Error('Service not found');
-            
+
             const service = await response.json();
             this.openServiceModal(service);
         } catch (error) {
@@ -599,9 +584,9 @@ class HomePage {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         // Show modal
         setTimeout(() => modal.classList.add('active'), 10);
     }
@@ -610,7 +595,7 @@ class HomePage {
         try {
             const response = await fetch(`/api/v1/videos/${videoId}`);
             if (!response.ok) throw new Error('Video not found');
-            
+
             const video = await response.json();
             this.openVideoPlayer(video);
         } catch (error) {
@@ -669,12 +654,12 @@ class HomePage {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         // Show modal
         setTimeout(() => modal.classList.add('active'), 10);
-        
+
         // Play video automatically
         const videoElement = modal.querySelector('video');
         if (videoElement) {
@@ -685,7 +670,7 @@ class HomePage {
     async submitConsultationForm(form) {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
+
         try {
             const response = await fetch('/api/v1/consultations', {
                 method: 'POST',
@@ -694,15 +679,15 @@ class HomePage {
                 },
                 body: JSON.stringify(data)
             });
-            
+
             if (!response.ok) throw new Error('Submission failed');
-            
+
             // Show success message
             this.showNotification('Thank you! We\'ll contact you within 24 hours.', 'success');
-            
+
             // Reset form
             form.reset();
-            
+
             // Close modal if open
             const modal = document.getElementById('consultation-modal');
             if (modal) {
@@ -762,18 +747,18 @@ class HomePage {
             </div>
             <button class="notification-close">&times;</button>
         `;
-        
+
         document.body.appendChild(notification);
-        
+
         // Show with animation
         setTimeout(() => notification.classList.add('show'), 10);
-        
+
         // Auto remove after 5 seconds
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
         }, 5000);
-        
+
         // Close button
         notification.querySelector('.notification-close').addEventListener('click', () => {
             notification.classList.remove('show');
@@ -782,10 +767,5 @@ class HomePage {
     }
 }
 
-// Initialize home page
-function initHomePage() {
-    const homePage = new HomePage();
-    window.homePage = homePage;
-}
-
-export { initHomePage };
+// Export home page class
+export default HomePage;

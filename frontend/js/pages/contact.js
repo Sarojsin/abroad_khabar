@@ -14,7 +14,7 @@ class ContactPage {
             study: {},
             message: {}
         };
-        
+
         this.init();
     }
 
@@ -125,16 +125,16 @@ class ContactPage {
             if (!field.value.trim()) {
                 isValid = false;
                 if (!firstInvalidField) firstInvalidField = field;
-                
+
                 field.classList.add('error');
-                const errorMsg = field.parentElement.querySelector('.error-message') || 
+                const errorMsg = field.parentElement.querySelector('.error-message') ||
                     this.createErrorMessage('This field is required');
                 field.parentElement.appendChild(errorMsg);
             } else {
                 field.classList.remove('error');
                 const errorMsg = field.parentElement.querySelector('.error-message');
                 if (errorMsg) errorMsg.remove();
-                
+
                 // Additional validation for specific fields
                 if (field.type === 'email' && !this.isValidEmail(field.value)) {
                     isValid = false;
@@ -142,7 +142,7 @@ class ContactPage {
                     const errorMsg = this.createErrorMessage('Please enter a valid email address');
                     field.parentElement.appendChild(errorMsg);
                 }
-                
+
                 if (field.type === 'tel' && !this.isValidPhone(field.value)) {
                     isValid = false;
                     field.classList.add('error');
@@ -189,10 +189,10 @@ class ContactPage {
         if (newStep) {
             newStep.classList.add('active');
             this.currentStep = step;
-            
+
             // Update progress indicator
             this.updateProgress(step);
-            
+
             // Scroll to step
             newStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -203,7 +203,7 @@ class ContactPage {
         progressSteps.forEach(step => {
             const stepNumber = parseInt(step.dataset.step);
             step.classList.remove('active', 'completed');
-            
+
             if (stepNumber === currentStep) {
                 step.classList.add('active');
             } else if (stepNumber < currentStep) {
@@ -225,7 +225,7 @@ class ContactPage {
         // Collect study preferences
         const destinationSelect = document.getElementById('study-destination');
         const selectedDestinations = Array.from(destinationSelect.selectedOptions).map(option => option.value);
-        
+
         this.formData.study = {
             destination: selectedDestinations,
             educationLevel: document.getElementById('education-level')?.value || '',
@@ -244,7 +244,7 @@ class ContactPage {
     async submitForm() {
         // Collect all form data
         this.collectFormData();
-        
+
         // Validate final step
         if (!this.validateCurrentStep()) {
             return;
@@ -254,7 +254,7 @@ class ContactPage {
         const submitBtn = document.querySelector('#contact-form button[type="submit"]');
         const submitText = submitBtn.querySelector('.submit-text');
         const spinner = submitBtn.querySelector('.loading-spinner');
-        
+
         submitText.style.display = 'none';
         spinner.style.display = 'block';
         submitBtn.disabled = true;
@@ -267,20 +267,20 @@ class ContactPage {
             //     ...this.formData.message,
             //     formType: 'general-inquiry'
             // });
-            
+
             // Simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 1500));
-            
+
             // Show success modal
             const successModal = document.getElementById('success-modal');
             if (successModal) {
                 successModal.classList.add('active');
-                
+
                 // Reset form
                 document.getElementById('contact-form').reset();
                 this.goToStep(1);
             }
-            
+
         } catch (error) {
             console.error('Error submitting form:', error);
             this.showToast('Failed to submit form. Please try again.', 'error');
@@ -295,23 +295,23 @@ class ContactPage {
     async submitConsultation(form) {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
+
         // Show loading state
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Booking...';
         submitBtn.disabled = true;
-        
+
         try {
             // In production, this would submit to API
             // await API.post('/consultations', data);
-            
+
             // Simulate API call delay
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             this.showToast('Consultation booked successfully! We will contact you soon.');
             form.reset();
-            
+
         } catch (error) {
             console.error('Error booking consultation:', error);
             this.showToast('Failed to book consultation. Please try again.', 'error');
@@ -324,19 +324,19 @@ class ContactPage {
     setupMap() {
         // In production, this would initialize Google Maps
         // For now, we'll set up a placeholder with interactive features
-        
+
         const mapPlaceholder = document.querySelector('.map-placeholder');
         if (mapPlaceholder) {
             mapPlaceholder.addEventListener('click', () => {
                 window.open('https://maps.google.com', '_blank');
             });
-            
+
             // Add hover effect
             mapPlaceholder.addEventListener('mouseenter', () => {
                 mapPlaceholder.style.transform = 'scale(1.02)';
                 mapPlaceholder.style.transition = 'transform 0.3s ease';
             });
-            
+
             mapPlaceholder.addEventListener('mouseleave', () => {
                 mapPlaceholder.style.transform = 'scale(1)';
             });
@@ -348,7 +348,7 @@ class ContactPage {
         toast.className = `toast ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -357,9 +357,5 @@ class ContactPage {
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new ContactPage();
-});
-
+// Export for module usage
 export default ContactPage;

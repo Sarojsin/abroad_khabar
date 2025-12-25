@@ -7,11 +7,16 @@ class Router {
     constructor() {
         this.routes = [];
         this.currentRoute = null;
-        this.appContent = document.getElementById('main-content');
+        this.appContent = null;
+        this.cache = new Map(); // Add template cache
         this.initEventListeners();
     }
 
     init() {
+        this.appContent = document.getElementById('main-content');
+        if (!this.appContent) {
+            console.warn('Router: #main-content not found during init, will retry during navigation');
+        }
         // Load initial route
         this.navigate(window.location.pathname, false);
     }
@@ -39,7 +44,7 @@ class Router {
         const route = {
             path: this.normalizePath(path),
             component,
-            title: options.title || 'EduConsult',
+            title: options.title || 'Abroad Khabar',
             requiresAuth: options.requiresAuth || false,
             requiredRoles: options.requiredRoles || [],
             layout: options.layout || 'default'
@@ -103,7 +108,7 @@ class Router {
 
     async loadRoute(route) {
         try {
-            // If route is a string, match it first
+            // Match by component string
             if (typeof route === 'string') {
                 route = this.matchRoute(route);
                 if (!route) {
@@ -114,23 +119,56 @@ class Router {
 
             this.currentRoute = route;
 
-            // Load the component
+            // Add loading class to body for transitions
+            document.body.classList.add('router-loading');
+
+            // Load the component with caching
             const html = await this.fetchComponent(route.component);
 
             // Parse and render
             const parser = new DOMParser();
             const doc = parser.parseFromString(html, 'text/html');
 
-            // Extract main content
+            // Extract main content more robustly
+            // If it's a partial, it might be directly in the body of the parsed document
             const mainContent = doc.querySelector('[data-router-view]') ||
                 doc.querySelector('main') ||
-                doc.body;
+                (doc.body.children.length > 0 ? doc.body : null);
 
-            // Clear current content
-            this.appContent.innerHTML = '';
+            if (!mainContent) {
+                console.error('No content found in component:', route.component);
+                await this.loadError();
+                return;
+            }
 
-            // Append new content
-            this.appContent.appendChild(mainContent.cloneNode(true));
+            // Clear current content and set new HTML
+            console.log('Injecting HTML to main-content');
+
+            // Ensure appContent is available
+            if (!this.appContent) this.appContent = document.getElementById('main-content');
+            if (!this.appContent) {
+                console.error('Critical Router Error: #main-content container not found');
+                return;
+            }
+
+            // Handle layouts
+            const navbarContainer = document.getElementById('navbar-container');
+            const footerContainer = document.getElementById('footer-container');
+
+            if (route.path.startsWith('/admin')) {
+                if (navbarContainer) navbarContainer.style.display = 'none';
+                if (footerContainer) footerContainer.style.display = 'none';
+                // Take everything inside #app or body if it's a full page
+                const fullContent = doc.querySelector('#app') || doc.body;
+                this.appContent.innerHTML = fullContent.innerHTML;
+            } else {
+                if (navbarContainer) navbarContainer.style.display = 'block';
+                if (footerContainer) footerContainer.style.display = 'block';
+                this.appContent.innerHTML = mainContent.innerHTML;
+            }
+
+            // Remove loading class
+            document.body.classList.remove('router-loading');
 
             // CRITICAL: Hide the initial page loader after content loads
             const pageLoader = document.querySelector('.page-loader');
@@ -157,14 +195,30 @@ class Router {
         }
 
         // If component is a string URL, fetch it
-        if (typeof component === 'string') {
-            const response = await fetch(component);
+        if (typeof component === 'string' && !component.trim().startsWith('<')) {
+            // Check if we should bypass cache (always in development)
+            const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+            if (!isDevelopment && this.cache.has(component)) {
+                return this.cache.get(component);
+            }
+
+            // Add cache-busting timestamp in development
+            const url = isDevelopment ? `${component}?t=${Date.now()}` : component;
+
+            const response = await fetch(url);
             if (!response.ok) throw new Error(`Failed to fetch ${component}`);
-            return await response.text();
+            const html = await response.text();
+
+            // Cache the result (only if not in development)
+            if (!isDevelopment) {
+                this.cache.set(component, html);
+            }
+            return html;
         }
 
         // If component is HTML string, return it
-        if (typeof component === 'string' && component.trim().startsWith('<')) {
+        if (typeof component === 'string') {
             return component;
         }
 
@@ -257,14 +311,24 @@ class Router {
         }
 
         // Also look for external script modules
-        const pageName = route.component.split('/').pop().replace('.html', '');
-        const pageModule = `./pages/${pageName}.js`;
+        const componentPath = route.component;
+        const pageName = componentPath.split('/').pop().replace('.html', '');
+        let pageModule;
+
+        if (componentPath.startsWith('/admin/')) {
+            pageModule = `../admin/${pageName}.js`;
+        } else {
+            pageModule = `../pages/${pageName}.js`;
+        }
 
         try {
             const module = await import(pageModule);
-            if (module.default && typeof module.default === 'function') {
-                await module.default();
-            }
+            // Wait for a tick to ensure DOM is updated
+            setTimeout(() => {
+                if (module.default && typeof module.default === 'function') {
+                    new module.default();
+                }
+            }, 0);
         } catch (error) {
             // It's okay if page module doesn't exist
             if (!error.message.includes('Failed to fetch')) {
@@ -285,17 +349,31 @@ class Router {
     }
 
     async load404() {
-        const response = await fetch('/pages/404.html');
-        const html = await response.text();
-        this.appContent.innerHTML = html;
-        document.title = 'Page Not Found | EduConsult';
+        try {
+            if (!this.appContent) this.appContent = document.getElementById('main-content');
+
+            const response = await fetch('/pages/404.html');
+            if (!response.ok) throw new Error('404 page not found');
+            const html = await response.text();
+
+            if (this.appContent) {
+                this.appContent.innerHTML = html;
+            }
+            document.title = 'Page Not Found | Abroad Khabar';
+        } catch (e) {
+            console.error('Failed to load 404 page:', e);
+            if (this.appContent) {
+                this.appContent.innerHTML = '<h1>Page Not Found</h1>';
+            }
+            document.title = '404 | Abroad Khabar';
+        }
     }
 
     async load403() {
         const response = await fetch('/pages/403.html');
         const html = await response.text();
         this.appContent.innerHTML = html;
-        document.title = 'Access Denied | EduConsult';
+        document.title = 'Access Denied | Abroad Khabar';
     }
 
     async loadError() {
@@ -308,24 +386,29 @@ class Router {
                 </div>
             </div>
         `;
-        this.appContent.innerHTML = html;
-        document.title = 'Error | EduConsult';
+        if (this.appContent) {
+            this.appContent.innerHTML = html;
+        } else {
+            const container = document.getElementById('main-content');
+            if (container) container.innerHTML = html;
+        }
+        document.title = 'Error | Abroad Khabar';
     }
 
     // Helper method to generate routes from page structure
     generateRoutes() {
         // Public pages
-        this.registerRoute('/', '/pages/index.html', { title: 'Home | EduConsult' });
-        this.registerRoute('/about', '/pages/about.html', { title: 'About Us | EduConsult' });
-        this.registerRoute('/services', '/pages/services.html', { title: 'Services | EduConsult' });
-        this.registerRoute('/services/:id', '/pages/service-detail.html', { title: 'Service Details | EduConsult' });
-        this.registerRoute('/countries', '/pages/countries.html', { title: 'Countries | EduConsult' });
-        this.registerRoute('/videos', '/pages/videos.html', { title: 'Videos | EduConsult' });
-        this.registerRoute('/videos/:id', '/pages/video-detail.html', { title: 'Video Details | EduConsult' });
-        this.registerRoute('/blogs', '/pages/blogs.html', { title: 'Blogs | EduConsult' });
-        this.registerRoute('/blogs/:id', '/pages/blog-detail.html', { title: 'Blog Post | EduConsult' });
-        this.registerRoute('/contact', '/pages/contact.html', { title: 'Contact Us | EduConsult' });
-        this.registerRoute('/login', '/pages/login.html', { title: 'Login | EduConsult' });
+        this.registerRoute('/', '/pages/home.html', { title: 'Home | Abroad Khabar' });
+        this.registerRoute('/about', '/pages/about.html', { title: 'About Us | Abroad Khabar' });
+        this.registerRoute('/services', '/pages/services.html', { title: 'Services | Abroad Khabar' });
+        this.registerRoute('/services/:id', '/pages/service-detail.html', { title: 'Service Details | Abroad Khabar' });
+        this.registerRoute('/countries', '/pages/countries.html', { title: 'Countries | Abroad Khabar' });
+        this.registerRoute('/videos', '/pages/videos.html', { title: 'Videos | Abroad Khabar' });
+        this.registerRoute('/videos/:id', '/pages/video-detail.html', { title: 'Video Details | Abroad Khabar' });
+        this.registerRoute('/blogs', '/pages/blogs.html', { title: 'Blogs | Abroad Khabar' });
+        this.registerRoute('/blogs/:id', '/pages/blog-detail.html', { title: 'Blog Post | Abroad Khabar' });
+        this.registerRoute('/contact', '/pages/contact.html', { title: 'Contact Us | Abroad Khabar' });
+        this.registerRoute('/login', '/pages/login.html', { title: 'Login | Abroad Khabar' });
 
         // Admin pages (protected)
         this.registerRoute('/admin/dashboard', '/admin/dashboard.html', {
@@ -359,8 +442,7 @@ class Router {
             requiredRoles: ['admin', 'editor']
         });
 
-        // 404 catch-all
-        this.registerRoute('*', this.load404.bind(this));
+
     }
 
     // Get current route parameters

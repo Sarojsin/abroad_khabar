@@ -23,30 +23,32 @@ class BlogManager {
         this.setupEventListeners();
         this.initializeEditor();
         this.setupImageUpload();
+        this.checkUrlHash(); // Check hash on load
+    }
+
+    checkUrlHash() {
+        if (window.location.hash === '#create') {
+            this.showCreateModal();
+        }
     }
 
     async loadBlogs(page = 1) {
         try {
-            const params = new URLSearchParams({
-                page,
+            const params = {
+                skip: (page - 1) * 20,
+                limit: 20,
                 ...this.filters
-            });
-            
-            const response = await fetch(`/api/v1/blogs?${params}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to load blogs');
-            
-            const data = await response.json();
+            };
+
+            const response = await API.get('/blogs', params);
+            const data = response.data;
+
             this.blogs = data.blogs;
             this.currentPage = data.page;
-            this.totalPages = data.totalPages;
-            
+            this.totalPages = data.pages || data.totalPages;
+
             this.renderBlogs();
-            this.renderPagination();
+            this.updatePagination();
             this.updateStats();
         } catch (error) {
             this.showError(error.message);
@@ -58,7 +60,7 @@ class BlogManager {
         if (!container) return;
 
         container.innerHTML = '';
-        
+
         if (this.blogs.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -83,11 +85,11 @@ class BlogManager {
         const card = document.createElement('div');
         card.className = `blog-card ${blog.status} ${this.selectedBlogs.has(blog.id) ? 'selected' : ''}`;
         card.dataset.id = blog.id;
-        
+
         const isSelected = this.selectedBlogs.has(blog.id);
         const statusClass = `status-${blog.status}`;
         const excerpt = this.stripHtml(blog.content).substring(0, 150) + '...';
-        
+
         card.innerHTML = `
             <div class="blog-card-header">
                 <div class="blog-checkbox">
@@ -149,19 +151,49 @@ class BlogManager {
                 </button>
             </div>
         `;
-        
+
         return card;
     }
 
     setupEventListeners() {
-        // Create blog button
-        document.getElementById('create-blog')?.addEventListener('click', () => {
+        // Create blog buttons
+        document.getElementById('create-post-btn')?.addEventListener('click', () => {
             this.showCreateModal();
         });
 
+        document.getElementById('create-post-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            this.showCreateModal();
+        });
+
+        document.getElementById('create-first-blog')?.addEventListener('click', () => {
+            this.showCreateModal();
+        });
+
+        // Featured image upload logic
+        const imagePreview = document.getElementById('featured-image-preview');
+        const imageInput = document.getElementById('post-featured-image');
+        if (imagePreview && imageInput) {
+            imagePreview.addEventListener('click', () => imageInput.click());
+            imageInput.addEventListener('change', (e) => this.handleImageUpload(e));
+        }
+
+        // Close editor
+        document.querySelector('.close-editor')?.addEventListener('click', () => {
+            this.closeEditor();
+        });
+
         // Bulk actions
-        document.getElementById('bulk-select-all')?.addEventListener('change', (e) => {
+        document.getElementById('select-all-posts')?.addEventListener('change', (e) => {
             this.toggleSelectAll(e.target.checked);
+        });
+
+        document.getElementById('bulk-blog-actions')?.addEventListener('click', () => {
+            const tableActions = document.getElementById('table-actions');
+            if (tableActions) {
+                const isHidden = tableActions.style.display === 'none';
+                tableActions.style.display = isHidden ? 'flex' : 'none';
+            }
         });
 
         document.getElementById('bulk-delete')?.addEventListener('click', () => {
@@ -187,12 +219,14 @@ class BlogManager {
             this.loadBlogs(1);
         });
 
-        document.getElementById('filter-search')?.addEventListener('input', (e) => {
-            this.debounce(() => {
-                this.filters.search = e.target.value;
+        const searchInput = document.getElementById('blog-search');
+        if (searchInput) {
+            const debouncedSearch = this.debounce(() => {
+                this.filters.search = searchInput.value;
                 this.loadBlogs(1);
             }, 300);
-        });
+            searchInput.addEventListener('input', () => debouncedSearch());
+        }
 
         document.getElementById('filter-sort')?.addEventListener('change', (e) => {
             this.filters.sort = e.target.value;
@@ -206,7 +240,7 @@ class BlogManager {
                 const checkbox = e.target;
                 const card = checkbox.closest('.blog-card');
                 const blogId = card.dataset.id;
-                
+
                 if (checkbox.checked) {
                     this.selectedBlogs.add(blogId);
                     card.classList.add('selected');
@@ -216,35 +250,35 @@ class BlogManager {
                 }
                 this.updateBulkActions();
             }
-            
+
             // Edit button
             if (e.target.closest('.btn-edit')) {
                 const button = e.target.closest('.btn-edit');
                 const blogId = button.dataset.id;
                 this.editBlog(blogId);
             }
-            
+
             // Toggle status button
             if (e.target.closest('.btn-toggle')) {
                 const button = e.target.closest('.btn-toggle');
                 const blogId = button.dataset.id;
                 this.toggleBlogStatus(blogId);
             }
-            
+
             // Duplicate button
             if (e.target.closest('.btn-duplicate')) {
                 const button = e.target.closest('.btn-duplicate');
                 const blogId = button.dataset.id;
                 this.duplicateBlog(blogId);
             }
-            
+
             // View button
             if (e.target.closest('.btn-view')) {
                 const button = e.target.closest('.btn-view');
                 const blogId = button.dataset.id;
                 this.previewBlog(blogId);
             }
-            
+
             // Delete button
             if (e.target.closest('.btn-delete')) {
                 const button = e.target.closest('.btn-delete');
@@ -258,88 +292,42 @@ class BlogManager {
         const editorElement = document.getElementById('blog-editor');
         if (!editorElement) return;
 
-        // Simple rich text editor implementation
-        editorElement.innerHTML = `
-            <div class="editor-toolbar">
-                <button type="button" class="toolbar-btn" data-command="bold" title="Bold">
-                    <i class="icon-bold"></i>
-                </button>
-                <button type="button" class="toolbar-btn" data-command="italic" title="Italic">
-                    <i class="icon-italic"></i>
-                </button>
-                <button type="button" class="toolbar-btn" data-command="underline" title="Underline">
-                    <i class="icon-underline"></i>
-                </button>
-                <div class="toolbar-divider"></div>
-                <button type="button" class="toolbar-btn" data-command="insertUnorderedList" title="Bullet List">
-                    <i class="icon-list"></i>
-                </button>
-                <button type="button" class="toolbar-btn" data-command="insertOrderedList" title="Numbered List">
-                    <i class="icon-list-ol"></i>
-                </button>
-                <div class="toolbar-divider"></div>
-                <button type="button" class="toolbar-btn" data-command="createLink" title="Insert Link">
-                    <i class="icon-link"></i>
-                </button>
-                <button type="button" class="toolbar-btn" id="insert-image" title="Insert Image">
-                    <i class="icon-image"></i>
-                </button>
-                <div class="toolbar-divider"></div>
-                <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="h2" title="Heading 2">
-                    H2
-                </button>
-                <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="h3" title="Heading 3">
-                    H3
-                </button>
-                <button type="button" class="toolbar-btn" data-command="formatBlock" data-value="p" title="Paragraph">
-                    P
-                </button>
-                <div class="toolbar-divider"></div>
-                <button type="button" class="toolbar-btn" data-command="undo" title="Undo">
-                    <i class="icon-undo"></i>
-                </button>
-                <button type="button" class="toolbar-btn" data-command="redo" title="Redo">
-                    <i class="icon-redo"></i>
-                </button>
-            </div>
-            <div class="editor-content" contenteditable="true" id="blog-content"></div>
-            <div class="editor-footer">
-                <div class="word-count">Words: <span id="word-count">0</span></div>
-                <div class="char-count">Characters: <span id="char-count">0</span></div>
-            </div>
-        `;
+        // Note: We use the existing HTML structure in blogs.html
+        // and just initialize the logic.
 
         // Initialize toolbar
         this.setupEditorToolbar();
-        
+
         // Initialize word count
         this.setupWordCount();
+
+        // Save & Publish listeners
+        document.getElementById('save-draft')?.addEventListener('click', () => this.handleSave(true));
+        document.getElementById('publish-post')?.addEventListener('click', () => this.handleSave(false));
     }
 
     setupEditorToolbar() {
         const toolbar = document.querySelector('.editor-toolbar');
+        if (!toolbar) return;
+
         toolbar.addEventListener('click', (e) => {
             const button = e.target.closest('.toolbar-btn');
             if (!button) return;
 
             e.preventDefault();
-            
-            const command = button.dataset.command;
+
+            // Support both data-command and data-format
+            const command = button.dataset.command || button.dataset.format;
             const value = button.dataset.value;
-            
-            if (command === 'createLink') {
+
+            if (command === 'link' || command === 'createLink') {
                 this.insertLink();
+            } else if (command === 'image') {
+                this.insertImage();
             } else if (command) {
+                // For bold, italic, etc.
                 document.execCommand(command, false, value);
             }
-            
-            // Focus back on editor
-            document.getElementById('blog-content').focus();
-        });
-
-        // Image insert button
-        document.getElementById('insert-image')?.addEventListener('click', () => {
-            this.insertImage();
         });
     }
 
@@ -351,7 +339,7 @@ class BlogManager {
             const text = this.stripHtml(editor.innerHTML);
             const words = text.trim() ? text.trim().split(/\s+/).length : 0;
             const chars = text.length;
-            
+
             document.getElementById('word-count').textContent = words;
             document.getElementById('char-count').textContent = chars;
         };
@@ -367,59 +355,98 @@ class BlogManager {
     }
 
     setupImageUpload() {
-        const uploadButton = document.getElementById('upload-featured-image');
+        const uploadButton = document.getElementById('featured-image-preview');
         if (!uploadButton) return;
 
         uploadButton.addEventListener('click', () => {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'image/*';
-            input.onchange = async (e) => {
-                const file = e.target.files[0];
-                if (!file) return;
+            const input = document.getElementById('post-featured-image');
+            if (input) {
+                input.click();
+                return;
+            }
 
-                const formData = new FormData();
-                formData.append('image', file);
-
-                try {
-                    const response = await fetch('/api/v1/images/upload', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${localStorage.getItem('token')}`
-                        },
-                        body: formData
-                    });
-
-                    if (!response.ok) throw new Error('Upload failed');
-
-                    const result = await response.json();
-                    
-                    // Update featured image preview
-                    const preview = document.getElementById('featured-image-preview');
-                    if (preview) {
-                        preview.innerHTML = `
-                            <img src="${result.url}" alt="Featured Image">
-                            <input type="hidden" name="featured_image" value="${result.url}">
-                        `;
-                    }
-
-                    this.showSuccess('Image uploaded successfully');
-                } catch (error) {
-                    this.showError(error.message);
-                }
-            };
-            input.click();
+            // Fallback if input not found
+            const fallbackInput = document.createElement('input');
+            fallbackInput.type = 'file';
+            fallbackInput.accept = 'image/*';
+            fallbackInput.onchange = (e) => this.handleImageFile(e.target.files[0]);
+            fallbackInput.click();
         });
+
+        document.getElementById('post-featured-image')?.addEventListener('change', (e) => {
+            this.handleImageFile(e.target.files[0]);
+        });
+    }
+
+    async handleImageFile(file) {
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const response = await fetch('/api/v1/images/upload', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`
+                },
+                body: formData
+            });
+
+            if (!response.ok) throw new Error('Upload failed');
+
+            const result = await response.json();
+
+            // Update featured image preview
+            const preview = document.getElementById('featured-image-preview');
+            if (preview) {
+                preview.innerHTML = `
+                    <img src="${result.url}" alt="Featured Image">
+                    <input type="hidden" name="featured_image" value="${result.url}">
+                `;
+            }
+
+            this.showSuccess('Image uploaded successfully');
+        } catch (error) {
+            this.showError(error.message);
+        }
+    }
+
+    async handleSave(isDraft) {
+        const form = document.getElementById('blog-post-form');
+        if (!form) return;
+
+        const formData = {
+            title: document.getElementById('post-title').value,
+            content: document.getElementById('blog-content').innerHTML,
+            status: isDraft ? 'draft' : document.getElementById('post-status').value,
+            category: document.getElementById('post-category').value,
+            author_id: document.getElementById('post-author').value,
+            featured_image: document.querySelector('input[name="featured_image"]')?.value || '',
+            meta_title: document.getElementById('meta-title').value,
+            meta_description: document.getElementById('meta-description').value,
+            tags: Array.from(document.querySelectorAll('.tag-item')).map(t => t.dataset.tag)
+        };
+
+        if (!formData.title) {
+            this.showError('Please enter a title');
+            return;
+        }
+
+        try {
+            if (this.editingBlogId) {
+                await this.updateBlog(this.editingBlogId, formData);
+            } else {
+                await this.createBlog(formData);
+            }
+            this.closeEditor();
+        } catch (error) {
+            console.error('Save failed:', error);
+        }
     }
 
     async createBlog(formData) {
         try {
-            // Get content from editor
-            const editorContent = document.getElementById('blog-content')?.innerHTML;
-            if (editorContent) {
-                formData.content = editorContent;
-            }
-
             const response = await fetch('/api/v1/blogs', {
                 method: 'POST',
                 headers: {
@@ -428,45 +455,106 @@ class BlogManager {
                 },
                 body: JSON.stringify(formData)
             });
-            
+
             if (!response.ok) throw new Error('Failed to create blog');
-            
-            const blog = await response.json();
+
+            await response.json();
             this.showSuccess('Blog post created successfully');
             this.loadBlogs(this.currentPage);
-            return blog;
         } catch (error) {
             this.showError(error.message);
             throw error;
         }
     }
 
+    async updateBlog(blogId, formData) {
+        try {
+            const response = await fetch(`/api/v1/blogs/${blogId}`, {
+                method: 'PUT',
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) throw new Error('Failed to update blog');
+
+            await response.json();
+            this.showSuccess('Blog post updated successfully');
+            this.loadBlogs(this.currentPage);
+        } catch (error) {
+            this.showError(error.message);
+            throw error;
+        }
+    }
+
+    showCreateModal() {
+        this.editingBlogId = null;
+        const form = document.getElementById('blog-post-form');
+        if (form) form.reset();
+
+        const preview = document.getElementById('featured-image-preview');
+        if (preview) preview.innerHTML = '<i class="icon-image"></i><span>Upload Image</span>';
+
+        const editor = document.getElementById('blog-editor');
+        if (editor) editor.style.display = 'block';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    closeEditor() {
+        const editor = document.getElementById('blog-editor');
+        if (editor) editor.style.display = 'none';
+        this.editingBlogId = null;
+    }
+
     async editBlog(blogId) {
-        const blog = this.blogs.find(b => b.id === blogId);
+        const blog = this.blogs.find(b => b.id == blogId);
         if (!blog) return;
-        
-        // Navigate to edit page or open modal
-        window.location.href = `/admin/blog-edit.html?id=${blogId}`;
+
+        this.editingBlogId = blogId;
+
+        // Populate form
+        document.getElementById('post-title').value = blog.title || '';
+        document.getElementById('post-content').value = blog.content || '';
+        if (document.getElementById('blog-content')) {
+            document.getElementById('blog-content').innerHTML = blog.content || '';
+        }
+        document.getElementById('post-status').value = blog.status || 'draft';
+        document.getElementById('post-category').value = blog.category || '';
+        document.getElementById('meta-title').value = blog.meta_title || '';
+        document.getElementById('meta-description').value = blog.meta_description || '';
+
+        const preview = document.getElementById('featured-image-preview');
+        if (preview && blog.featured_image) {
+            preview.innerHTML = `<img src="${blog.featured_image}" alt="Featured Image"><input type="hidden" name="featured_image" value="${blog.featured_image}">`;
+        }
+
+        const editor = document.getElementById('blog-editor');
+        if (editor) editor.style.display = 'block';
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async toggleBlogStatus(blogId) {
         const blog = this.blogs.find(b => b.id === blogId);
         if (!blog) return;
-        
+
         const newStatus = blog.status === 'published' ? 'draft' : 'published';
-        
+
         try {
             const response = await fetch(`/api/v1/blogs/${blogId}/status`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
+                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({ status: newStatus })
             });
-            
+
             if (!response.ok) throw new Error('Failed to update status');
-            
+
             this.showSuccess(`Blog ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
             this.loadBlogs(this.currentPage);
         } catch (error) {
@@ -476,40 +564,31 @@ class BlogManager {
 
     async toggleSelectedBlogsStatus(status) {
         if (this.selectedBlogs.size === 0) {
-            this.showError('No blogs selected');
+            this.showError('No blog posts selected');
             return;
         }
-        
+
         try {
-            const response = await fetch('/api/v1/blogs/bulk-status', {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    blog_ids: Array.from(this.selectedBlogs),
-                    status: status
-                })
+            await API.post('/blogs/bulk-update', {
+                ids: Array.from(this.selectedBlogs).map(Number),
+                status: status
             });
-            
-            if (!response.ok) throw new Error('Bulk update failed');
-            
-            this.showSuccess(`${this.selectedBlogs.size} blogs updated successfully`);
+
+            this.showSuccess(`${this.selectedBlogs.size} blog posts updated successfully`);
             this.selectedBlogs.clear();
             this.loadBlogs(this.currentPage);
             this.updateBulkActions();
         } catch (error) {
-            this.showError(error.message);
+            this.showError(error.message || 'Bulk update failed');
         }
     }
 
     async duplicateBlog(blogId) {
         const blog = this.blogs.find(b => b.id === blogId);
         if (!blog) return;
-        
+
         if (!confirm('Duplicate this blog post?')) return;
-        
+
         try {
             const response = await fetch(`/api/v1/blogs/${blogId}/duplicate`, {
                 method: 'POST',
@@ -517,9 +596,9 @@ class BlogManager {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            
+
             if (!response.ok) throw new Error('Failed to duplicate blog');
-            
+
             this.showSuccess('Blog post duplicated successfully');
             this.loadBlogs(this.currentPage);
         } catch (error) {
@@ -529,7 +608,7 @@ class BlogManager {
 
     async deleteBlog(blogId) {
         if (!confirm('Are you sure you want to delete this blog post?')) return;
-        
+
         try {
             const response = await fetch(`/api/v1/blogs/${blogId}`, {
                 method: 'DELETE',
@@ -537,9 +616,9 @@ class BlogManager {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            
+
             if (!response.ok) throw new Error('Delete failed');
-            
+
             this.showSuccess('Blog post deleted successfully');
             this.loadBlogs(this.currentPage);
         } catch (error) {
@@ -552,9 +631,9 @@ class BlogManager {
             this.showError('No blogs selected');
             return;
         }
-        
+
         if (!confirm(`Delete ${this.selectedBlogs.size} selected blog posts?`)) return;
-        
+
         try {
             const response = await fetch('/api/v1/blogs/bulk-delete', {
                 method: 'DELETE',
@@ -564,10 +643,10 @@ class BlogManager {
                 },
                 body: JSON.stringify({ blog_ids: Array.from(this.selectedBlogs) })
             });
-            
+
             if (!response.ok) throw new Error('Bulk delete failed');
-            
-            this.showSuccess(`${this.selectedBlogs.size} blog posts deleted successfully');
+
+            this.showSuccess(`${this.selectedBlogs.size} blog posts deleted successfully`);
             this.selectedBlogs.clear();
             this.loadBlogs(this.currentPage);
             this.updateBulkActions();
@@ -579,10 +658,10 @@ class BlogManager {
     async previewBlog(blogId) {
         const blog = this.blogs.find(b => b.id === blogId);
         if (!blog) return;
-        
+
         const modal = this.createPreviewModal(blog);
         document.body.appendChild(modal);
-        
+
         // Show modal
         setTimeout(() => modal.classList.add('active'), 10);
     }
@@ -591,7 +670,7 @@ class BlogManager {
         const modal = document.createElement('div');
         modal.className = 'modal preview-modal';
         modal.innerHTML = `
-            <div class="modal-overlay" data-modal-close="preview"></div>
+                <div class="modal-overlay" data-modal-close="preview"></div>
             <div class="modal-content">
                 <div class="modal-header">
                     <h3>Preview: ${blog.title}</h3>
@@ -604,7 +683,7 @@ class BlogManager {
                                 <img src="${blog.featured_image}" alt="${blog.title}">
                             </div>
                         ` : ''}
-                        
+
                         <header class="preview-header">
                             <h1>${blog.title}</h1>
                             <div class="preview-meta">
@@ -618,7 +697,7 @@ class BlogManager {
                                 </div>
                             ` : ''}
                         </header>
-                        
+
                         <div class="preview-content">
                             ${blog.content}
                         </div>
@@ -632,7 +711,7 @@ class BlogManager {
                 </div>
             </div>
         `;
-        
+
         return modal;
     }
 
@@ -672,7 +751,7 @@ class BlogManager {
             checkbox.checked = selectAll;
             const card = checkbox.closest('.blog-card');
             const blogId = card.dataset.id;
-            
+
             if (selectAll) {
                 this.selectedBlogs.add(blogId);
                 card.classList.add('selected');
@@ -681,21 +760,21 @@ class BlogManager {
                 card.classList.remove('selected');
             }
         });
-        
+
         this.updateBulkActions();
     }
 
     updateBulkActions() {
-        const bulkActions = document.getElementById('bulk-actions');
+        const tableActions = document.getElementById('table-actions');
         const selectedCount = document.getElementById('selected-count');
-        
+
         if (this.selectedBlogs.size > 0) {
-            bulkActions?.classList.add('active');
+            if (tableActions) tableActions.style.display = 'flex';
             if (selectedCount) {
                 selectedCount.textContent = `${this.selectedBlogs.size} selected`;
             }
         } else {
-            bulkActions?.classList.remove('active');
+            if (tableActions) tableActions.style.display = 'none';
         }
     }
 
@@ -708,68 +787,47 @@ class BlogManager {
             totalViews: this.blogs.reduce((sum, blog) => sum + (blog.views || 0), 0),
             totalComments: this.blogs.reduce((sum, blog) => sum + (blog.comment_count || 0), 0)
         };
-        
+
         // Update UI elements
+        const updateEl = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        };
+
+        updateEl('published-count', stats.published);
+        updateEl('drafts-count', stats.draft);
+        updateEl('total-views', stats.totalViews.toLocaleString());
+        updateEl('total-views-stat', stats.totalViews.toLocaleString());
+        updateEl('total-comments', stats.totalComments.toLocaleString());
+
         document.querySelectorAll('[data-stat="total-blogs"]').forEach(el => {
-            el.textContent = stats.total;
+            if (el) el.textContent = stats.total;
         });
-        
+
         document.querySelectorAll('[data-stat="published-blogs"]').forEach(el => {
-            el.textContent = stats.published;
+            if (el) el.textContent = stats.published;
         });
-        
+
         document.querySelectorAll('[data-stat="total-views"]').forEach(el => {
-            el.textContent = stats.totalViews.toLocaleString();
+            if (el) el.textContent = stats.totalViews.toLocaleString();
         });
-        
+
         document.querySelectorAll('[data-stat="total-comments"]').forEach(el => {
-            el.textContent = stats.totalComments.toLocaleString();
+            if (el) el.textContent = stats.totalComments.toLocaleString();
         });
     }
 
-    renderPagination() {
-        const pagination = document.getElementById('pagination');
-        if (!pagination) return;
-        
-        pagination.innerHTML = '';
-        
-        // Previous button
-        const prevButton = document.createElement('button');
-        prevButton.className = `pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}`;
-        prevButton.innerHTML = '<i class="icon-chevron-left"></i>';
-        prevButton.disabled = this.currentPage === 1;
-        prevButton.addEventListener('click', () => {
-            if (this.currentPage > 1) {
-                this.loadBlogs(this.currentPage - 1);
-            }
-        });
-        pagination.appendChild(prevButton);
-        
-        // Page numbers
-        const startPage = Math.max(1, this.currentPage - 2);
-        const endPage = Math.min(this.totalPages, startPage + 4);
-        
-        for (let i = startPage; i <= endPage; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.className = `pagination-btn ${i === this.currentPage ? 'active' : ''}`;
-            pageButton.textContent = i;
-            pageButton.addEventListener('click', () => {
-                this.loadBlogs(i);
-            });
-            pagination.appendChild(pageButton);
-        }
-        
-        // Next button
-        const nextButton = document.createElement('button');
-        nextButton.className = `pagination-btn ${this.currentPage === this.totalPages ? 'disabled' : ''}`;
-        nextButton.innerHTML = '<i class="icon-chevron-right"></i>';
-        nextButton.disabled = this.currentPage === this.totalPages;
-        nextButton.addEventListener('click', () => {
-            if (this.currentPage < this.totalPages) {
-                this.loadBlogs(this.currentPage + 1);
-            }
-        });
-        pagination.appendChild(nextButton);
+    updatePagination() {
+        const currentSpan = document.getElementById('current-page');
+        const totalSpan = document.getElementById('total-pages');
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+
+        if (currentSpan) currentSpan.textContent = this.currentPage;
+        if (totalSpan) totalSpan.textContent = this.totalPages;
+
+        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = this.currentPage >= this.totalPages;
     }
 
     debounce(func, wait) {
@@ -792,11 +850,11 @@ class BlogManager {
             <span>${message}</span>
         `;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
@@ -811,11 +869,11 @@ class BlogManager {
             <span>${message}</span>
         `;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);

@@ -9,10 +9,11 @@ import API from '../core/api.js';
 class VideoManager {
     constructor() {
         this.videos = [];
-        this.currentFilter = 'all';
-        this.currentSearch = '';
-        this.selectedVideos = new Set();
-        
+        this.filters = {
+            category: '',
+            status: '',
+            search: ''
+        };
         this.init();
     }
 
@@ -24,14 +25,15 @@ class VideoManager {
     }
 
     checkAuth() {
-        if (!Auth.isAuthenticated()) {
-            window.location.href = '../pages/login.html';
+        const user = Auth.getCurrentUser();
+        if (!user) {
+            window.location.href = '/login.html';
             return;
         }
-        
-        const user = Auth.getUser();
-        if (!user || !user.permissions || !user.permissions.includes('manage_videos')) {
-            this.showUnauthorizedMessage();
+
+        if (user.role !== 'admin' && user.role !== 'editor') {
+            alert('Unauthorized access. Admin privileges required.');
+            window.location.href = '../index.html';
         }
     }
 
@@ -40,20 +42,20 @@ class VideoManager {
         const sidebarToggle = document.getElementById('sidebar-toggle');
         if (sidebarToggle) {
             sidebarToggle.addEventListener('click', () => {
-                this.toggleSidebar();
+                document.getElementById('admin-sidebar')?.classList.toggle('active');
             });
         }
 
         // Upload video button
         const uploadBtn = document.getElementById('upload-video-btn');
         const uploadLink = document.getElementById('upload-video-link');
-        
+
         if (uploadBtn) {
             uploadBtn.addEventListener('click', () => {
                 this.showUploadSection();
             });
         }
-        
+
         if (uploadLink) {
             uploadLink.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -84,6 +86,61 @@ class VideoManager {
                 this.handleFileSelection(e.target.files);
             });
         }
+        // Search and Filters
+        const searchInput = document.getElementById('video-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', this.debounce(() => {
+                this.filters.search = searchInput.value;
+                this.loadVideos(1);
+            }, 500));
+        }
+
+        const categoryFilter = document.getElementById('video-category-filter');
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', () => {
+                this.filters.category = categoryFilter.value;
+                this.loadVideos(1);
+            });
+        }
+
+        const statusFilter = document.getElementById('video-status-filter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => {
+                this.filters.status = statusFilter.value;
+                this.loadVideos(1);
+            });
+        }
+
+        // Pagination
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (this.currentPage > 1) this.loadVideos(this.currentPage - 1);
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (this.currentPage < this.totalPages) this.loadVideos(this.currentPage + 1);
+            });
+        }
+
+        // Bulk Actions
+        const bulkActionsBtn = document.getElementById('bulk-video-actions');
+        if (bulkActionsBtn) {
+            bulkActionsBtn.addEventListener('click', () => this.toggleBulkActions());
+        }
+
+        const tableActions = document.getElementById('table-actions');
+        if (tableActions) {
+            const bulkPublish = document.getElementById('bulk-publish');
+            const bulkDraft = document.getElementById('bulk-draft');
+            const bulkDelete = document.getElementById('bulk-delete');
+
+            if (bulkPublish) bulkPublish.addEventListener('click', () => this.handleBulkAction('publish'));
+            if (bulkDraft) bulkDraft.addEventListener('click', () => this.handleBulkAction('draft'));
+            if (bulkDelete) bulkDelete.addEventListener('click', () => this.handleBulkAction('bulk-delete'));
+        }
 
         // Dropzone events
         const dropzone = document.getElementById('video-dropzone');
@@ -92,11 +149,11 @@ class VideoManager {
                 e.preventDefault();
                 dropzone.classList.add('dragover');
             });
-            
+
             dropzone.addEventListener('dragleave', () => {
                 dropzone.classList.remove('dragover');
             });
-            
+
             dropzone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 dropzone.classList.remove('dragover');
@@ -104,123 +161,102 @@ class VideoManager {
             });
         }
 
-        // Search functionality
-        const searchInput = document.getElementById('video-manager-search');
-        if (searchInput) {
-            let searchTimeout;
-            searchInput.addEventListener('input', (e) => {
-                clearTimeout(searchTimeout);
-                searchTimeout = setTimeout(() => {
-                    this.currentSearch = e.target.value.toLowerCase();
-                    this.filterVideos();
-                }, 500);
-            });
-        }
-
-        // Filter functionality
-        const categoryFilter = document.getElementById('video-category-filter');
-        const statusFilter = document.getElementById('video-status-filter');
-        
-        if (categoryFilter) {
-            categoryFilter.addEventListener('change', (e) => {
-                this.currentFilter = e.target.value;
-                this.filterVideos();
-            });
-        }
-        
-        if (statusFilter) {
-            statusFilter.addEventListener('change', (e) => {
-                this.filterVideos();
-            });
-        }
-
-        // Bulk actions
-        const bulkActionsBtn = document.getElementById('bulk-actions-btn');
-        if (bulkActionsBtn) {
-            bulkActionsBtn.addEventListener('click', () => {
-                this.showBulkActions();
-            });
-        }
-
-        // Video modal
-        const videoModal = document.getElementById('video-details-modal');
-        if (videoModal) {
-            videoModal.querySelector('.modal-close').addEventListener('click', () => {
-                videoModal.classList.remove('active');
-            });
-            
-            videoModal.addEventListener('click', (e) => {
-                if (e.target === videoModal) {
-                    videoModal.classList.remove('active');
-                }
-            });
-        }
     }
 
-    toggleSidebar() {
-        const sidebar = document.getElementById('admin-sidebar');
-        sidebar.classList.toggle('collapsed');
-    }
-
-    async loadVideos() {
+    async loadVideos(page = 1) {
         try {
-            // In production, this would fetch from API
-            // const response = await API.get('/admin/videos');
-            // this.videos = await response.json();
-            
-            // Mock data for demonstration
-            this.videos = this.generateMockVideos();
+            const params = {
+                skip: (page - 1) * 12,
+                limit: 12,
+                ...this.filters
+            };
+
+            const response = await API.get('/videos', params);
+            const data = response.data;
+
+            this.videos = data.videos;
+            this.currentPage = data.page;
+            this.totalPages = data.pages;
+
             this.renderVideos();
-            
+            this.updateStats();
+            this.updatePagination();
         } catch (error) {
             console.error('Error loading videos:', error);
-            this.showError('Failed to load videos. Please try again.');
+            this.showError(error.message || 'Failed to load videos. Please try again.');
         }
     }
 
-    generateMockVideos() {
-        const categories = ['success-stories', 'university-tours', 'visa-guide', 'webinars', 'testimonials'];
-        const statuses = ['published', 'draft', 'scheduled'];
-        
-        return Array.from({ length: 12 }, (_, i) => ({
-            id: i + 1,
-            title: `Study Abroad Success Story #${i + 1}`,
-            description: 'Watch this inspiring journey of a student who achieved their dream of studying abroad.',
-            category: categories[i % categories.length],
-            status: statuses[i % statuses.length],
-            duration: `${Math.floor(Math.random() * 30) + 5}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
-            size: `${(Math.random() * 500 + 50).toFixed(1)} MB`,
-            views: Math.floor(Math.random() * 10000) + 1000,
-            thumbnail: `../assets/images/videos/thumb${(i % 6) + 1}.jpg`,
-            uploadedAt: new Date(Date.now() - i * 86400000).toLocaleDateString(),
-            uploadedBy: 'Admin User',
-            selected: false
-        }));
+    async handleBulkStatusUpdate(status) {
+        const selectedIds = Array.from(this.selectedVideos).map(Number);
+        if (selectedIds.length === 0) {
+            this.showToast('Please select videos first', 'error');
+            return;
+        }
+
+        try {
+            await API.post('/videos/bulk-update', {
+                ids: selectedIds,
+                status: status
+            });
+            this.showToast(`${selectedIds.length} video(s) updated to ${status}`);
+            this.selectedVideos.clear();
+            this.loadVideos(this.currentPage);
+        } catch (error) {
+            console.error('Bulk update error:', error);
+            this.showToast('Failed to update videos', 'error');
+        }
     }
+
+    async handleBulkDelete() {
+        const selectedIds = Array.from(this.selectedVideos).map(Number);
+        if (selectedIds.length === 0) {
+            this.showToast('Please select videos first', 'error');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${selectedIds.length} video(s)?`)) {
+            return;
+        }
+
+        try {
+            await API.post('/videos/bulk-delete', { ids: selectedIds });
+            this.showToast(`${selectedIds.length} video(s) deleted successfully`);
+            this.selectedVideos.clear();
+            this.loadVideos(this.currentPage);
+        } catch (error) {
+            console.error('Bulk delete error:', error);
+            this.showToast('Failed to delete videos', 'error');
+        }
+    }
+
+    // generateMockVideos() { // Removed as per instruction to use API
+    //     const categories = ['success-stories', 'university-tours', 'visa-guide', 'webinars', 'testimonials'];
+    //     const statuses = ['published', 'draft', 'scheduled'];
+
+    //     return Array.from({ length: 12 }, (_, i) => ({
+    //         id: i + 1,
+    //         title: `Study Abroad Success Story #${i + 1}`,
+    //         description: 'Watch this inspiring journey of a student who achieved their dream of studying abroad.',
+    //         category: categories[i % categories.length],
+    //         status: statuses[i % statuses.length],
+    //         duration: `${Math.floor(Math.random() * 30) + 5}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
+    //         size: `${(Math.random() * 500 + 50).toFixed(1)} MB`,
+    //         views: Math.floor(Math.random() * 10000) + 1000,
+    //         thumbnail: `/assets/images/videos/thumb${(i % 6) + 1}.jpg`,
+    //         uploadedAt: new Date(Date.now() - i * 86400000).toLocaleDateString(),
+    //         uploadedBy: 'Admin User',
+    //         selected: false
+    //     }));
+    // }
 
     renderVideos() {
         const container = document.getElementById('videos-manager-container');
         if (!container) return;
-        
-        // Filter videos
+
+        // Filter videos (already done by API call with filters)
         let filteredVideos = [...this.videos];
-        
-        if (this.currentFilter && this.currentFilter !== 'all') {
-            filteredVideos = filteredVideos.filter(video => video.category === this.currentFilter);
-        }
-        
-        if (this.currentSearch) {
-            filteredVideos = filteredVideos.filter(video => 
-                video.title.toLowerCase().includes(this.currentSearch) ||
-                video.description.toLowerCase().includes(this.currentSearch)
-            );
-        }
-        
-        const statusFilter = document.getElementById('video-status-filter')?.value;
-        if (statusFilter) {
-            filteredVideos = filteredVideos.filter(video => video.status === statusFilter);
-        }
-        
+
         if (filteredVideos.length === 0) {
             container.innerHTML = `
                 <div class="no-results glass-card">
@@ -233,9 +269,9 @@ class VideoManager {
             `;
             return;
         }
-        
+
         container.innerHTML = filteredVideos.map(video => `
-            <div class="video-manager-card glass-card ${video.selected ? 'selected' : ''}" data-video-id="${video.id}">
+            <div class="video-manager-card glass-card ${this.selectedVideos.has(video.id) ? 'selected' : ''}" data-video-id="${video.id}">
                 <div class="video-manager-thumbnail">
                     <img src="${video.thumbnail}" alt="${video.title}" class="lazy-image">
                     <div class="video-overlay">
@@ -247,7 +283,7 @@ class VideoManager {
                         <span class="video-duration">${video.duration}</span>
                     </div>
                     <div class="video-checkbox">
-                        <input type="checkbox" id="video-${video.id}" ${video.selected ? 'checked' : ''}>
+                        <input type="checkbox" id="video-${video.id}" ${this.selectedVideos.has(video.id) ? 'checked' : ''}>
                         <label for="video-${video.id}"></label>
                     </div>
                 </div>
@@ -316,7 +352,7 @@ class VideoManager {
                 </div>
             </div>
         `).join('');
-        
+
         // Add event listeners
         this.setupVideoCardEvents();
     }
@@ -329,23 +365,23 @@ class VideoManager {
                 this.toggleVideoSelection(videoId, e.target.checked);
             });
         });
-        
+
         // Edit button
         document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const videoId = parseInt(e.target.closest('.edit-btn').dataset.videoId);
+                const videoId = parseInt(e.target.closest('.video-manager-card').dataset.videoId);
                 this.editVideo(videoId);
             });
         });
-        
+
         // Delete button
         document.querySelectorAll('.delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                const videoId = parseInt(e.target.closest('.delete-btn').dataset.videoId);
+                const videoId = parseInt(e.target.closest('.video-manager-card').dataset.videoId);
                 this.deleteVideo(videoId);
             });
         });
-        
+
         // Play button
         document.querySelectorAll('.play-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -354,7 +390,7 @@ class VideoManager {
                 this.previewVideo(videoId);
             });
         });
-        
+
         // Dropdown actions
         document.querySelectorAll('.more-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -363,7 +399,7 @@ class VideoManager {
                 dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
             });
         });
-        
+
         // Dropdown items
         document.querySelectorAll('.dropdown-item').forEach(item => {
             item.addEventListener('click', (e) => {
@@ -372,7 +408,7 @@ class VideoManager {
                 this.handleDropdownAction(action, videoId);
             });
         });
-        
+
         // Close dropdowns when clicking outside
         document.addEventListener('click', (e) => {
             if (!e.target.closest('.dropdown')) {
@@ -406,20 +442,20 @@ class VideoManager {
     toggleVideoSelection(videoId, selected) {
         const video = this.videos.find(v => v.id === videoId);
         if (video) {
-            video.selected = selected;
-            
+            // video.selected = selected; // No longer needed if using Set
+
             if (selected) {
                 this.selectedVideos.add(videoId);
             } else {
                 this.selectedVideos.delete(videoId);
             }
-            
+
             // Update UI
             const card = document.querySelector(`[data-video-id="${videoId}"]`);
             if (card) {
                 card.classList.toggle('selected', selected);
             }
-            
+
             // Update bulk actions button
             this.updateBulkActionsButton();
         }
@@ -436,6 +472,24 @@ class VideoManager {
                 bulkBtn.classList.remove('has-selection');
             }
         }
+    }
+
+    updatePagination() {
+        const currentSpan = document.getElementById('current-page');
+        const totalSpan = document.getElementById('total-pages');
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+
+        if (currentSpan) currentSpan.textContent = this.currentPage;
+        if (totalSpan) totalSpan.textContent = this.totalPages;
+
+        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = this.currentPage >= this.totalPages;
+    }
+
+    updateStats() {
+        // This method can be used to update other stats like total videos, etc.
+        // For now, it's a placeholder.
     }
 
     showUploadSection() {
@@ -456,7 +510,7 @@ class VideoManager {
     setupUpload() {
         const dropzone = document.getElementById('video-dropzone');
         const fileInput = document.getElementById('video-file-input');
-        
+
         if (dropzone && fileInput) {
             // Click on dropzone triggers file input
             dropzone.addEventListener('click', (e) => {
@@ -467,59 +521,61 @@ class VideoManager {
         }
     }
 
-    handleFileSelection(files) {
+    async handleFileSelection(files) {
         if (files.length === 0) return;
-        
-        // Show upload progress
+
         const uploadProgress = document.getElementById('upload-progress');
         const progressFill = document.getElementById('progress-fill');
         const progressPercent = document.getElementById('progress-percent');
-        
+
         if (uploadProgress && progressFill && progressPercent) {
             uploadProgress.style.display = 'block';
-            
-            // Simulate upload progress
-            let progress = 0;
-            const interval = setInterval(() => {
-                progress += 5;
-                progressFill.style.width = `${progress}%`;
-                progressPercent.textContent = `${progress}%`;
-                
-                if (progress >= 100) {
-                    clearInterval(interval);
-                    
-                    // Upload complete
-                    setTimeout(() => {
-                        this.showToast(`${files.length} video(s) uploaded successfully!`);
-                        uploadProgress.style.display = 'none';
-                        progressFill.style.width = '0%';
-                        progressPercent.textContent = '0%';
-                        
-                        // Reload videos
-                        this.loadVideos();
-                    }, 500);
-                }
-            }, 100);
+            progressFill.style.width = '0%';
+            progressPercent.textContent = '0%';
         }
-        
-        // Process each file
+
+        const formData = new FormData();
         Array.from(files).forEach(file => {
             if (!file.type.startsWith('video/')) {
                 this.showToast(`Skipped ${file.name}: Not a video file`, 'error');
                 return;
             }
-            
             if (file.size > 2 * 1024 * 1024 * 1024) { // 2GB limit
                 this.showToast(`Skipped ${file.name}: File too large (max 2GB)`, 'error');
                 return;
             }
-            
-            console.log('Processing file:', file.name, file.size, file.type);
+            formData.append('videos', file);
         });
+
+        if (formData.getAll('videos').length === 0) {
+            this.showToast('No valid video files selected for upload.', 'error');
+            if (uploadProgress) uploadProgress.style.display = 'none';
+            return;
+        }
+
+        try {
+            const response = await API.post('/videos/upload', formData, {
+                onUploadProgress: (progressEvent) => {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    if (progressFill && progressPercent) {
+                        progressFill.style.width = `${percentCompleted}%`;
+                        progressPercent.textContent = `${percentCompleted}%`;
+                    }
+                }
+            });
+
+            this.showToast(`${response.uploadedCount} video(s) uploaded successfully!`);
+            if (uploadProgress) uploadProgress.style.display = 'none';
+            this.loadVideos(); // Reload videos after successful upload
+        } catch (error) {
+            console.error('Error uploading videos:', error);
+            this.showToast(`Failed to upload videos: ${error.message}`, 'error');
+            if (uploadProgress) uploadProgress.style.display = 'none';
+        }
     }
 
     filterVideos() {
-        this.renderVideos();
+        this.loadVideos(); // Re-load videos with current filters
     }
 
     showBulkActions() {
@@ -527,15 +583,15 @@ class VideoManager {
             this.showToast('Please select videos first', 'error');
             return;
         }
-        
+
         const actions = [
             { label: 'Publish', action: 'publish', icon: 'check-circle' },
-            { label: 'Unpublish', action: 'unpublish', icon: 'x-circle' },
+            { label: 'Draft', action: 'draft', icon: 'x-circle' },
             { label: 'Delete', action: 'bulk-delete', icon: 'trash', danger: true },
             { label: 'Move to Category', action: 'move-category', icon: 'folder' },
             { label: 'Download', action: 'bulk-download', icon: 'download' }
         ];
-        
+
         // Create bulk actions menu
         const menu = document.createElement('div');
         menu.className = 'bulk-actions-menu glass-card';
@@ -559,23 +615,23 @@ class VideoManager {
                 `).join('')}
             </div>
         `;
-        
+
         // Position menu
         const bulkBtn = document.getElementById('bulk-actions-btn');
         const rect = bulkBtn.getBoundingClientRect();
-        
+
         menu.style.position = 'absolute';
         menu.style.top = `${rect.bottom + 5}px`;
         menu.style.right = `${window.innerWidth - rect.right}px`;
         menu.style.zIndex = '1000';
-        
+
         document.body.appendChild(menu);
-        
+
         // Event listeners
         menu.querySelector('.close-bulk-menu').addEventListener('click', () => {
             menu.remove();
         });
-        
+
         menu.querySelectorAll('.bulk-action-item').forEach(item => {
             item.addEventListener('click', (e) => {
                 const action = e.target.closest('.bulk-action-item').dataset.action;
@@ -583,7 +639,7 @@ class VideoManager {
                 menu.remove();
             });
         });
-        
+
         // Close on outside click
         setTimeout(() => {
             const closeHandler = (e) => {
@@ -598,7 +654,7 @@ class VideoManager {
 
     getBulkActionIcon(icon) {
         const icons = {
-            'check-circle': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 01118 0z"/>',
+            'check-circle': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
             'x-circle': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"/>',
             'trash': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>',
             'folder': '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>',
@@ -607,58 +663,90 @@ class VideoManager {
         return icons[icon] || '';
     }
 
-    async handleBulkAction(action) {
+    async handleBulkStatusUpdate(status) {
         const selectedIds = Array.from(this.selectedVideos);
-        
+        if (selectedIds.length === 0) {
+            this.showToast('Please select videos first', 'error');
+            return;
+        }
+
         try {
-            switch (action) {
-                case 'publish':
-                    // await API.post('/admin/videos/bulk-publish', { ids: selectedIds });
-                    this.showToast(`${selectedIds.length} video(s) published successfully`);
-                    break;
-                    
-                case 'unpublish':
-                    // await API.post('/admin/videos/bulk-unpublish', { ids: selectedIds });
-                    this.showToast(`${selectedIds.length} video(s) unpublished`);
-                    break;
-                    
-                case 'bulk-delete':
-                    if (confirm(`Are you sure you want to delete ${selectedIds.length} video(s)?`)) {
-                        // await API.post('/admin/videos/bulk-delete', { ids: selectedIds });
-                        this.showToast(`${selectedIds.length} video(s) deleted successfully`);
-                    }
-                    break;
-                    
-                case 'move-category':
-                    const category = prompt('Enter category name:');
-                    if (category) {
-                        // await API.post('/admin/videos/bulk-move', { ids: selectedIds, category });
-                        this.showToast(`Moved ${selectedIds.length} video(s) to ${category}`);
-                    }
-                    break;
-                    
-                case 'bulk-download':
-                    this.showToast('Bulk download started');
-                    break;
-            }
-            
-            // Clear selection and reload
+            await API.put('/videos/bulk-update-status', {
+                ids: selectedIds,
+                status: status
+            });
+            this.showToast(`${selectedIds.length} video(s) updated to ${status}`);
             this.selectedVideos.clear();
             this.loadVideos();
-            
+            this.updateBulkActionsButton();
         } catch (error) {
-            console.error('Bulk action error:', error);
-            this.showToast('Failed to perform bulk action', 'error');
+            console.error('Bulk update error:', error);
+            this.showToast('Failed to update videos', 'error');
+        }
+    }
+
+    async handleBulkDelete() {
+        const selectedIds = Array.from(this.selectedVideos);
+        if (selectedIds.length === 0) {
+            this.showToast('Please select videos first', 'error');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${selectedIds.length} video(s)?`)) {
+            return;
+        }
+
+        try {
+            await API.delete('/videos/bulk-delete', { ids: selectedIds });
+            this.showToast(`${selectedIds.length} video(s) deleted successfully`);
+            this.selectedVideos.clear();
+            this.loadVideos();
+            this.updateBulkActionsButton();
+        } catch (error) {
+            console.error('Bulk delete error:', error);
+            this.showToast('Failed to delete videos', 'error');
+        }
+    }
+
+    async handleBulkAction(action) {
+        switch (action) {
+            case 'publish':
+                await this.handleBulkStatusUpdate('published');
+                break;
+            case 'draft':
+                await this.handleBulkStatusUpdate('draft');
+                break;
+            case 'bulk-delete':
+                await this.handleBulkDelete();
+                break;
+            case 'move-category':
+                const category = prompt('Enter category name:');
+                if (category) {
+                    try {
+                        await API.put('/videos/bulk-update-category', { ids: Array.from(this.selectedVideos), category });
+                        this.showToast(`Moved ${this.selectedVideos.size} video(s) to ${category}`);
+                        this.selectedVideos.clear();
+                        this.loadVideos();
+                    } catch (error) {
+                        this.showToast('Failed to move videos', 'error');
+                    }
+                }
+                break;
+            case 'bulk-download':
+                this.showToast('Bulk download started');
+                // Implement bulk download logic here
+                break;
         }
     }
 
     editVideo(videoId) {
         const video = this.videos.find(v => v.id === videoId);
         if (!video) return;
-        
+
         const modal = document.getElementById('video-details-modal');
         const content = document.getElementById('video-details-content');
-        
+        if (!modal || !content) return;
+
         content.innerHTML = `
             <div class="video-edit-form">
                 <h3>Edit Video: ${video.title}</h3>
@@ -698,9 +786,9 @@ class VideoManager {
                 </form>
             </div>
         `;
-        
+
         modal.classList.add('active');
-        
+
         // Form submission
         const form = document.getElementById('edit-video-form');
         if (form) {
@@ -709,20 +797,28 @@ class VideoManager {
                 await this.saveVideoChanges(videoId, form);
             });
         }
+
+        // Close modal button
+        document.querySelector('#video-details-modal .modal-close')?.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
     }
 
     async saveVideoChanges(videoId, form) {
-        const formData = new FormData(form);
-        const data = Object.fromEntries(formData);
-        
+        const data = {
+            title: form.querySelector('#edit-title').value,
+            description: form.querySelector('#edit-description').value,
+            category: form.querySelector('#edit-category').value,
+            status: form.querySelector('#edit-status').value,
+        };
+
         try {
-            // In production, this would update via API
-            // await API.put(`/admin/videos/${videoId}`, data);
-            
+            await API.put(`/videos/${videoId}`, data);
+
             this.showToast('Video updated successfully');
             document.getElementById('video-details-modal').classList.remove('active');
             this.loadVideos();
-            
+
         } catch (error) {
             console.error('Error updating video:', error);
             this.showToast('Failed to update video', 'error');
@@ -733,14 +829,13 @@ class VideoManager {
         if (!confirm('Are you sure you want to delete this video?')) {
             return;
         }
-        
+
         try {
-            // In production, this would delete via API
-            // await API.delete(`/admin/videos/${videoId}`);
-            
+            await API.delete(`/videos/${videoId}`);
+
             this.showToast('Video deleted successfully');
             this.loadVideos();
-            
+
         } catch (error) {
             console.error('Error deleting video:', error);
             this.showToast('Failed to delete video', 'error');
@@ -750,7 +845,7 @@ class VideoManager {
     previewVideo(videoId) {
         const video = this.videos.find(v => v.id === videoId);
         if (!video) return;
-        
+
         this.showToast(`Previewing: ${video.title}`);
         // In production, this would open a video player modal
     }
@@ -811,7 +906,7 @@ class VideoManager {
         toast.className = `toast ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');

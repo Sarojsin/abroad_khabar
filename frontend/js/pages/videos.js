@@ -17,9 +17,9 @@ class VideosPage {
         this.currentSort = 'latest';
         this.currentSearch = '';
         this.videos = [];
-        
-        this.videoPlayer = new VideoPlayer();
-        
+
+        this.videoPlayer = null;
+
         this.init();
     }
 
@@ -116,20 +116,25 @@ class VideosPage {
     setupModalEvents() {
         const videoModal = document.getElementById('video-modal');
         const submitModal = document.getElementById('submit-modal');
-        
+
         if (videoModal) {
             videoModal.querySelector('.modal-close').addEventListener('click', () => {
                 videoModal.classList.remove('active');
-                this.videoPlayer.pause();
+                if (this.videoPlayer) this.videoPlayer.pause();
+                // If iframe, clear src to stop video
+                const iframe = videoModal.querySelector('iframe');
+                if (iframe) iframe.src = '';
             });
             videoModal.addEventListener('click', (e) => {
                 if (e.target === videoModal) {
                     videoModal.classList.remove('active');
-                    this.videoPlayer.pause();
+                    if (this.videoPlayer) this.videoPlayer.pause();
+                    const iframe = videoModal.querySelector('iframe');
+                    if (iframe) iframe.src = '';
                 }
             });
         }
-        
+
         if (submitModal) {
             submitModal.querySelector('.modal-close').addEventListener('click', () => {
                 submitModal.classList.remove('active');
@@ -139,7 +144,7 @@ class VideosPage {
                     submitModal.classList.remove('active');
                 }
             });
-            
+
             // Submission form
             const submitForm = document.getElementById('video-submission-form');
             if (submitForm) {
@@ -181,7 +186,7 @@ class VideosPage {
                     const videoUrl = video.dataset.src;
                     const thumbnail = video.dataset.thumbnail;
                     const title = video.querySelector('.video-title')?.textContent || 'Video';
-                    
+
                     this.openVideoModal(videoUrl, thumbnail, title);
                 }
             });
@@ -190,9 +195,9 @@ class VideosPage {
 
     async loadVideos(append = false) {
         if (this.isLoading) return;
-        
+
         this.isLoading = true;
-        
+
         // Show loading skeleton
         if (!append) {
             const container = document.getElementById('videos-container');
@@ -208,20 +213,20 @@ class VideosPage {
             //     search: this.currentSearch
             // });
             // const data = await response.json();
-            
+
             // Mock data for demonstration
             const mockVideos = this.generateMockVideos();
-            
+
             if (append) {
                 this.videos = [...this.videos, ...mockVideos];
             } else {
                 this.videos = mockVideos;
             }
-            
+
             this.sortVideos();
             this.renderVideos(append);
             this.hasMore = mockVideos.length === 12; // Assuming 12 per page
-            
+
         } catch (error) {
             console.error('Error loading videos:', error);
             this.showError('Failed to load videos. Please try again.');
@@ -233,7 +238,7 @@ class VideosPage {
     generateMockVideos() {
         const categories = ['success-stories', 'university-tours', 'visa-guide', 'webinars', 'testimonials'];
         const durations = ['5:42', '12:18', '25:30', '8:15', '45:20', '3:55'];
-        
+
         return Array.from({ length: 12 }, (_, i) => ({
             id: i + 1,
             title: `Study Abroad Success Story #${i + 1}: Journey to ${i % 2 === 0 ? 'Canada' : 'Australia'}`,
@@ -241,7 +246,7 @@ class VideosPage {
             category: categories[i % categories.length],
             duration: durations[i % durations.length],
             views: Math.floor(Math.random() * 10000) + 1000,
-            thumbnail: `../assets/images/videos/thumb${(i % 6) + 1}.jpg`,
+            thumbnail: `/assets/images/videos/thumb${(i % 6) + 1}.jpg`,
             videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
             featured: i < 3,
             date: new Date(Date.now() - i * 86400000).toLocaleDateString(),
@@ -290,7 +295,7 @@ class VideosPage {
 
     renderVideos(append = false) {
         const container = document.getElementById('videos-container');
-        
+
         if (!append) {
             container.innerHTML = '';
         }
@@ -309,13 +314,13 @@ class VideosPage {
         }
 
         // Filter videos by category
-        const filteredVideos = this.currentCategory === 'all' 
-            ? this.videos 
+        const filteredVideos = this.currentCategory === 'all'
+            ? this.videos
             : this.videos.filter(video => video.category === this.currentCategory);
 
         // Filter by search
         const searchedVideos = this.currentSearch
-            ? filteredVideos.filter(video => 
+            ? filteredVideos.filter(video =>
                 video.title.toLowerCase().includes(this.currentSearch) ||
                 video.description.toLowerCase().includes(this.currentSearch) ||
                 video.tags.some(tag => tag.toLowerCase().includes(this.currentSearch))
@@ -379,7 +384,7 @@ class VideosPage {
 
         // Re-setup video player for new videos
         this.setupVideoPlayer();
-        
+
         // Add event listeners to action buttons
         container.querySelectorAll('.save-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -506,7 +511,7 @@ class VideosPage {
         const videoUrl = videoContainer.querySelector('.lazy-video')?.dataset.src;
         const thumbnail = videoContainer.querySelector('.lazy-video')?.dataset.thumbnail;
         const title = videoContainer.querySelector('.video-title')?.textContent || 'Featured Video';
-        
+
         if (videoUrl) {
             this.openVideoModal(videoUrl, thumbnail, title);
         }
@@ -516,7 +521,7 @@ class VideosPage {
         const modal = document.getElementById('video-modal');
         const playerContainer = document.getElementById('video-modal-player');
         const infoContainer = document.getElementById('video-modal-info');
-        
+
         playerContainer.innerHTML = `
             <div class="modal-video-player">
                 <iframe src="${videoUrl}?autoplay=1&rel=0" 
@@ -526,7 +531,7 @@ class VideosPage {
                 </iframe>
             </div>
         `;
-        
+
         infoContainer.innerHTML = `
             <div class="modal-video-info">
                 <h3>${title}</h3>
@@ -546,7 +551,7 @@ class VideosPage {
                 </div>
             </div>
         `;
-        
+
         modal.classList.add('active');
     }
 
@@ -558,15 +563,15 @@ class VideosPage {
     async submitVideo(form) {
         const formData = new FormData(form);
         const data = Object.fromEntries(formData);
-        
+
         try {
             // In production, this would submit to API
             // await API.post('/videos/submit', data);
-            
+
             this.showToast('Video submitted successfully! It will be reviewed by our team.');
             form.reset();
             document.getElementById('submit-modal').classList.remove('active');
-            
+
         } catch (error) {
             console.error('Error submitting video:', error);
             this.showToast('Failed to submit video. Please try again.', 'error');
@@ -581,7 +586,7 @@ class VideosPage {
     shareVideo(videoId) {
         const video = this.videos.find(v => v.id === videoId);
         if (!video) return;
-        
+
         if (navigator.share) {
             navigator.share({
                 title: video.title,
@@ -621,7 +626,7 @@ class VideosPage {
         toast.className = `toast ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -630,9 +635,5 @@ class VideosPage {
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new VideosPage();
-});
-
+// Export for module usage
 export default VideosPage;

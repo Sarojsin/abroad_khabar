@@ -7,7 +7,7 @@ import { initModalSystem } from './components/modal.js';
 import { initScrollAnimations } from './effects/scroll-animations.js';
 import { initLazyMedia } from './effects/lazy-media.js';
 
-class EduConsultApp {
+class AbroadKhabarApp {
     constructor() {
         this.router = router;
         this.router.generateRoutes();
@@ -25,7 +25,7 @@ class EduConsultApp {
         // Start router
         this.router.init();
 
-        console.log('EduConsult App initialized');
+        console.log('Abroad Khabar App initialized');
     }
 
     async initCore() {
@@ -132,7 +132,7 @@ class EduConsultApp {
     }
 
     updatePageTitle(title) {
-        document.title = `${title} | EduConsult`;
+        document.title = `${title} | Abroad Khabar`;
 
         // Update meta tags for SEO
         this.updateMetaTags(title);
@@ -157,10 +157,10 @@ class EduConsultApp {
 
     // Public API for page components
     static getInstance() {
-        if (!EduConsultApp.instance) {
-            EduConsultApp.instance = new EduConsultApp();
+        if (!AbroadKhabarApp.instance) {
+            AbroadKhabarApp.instance = new AbroadKhabarApp();
         }
-        return EduConsultApp.instance;
+        return AbroadKhabarApp.instance;
     }
 }
 
@@ -173,7 +173,7 @@ window.addEventListener('error', (event) => {
         return;
     }
 
-    const app = EduConsultApp.getInstance();
+    const app = AbroadKhabarApp.getInstance();
     if (app) {
         app.showError('An unexpected error occurred. Please try again.');
     }
@@ -193,11 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Initialize the app
-    window.app = EduConsultApp.getInstance();
+    window.app = AbroadKhabarApp.getInstance();
 });
 
 // Make app globally available
-window.EduConsultApp = EduConsultApp;
+window.AbroadKhabarApp = AbroadKhabarApp;
 
 // Export for module usage
-export default EduConsultApp;
+export default AbroadKhabarApp;

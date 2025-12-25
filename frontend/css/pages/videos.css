@@ -15,7 +15,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('../../assets/images/videos-hero-bg.jpg') no-repeat center center;
+    background: url('/assets/images/videos-hero-bg.jpg') no-repeat center center;
     background-size: cover;
     opacity: 0.05;
     z-index: 0;

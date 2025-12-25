@@ -65,7 +65,7 @@ def decode_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
 
-async def get_current_user(request: Request) -> Optional[dict]:
+async def get_current_user_payload(request: Request) -> Optional[dict]:
     """Get current user from request"""
     auth_header = request.headers.get("Authorization")
     if not auth_header:

@@ -15,7 +15,7 @@ class LazyMediaLoader {
         this.setupVideoObserver();
         this.setupIframeObserver();
         this.scanForMedia();
-        
+
         // Watch for dynamically added content
         this.setupMutationObserver();
     }
@@ -66,7 +66,7 @@ class LazyMediaLoader {
         // Lazy images
         document.querySelectorAll('img[data-src], img[data-srcset]').forEach(img => {
             this.imageObserver.observe(img);
-            
+
             // Add blur placeholder if not already present
             if (!img.classList.contains('lazy-loaded')) {
                 this.addBlurPlaceholder(img);
@@ -89,29 +89,33 @@ class LazyMediaLoader {
         });
     }
 
+    refresh() {
+        this.scanForMedia();
+    }
+
     addBlurPlaceholder(img) {
         // Store original classes
         const originalClasses = img.className;
-        
+
         // Add blur class
         img.className = originalClasses + ' lazy-blur';
-        
+
         // Create small placeholder if data-src exists
         if (img.dataset.src) {
             const tinySrc = img.dataset.src.replace(/(\.(jpg|jpeg|png|webp))/, '_tiny$1');
-            
+
             // Create canvas for blur effect
             const canvas = document.createElement('canvas');
             canvas.width = 20;
             canvas.height = 20;
-            
+
             // Load tiny image for blur
             const tempImg = new Image();
             tempImg.src = tinySrc;
             tempImg.onload = () => {
                 const ctx = canvas.getContext('2d');
                 ctx.drawImage(tempImg, 0, 0, 20, 20);
-                
+
                 // Apply blur using CSS
                 img.style.backgroundImage = `url(${canvas.toDataURL()})`;
                 img.style.backgroundSize = 'cover';
@@ -125,23 +129,23 @@ class LazyMediaLoader {
             img.src = img.dataset.src;
             delete img.dataset.src;
         }
-        
+
         if (img.dataset.srcset) {
             img.srcset = img.dataset.srcset;
             delete img.dataset.srcset;
         }
-        
+
         if (img.dataset.sizes) {
             img.sizes = img.dataset.sizes;
             delete img.dataset.sizes;
         }
-        
+
         img.onload = () => {
             img.classList.add('lazy-loaded');
             img.classList.remove('lazy-blur');
             img.style.filter = '';
             img.style.backgroundImage = '';
-            
+
             // Dispatch event for animations
             img.dispatchEvent(new CustomEvent('lazyloaded'));
         };
@@ -152,16 +156,16 @@ class LazyMediaLoader {
             video.src = video.dataset.src;
             delete video.dataset.src;
         }
-        
+
         const sources = video.querySelectorAll('source[data-src]');
         sources.forEach(source => {
             source.src = source.dataset.src;
             delete source.dataset.src;
         });
-        
+
         video.load();
         video.classList.add('lazy-loaded');
-        
+
         // Dispatch event
         video.dispatchEvent(new CustomEvent('lazyloaded'));
     }
@@ -171,7 +175,7 @@ class LazyMediaLoader {
             iframe.src = iframe.dataset.src;
             delete iframe.dataset.src;
         }
-        
+
         iframe.classList.add('lazy-loaded');
         iframe.dispatchEvent(new CustomEvent('lazyloaded'));
     }
@@ -193,7 +197,7 @@ class LazyMediaLoader {
                             } else if (node.matches('iframe[data-src]')) {
                                 this.iframeObserver.observe(node);
                             }
-                            
+
                             // Check children
                             node.querySelectorAll?.('img[data-src], img[data-srcset], [data-bg-src]').forEach(img => {
                                 this.imageObserver.observe(img);
@@ -201,11 +205,11 @@ class LazyMediaLoader {
                                     this.addBlurPlaceholder(img);
                                 }
                             });
-                            
+
                             node.querySelectorAll?.('video[data-src], video source[data-src]').forEach(video => {
                                 this.videoObserver.observe(video);
                             });
-                            
+
                             node.querySelectorAll?.('iframe[data-src]').forEach(iframe => {
                                 this.iframeObserver.observe(iframe);
                             });
@@ -241,7 +245,7 @@ class ProgressiveImage {
         if (this.lowResSrc) {
             this.loadLowRes();
         }
-        
+
         // Load higher quality when in viewport
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -251,7 +255,7 @@ class ProgressiveImage {
                 }
             });
         }, { threshold: 0.1 });
-        
+
         observer.observe(this.container);
     }
 
@@ -259,11 +263,11 @@ class ProgressiveImage {
         const img = new Image();
         img.src = this.lowResSrc;
         img.className = 'progressive-image low-quality';
-        
+
         img.onload = () => {
             this.container.appendChild(img);
             this.currentQuality = 'low';
-            
+
             // Start loading medium quality
             setTimeout(() => this.loadMediumRes(), 100);
         };
@@ -271,21 +275,21 @@ class ProgressiveImage {
 
     loadMediumRes() {
         if (!this.mediumResSrc || this.currentQuality === 'medium') return;
-        
+
         const img = new Image();
         img.src = this.mediumResSrc;
         img.className = 'progressive-image medium-quality';
-        
+
         img.onload = () => {
             const oldImg = this.container.querySelector('.low-quality');
             if (oldImg) {
                 oldImg.classList.add('fading-out');
                 setTimeout(() => oldImg.remove(), 300);
             }
-            
+
             this.container.appendChild(img);
             this.currentQuality = 'medium';
-            
+
             // Start loading high quality
             setTimeout(() => this.loadHighRes(), 300);
         };
@@ -293,18 +297,18 @@ class ProgressiveImage {
 
     loadHighRes() {
         if (!this.highResSrc || this.currentQuality === 'high') return;
-        
+
         const img = new Image();
         img.src = this.highResSrc;
         img.className = 'progressive-image high-quality';
-        
+
         img.onload = () => {
             const oldImg = this.container.querySelector('.medium-quality');
             if (oldImg) {
                 oldImg.classList.add('fading-out');
                 setTimeout(() => oldImg.remove(), 300);
             }
-            
+
             this.container.appendChild(img);
             this.currentQuality = 'high';
         };
@@ -321,7 +325,7 @@ class LazyBackground {
 
     init() {
         if (!this.imageUrl) return;
-        
+
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
@@ -330,18 +334,18 @@ class LazyBackground {
                 }
             });
         }, { threshold: 0.1 });
-        
+
         observer.observe(this.element);
     }
 
     loadBackground() {
         const img = new Image();
         img.src = this.imageUrl;
-        
+
         img.onload = () => {
             this.element.style.backgroundImage = `url(${this.imageUrl})`;
             this.element.classList.add('bg-loaded');
-            
+
             // Remove data attribute
             delete this.element.dataset.bgSrc;
         };
@@ -363,7 +367,7 @@ class VideoThumbnailLoader {
         } else if (!this.posterGenerated && this.video.dataset.src) {
             this.generateThumbnail();
         }
-        
+
         // Load video when in viewport
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
@@ -373,7 +377,7 @@ class VideoThumbnailLoader {
                 }
             });
         }, { threshold: 0.1 });
-        
+
         observer.observe(this.video);
     }
 
@@ -400,29 +404,36 @@ export {
     LazyMediaLoader,
     ProgressiveImage,
     LazyBackground,
-    VideoThumbnailLoader
+    VideoThumbnailLoader,
+    initLazyMedia
 };
+
+// Initialize helper
+function initLazyMedia() {
+    if (window.lazyLoader) return window.lazyLoader;
+    return new LazyMediaLoader();
+}
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize lazy media loader
     const lazyLoader = new LazyMediaLoader();
-    
+
     // Initialize progressive images
     document.querySelectorAll('[data-low-res]').forEach(container => {
         new ProgressiveImage(container);
     });
-    
+
     // Initialize lazy backgrounds
     document.querySelectorAll('[data-bg-src]').forEach(element => {
         new LazyBackground(element);
     });
-    
+
     // Initialize video thumbnails
     document.querySelectorAll('video[data-thumbnail]').forEach(video => {
         new VideoThumbnailLoader(video);
     });
-    
+
     // Make available globally
     window.lazyLoader = lazyLoader;
 });

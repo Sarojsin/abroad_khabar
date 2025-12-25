@@ -2,9 +2,9 @@
 Permission and role-based access control
 """
 from enum import Enum
-from typing import List, Optional
 from fastapi import HTTPException, status, Depends
-from app.core.security import get_current_user
+from typing import List, Optional, Any
+from app.api.v1.auth import get_current_user
 
 class UserRole(str, Enum):
     """User roles"""
@@ -121,20 +121,31 @@ ROLE_PERMISSIONS = {
     ]
 }
 
-def has_permission(user: dict, permission: Permission) -> bool:
+def has_permission(user: Any, permission: Permission) -> bool:
     """Check if user has specific permission"""
     if not user:
         return False
     
-    user_role = user.get("role", UserRole.USER)
-    if user_role not in ROLE_PERMISSIONS:
-        return False
+    # Handle both User object and payload dict
+    user_role = getattr(user, "role", None)
+    if user_role is None and isinstance(user, dict):
+        user_role = user.get("role")
     
-    return permission in ROLE_PERMISSIONS[user_role]
+    if not user_role:
+        return False
+        
+    # Convert string role to enum if necessary
+    if isinstance(user_role, str):
+        try:
+            user_role = UserRole(user_role)
+        except ValueError:
+            return False
+    
+    return permission in ROLE_PERMISSIONS.get(user_role, [])
 
 def require_permission(permission: Permission):
     """Dependency to require specific permission"""
-    async def permission_dependency(user: dict = Depends(get_current_user)):
+    async def permission_dependency(user: Any = Depends(get_current_user)):
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -153,15 +164,18 @@ def require_permission(permission: Permission):
 
 def require_role(role: UserRole):
     """Dependency to require specific role"""
-    async def role_dependency(user: dict = Depends(get_current_user)):
+    async def role_dependency(user: Any = Depends(get_current_user)):
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Authentication required"
             )
         
-        user_role = user.get("role")
-        if user_role != role.value:
+        user_role = getattr(user, "role", None)
+        if user_role is None and isinstance(user, dict):
+            user_role = user.get("role")
+
+        if user_role != role and user_role != role.value:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"Requires {role.value} role"

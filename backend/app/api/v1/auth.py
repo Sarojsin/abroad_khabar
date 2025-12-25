@@ -199,23 +199,20 @@ async def refresh_token(
         expires_delta=access_token_expires.total_seconds()
     )
     
-    return custom_response(
-        message="Token refreshed successfully",
-        data={
-            "access_token": access_token,
-            "token_type": "bearer",
-            "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
-        }
-    )
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60
+    }
 
 @router.get("/me", response_model=dict)
 async def get_current_user_info(
     current_user: User = Depends(get_current_active_user)
 ) -> Any:
     """Get current user information"""
-    return custom_response(
-        data={"user": UserResponse.model_validate(current_user).model_dump()}
-    )
+    return {
+        "user": UserResponse.model_validate(current_user).model_dump()
+    }
 
 @router.put("/me", response_model=dict)
 async def update_current_user(

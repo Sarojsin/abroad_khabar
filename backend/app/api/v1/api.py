@@ -1,7 +1,9 @@
 """
 Main API Router
 """
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
+from app.db.session import get_db
 from app.api.v1 import (
     auth,
     services,
@@ -12,13 +14,19 @@ from app.api.v1 import (
     countries,
     faq,
     homepage,
-    testimonials
+    testimonials,
+    admin,
+    blogs,
+    users
 )
 
 api_router = APIRouter()
 
 # Include all API routers
 api_router.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+api_router.include_router(admin.router, prefix="/admin", tags=["Admin"])
+api_router.include_router(blogs.router, prefix="/blogs", tags=["Blogs"])
+api_router.include_router(users.router, prefix="/users", tags=["Users"])
 
 api_router.include_router(services.router, prefix="/services", tags=["Services"])
 api_router.include_router(videos.router, prefix="/videos", tags=["Videos"])
@@ -29,6 +37,19 @@ api_router.include_router(countries.router, prefix="/countries", tags=["Countrie
 api_router.include_router(faq.router, prefix="/faq", tags=["FAQ"])
 api_router.include_router(homepage.router, prefix="/homepage", tags=["Homepage"])
 api_router.include_router(testimonials.router, prefix="/testimonials", tags=["Testimonials"])
+
+@api_router.get("/stats")
+async def get_stats(db: Session = Depends(get_db)):
+    from app.models.homepage import HomepageSection
+    section = db.query(HomepageSection).filter(HomepageSection.key == "counters").first()
+    if section and section.is_active:
+        return section.content
+    return {
+        "students_helped": 5000,
+        "universities": 200,
+        "countries": 50,
+        "success_rate": 98
+    }
 
 
 

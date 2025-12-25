@@ -48,14 +48,18 @@ app = FastAPI(
 )
 
 # Setup CORS
-if settings.BACKEND_CORS_ORIGINS:
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001",
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Security middleware
 app.add_middleware(
@@ -77,17 +81,17 @@ if os.path.exists(settings.MEDIA_ROOT):
 # Include API router
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
-# @app.get("/")
-# async def root():
-#     """Root endpoint"""
-#     return custom_response(
-#         message="Educational Consultancy Platform API",
-#         data={
-#             "version": settings.VERSION,
-#             "docs": "/docs" if settings.DEBUG else None,
-#             "status": "operational"
-#         }
-#     )
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return custom_response(
+        message="Educational Consultancy Platform API",
+        data={
+            "version": settings.VERSION,
+            "docs": "/docs" if settings.DEBUG else None,
+            "status": "operational"
+        }
+    )
 
 @app.get("/health")
 async def health_check():
@@ -135,7 +139,7 @@ if __name__ == "__main__":
         print("Uvicorn imported. Running...")
         uvicorn.run(
             app,
-            host="0.0.0.0",#http://localhost:8002/docs
+            host="localhost",#http://localhost:8002/docs
             port=8002,
             reload=False,
             log_level="info"

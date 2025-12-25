@@ -5,6 +5,7 @@
 
 import Auth from '../core/auth.js';
 import API from '../core/api.js';
+import router from '../core/router.js';
 
 class LoginPage {
     constructor() {
@@ -12,7 +13,7 @@ class LoginPage {
         this.loginAttempts = 0;
         this.maxAttempts = 5;
         this.lockedUntil = 0;
-        
+
         this.init();
     }
 
@@ -75,12 +76,12 @@ class LoginPage {
     setupPasswordToggle() {
         const toggleBtn = document.getElementById('toggle-password');
         const passwordInput = document.getElementById('login-password');
-        
+
         if (toggleBtn && passwordInput) {
             toggleBtn.addEventListener('click', () => {
                 const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
                 passwordInput.setAttribute('type', type);
-                
+
                 // Update icon
                 const icon = toggleBtn.querySelector('svg');
                 if (type === 'text') {
@@ -105,7 +106,7 @@ class LoginPage {
         if (rememberMe) {
             const savedEmail = localStorage.getItem('savedEmail');
             const savedPassword = localStorage.getItem('savedPassword');
-            
+
             if (savedEmail && savedPassword) {
                 document.getElementById('login-email').value = savedEmail;
                 document.getElementById('login-password').value = savedPassword;
@@ -115,10 +116,9 @@ class LoginPage {
     }
 
     checkSession() {
-        // Check if user is already logged in
-        if (Auth.isAuthenticated()) {
+        if (Auth.isAuthenticated) {
             // Redirect to admin dashboard
-            window.location.href = '../admin/dashboard.html';
+            router.navigate('/admin/dashboard');
         }
     }
 
@@ -142,68 +142,43 @@ class LoginPage {
         const submitBtn = document.getElementById('login-submit');
         const btnText = submitBtn.querySelector('.btn-text');
         const spinner = submitBtn.querySelector('.loading-spinner');
-        
+
         btnText.style.display = 'none';
         spinner.style.display = 'block';
         submitBtn.disabled = true;
 
         try {
-            // In production, this would call the API
-            // const response = await API.post('/auth/login', { email, password });
-            // const data = await response.json();
-            
-            // Simulate API response with delay
-            await new Promise(resolve => setTimeout(resolve, 1500));
-            
-            // Mock successful response
-            const mockResponse = {
-                access_token: 'mock_jwt_token_' + Date.now(),
-                refresh_token: 'mock_refresh_token_' + Date.now(),
-                user: {
-                    id: 1,
-                    email: email,
-                    name: 'Admin User',
-                    role: 'admin',
-                    permissions: ['all']
+            const result = await Auth.login(email, password);
+
+            if (result.success) {
+                // Save credentials if remember me is checked
+                if (rememberMe) {
+                    localStorage.setItem('rememberMe', 'true');
+                    localStorage.setItem('savedEmail', email);
+                } else {
+                    localStorage.removeItem('rememberMe');
+                    localStorage.removeItem('savedEmail');
                 }
-            };
-            
-            // Save credentials if remember me is checked
-            if (rememberMe) {
-                localStorage.setItem('rememberMe', 'true');
-                localStorage.setItem('savedEmail', email);
-                // Note: In production, never store passwords in localStorage
-                // This is just for demonstration
-                localStorage.setItem('savedPassword', password);
+
+                this.resetLoginAttempts();
+                this.showToast('Login successful!');
+
+                // Redirect based on role
+                if (Auth.isAdmin()) {
+                    router.navigate('/admin/dashboard');
+                } else {
+                    router.navigate('/');
+                }
             } else {
-                localStorage.removeItem('rememberMe');
-                localStorage.removeItem('savedEmail');
-                localStorage.removeItem('savedPassword');
+                throw new Error(result.error);
             }
-            
-            // Store auth data
-            Auth.setToken(mockResponse.access_token);
-            Auth.setRefreshToken(mockResponse.refresh_token);
-            Auth.setUser(mockResponse.user);
-            
-            // Reset login attempts on successful login
-            this.resetLoginAttempts();
-            
-            // Check if two-factor is required (mock)
-            const requires2FA = Math.random() > 0.7; // 30% chance for demo
-            if (requires2FA) {
-                this.showTwoFactorModal();
-            } else {
-                // Redirect to admin dashboard
-                window.location.href = '../admin/dashboard.html';
-            }
-            
+
         } catch (error) {
             console.error('Login error:', error);
-            
+
             // Increment login attempts
             this.loginAttempts++;
-            
+
             if (this.loginAttempts >= this.maxAttempts) {
                 this.lockAccount();
                 this.showLockedMessage();
@@ -214,7 +189,7 @@ class LoginPage {
                     'error'
                 );
             }
-            
+
         } finally {
             // Reset button state
             btnText.style.display = 'block';
@@ -228,17 +203,17 @@ class LoginPage {
             this.showToast('Please enter both email and password', 'error');
             return false;
         }
-        
+
         if (!this.isValidEmail(email)) {
             this.showToast('Please enter a valid email address', 'error');
             return false;
         }
-        
+
         if (password.length < 8) {
             this.showToast('Password must be at least 8 characters', 'error');
             return false;
         }
-        
+
         return true;
     }
 
@@ -261,32 +236,32 @@ class LoginPage {
 
     async handlePasswordReset(form) {
         const email = document.getElementById('reset-email').value;
-        
+
         if (!email || !this.isValidEmail(email)) {
             this.showToast('Please enter a valid email address', 'error');
             return;
         }
-        
+
         // Show loading state
         const submitBtn = document.getElementById('reset-submit');
         const btnText = submitBtn.querySelector('.btn-text');
         const spinner = submitBtn.querySelector('.loading-spinner');
-        
+
         btnText.style.display = 'none';
         spinner.style.display = 'block';
         submitBtn.disabled = true;
-        
+
         try {
             // In production, this would call the API
             // await API.post('/auth/forgot-password', { email });
-            
+
             // Simulate API call
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             this.showToast('Password reset instructions sent to your email');
             this.showLoginForm();
             form.reset();
-            
+
         } catch (error) {
             console.error('Password reset error:', error);
             this.showToast('Failed to send reset instructions. Please try again.', 'error');
@@ -302,10 +277,10 @@ class LoginPage {
             // In production, this would redirect to OAuth endpoint
             // For now, simulate social login
             this.showToast(`Redirecting to ${provider} login...`);
-            
+
             // Simulate redirect delay
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             // Mock successful social login
             const mockResponse = {
                 access_token: 'mock_social_token_' + Date.now(),
@@ -317,13 +292,13 @@ class LoginPage {
                     permissions: ['content']
                 }
             };
-            
+
             Auth.setToken(mockResponse.access_token);
             Auth.setUser(mockResponse.user);
-            
+
             // Redirect to admin dashboard
             window.location.href = '../admin/dashboard.html';
-            
+
         } catch (error) {
             console.error('Social login error:', error);
             this.showToast('Social login failed. Please try again.', 'error');
@@ -333,66 +308,66 @@ class LoginPage {
     setupTwoFactorModal() {
         const modal = document.getElementById('two-factor-modal');
         if (!modal) return;
-        
+
         // Close button
         modal.querySelector('.modal-close').addEventListener('click', () => {
             modal.classList.remove('active');
         });
-        
+
         // Outside click
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.classList.remove('active');
             }
         });
-        
+
         // Code input handling
         const codeInputs = modal.querySelectorAll('.code-input');
         codeInputs.forEach((input, index) => {
             input.addEventListener('input', (e) => {
                 const value = e.target.value;
-                
+
                 // Only allow digits
                 if (!/^\d?$/.test(value)) {
                     e.target.value = '';
                     return;
                 }
-                
+
                 // Auto-focus next input
                 if (value && index < codeInputs.length - 1) {
                     codeInputs[index + 1].focus();
                 }
-                
+
                 // Check if all inputs are filled
                 const allFilled = Array.from(codeInputs).every(input => input.value);
                 if (allFilled) {
                     this.verifyTwoFactorCode();
                 }
             });
-            
+
             // Handle backspace
             input.addEventListener('keydown', (e) => {
                 if (e.key === 'Backspace' && !input.value && index > 0) {
                     codeInputs[index - 1].focus();
                 }
             });
-            
+
             // Handle paste
             input.addEventListener('paste', (e) => {
                 e.preventDefault();
                 const pastedData = e.clipboardData.getData('text');
                 const digits = pastedData.replace(/\D/g, '').split('');
-                
+
                 digits.forEach((digit, idx) => {
                     if (codeInputs[idx]) {
                         codeInputs[idx].value = digit;
                     }
                 });
-                
+
                 // Focus last input
                 const lastIndex = Math.min(digits.length - 1, codeInputs.length - 1);
                 codeInputs[lastIndex].focus();
-                
+
                 // Check if all inputs are filled
                 const allFilled = Array.from(codeInputs).every(input => input.value);
                 if (allFilled) {
@@ -400,7 +375,7 @@ class LoginPage {
                 }
             });
         });
-        
+
         // Form submission
         const twoFactorForm = document.getElementById('two-factor-form');
         if (twoFactorForm) {
@@ -409,7 +384,7 @@ class LoginPage {
                 this.verifyTwoFactorCode();
             });
         }
-        
+
         // Resend code button
         const resendBtn = document.getElementById('resend-code');
         if (resendBtn) {
@@ -417,7 +392,7 @@ class LoginPage {
                 this.resendTwoFactorCode();
             });
         }
-        
+
         // Use backup code button
         const backupBtn = document.getElementById('use-backup-code');
         if (backupBtn) {
@@ -425,7 +400,7 @@ class LoginPage {
                 this.useBackupCode();
             });
         }
-        
+
         // Start timer
         this.startTwoFactorTimer();
     }
@@ -434,7 +409,7 @@ class LoginPage {
         const modal = document.getElementById('two-factor-modal');
         if (modal) {
             modal.classList.add('active');
-            
+
             // Focus first input
             const firstInput = modal.querySelector('.code-input');
             if (firstInput) {
@@ -447,36 +422,36 @@ class LoginPage {
         const modal = document.getElementById('two-factor-modal');
         const codeInputs = modal.querySelectorAll('.code-input');
         const code = Array.from(codeInputs).map(input => input.value).join('');
-        
+
         if (code.length !== 6) {
             this.showToast('Please enter a 6-digit code', 'error', modal);
             return;
         }
-        
+
         try {
             // In production, this would verify with API
             // await API.post('/auth/verify-2fa', { code });
-            
+
             // Simulate verification
             await new Promise(resolve => setTimeout(resolve, 500));
-            
+
             // Mock successful verification
             this.showToast('Two-factor authentication successful!');
             modal.classList.remove('active');
-            
+
             // Clear inputs
             codeInputs.forEach(input => input.value = '');
-            
+
             // Redirect to admin dashboard
             window.location.href = '../admin/dashboard.html';
-            
+
         } catch (error) {
             console.error('2FA verification error:', error);
-            
+
             // Clear inputs and focus first
             codeInputs.forEach(input => input.value = '');
             if (codeInputs[0]) codeInputs[0].focus();
-            
+
             this.showToast('Invalid verification code. Please try again.', 'error', modal);
         }
     }
@@ -494,15 +469,15 @@ class LoginPage {
     startTwoFactorTimer() {
         const timerElement = document.getElementById('code-timer');
         if (!timerElement) return;
-        
+
         let timeLeft = 120; // 2 minutes in seconds
-        
+
         const timer = setInterval(() => {
             const minutes = Math.floor(timeLeft / 60);
             const seconds = timeLeft % 60;
-            
+
             timerElement.textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
-            
+
             if (timeLeft <= 0) {
                 clearInterval(timer);
                 timerElement.textContent = '0:00';
@@ -512,7 +487,7 @@ class LoginPage {
                     resendBtn.disabled = false;
                 }
             }
-            
+
             timeLeft--;
         }, 1000);
     }
@@ -563,7 +538,7 @@ class LoginPage {
         toast.className = `toast ${type}`;
         toast.textContent = message;
         context.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -572,9 +547,5 @@ class LoginPage {
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new LoginPage();
-});
-
+// Export for module usage
 export default LoginPage;

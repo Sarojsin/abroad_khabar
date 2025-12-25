@@ -50,12 +50,12 @@ class AnimatedCounter {
         const animateFrame = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
+
             // Apply easing function
             const easedProgress = this.ease(progress, this.easing);
-            
+
             const currentValue = startValue + (endValue - startValue) * easedProgress;
-            
+
             // Format the number
             let displayValue;
             if (this.decimalPlaces > 0) {
@@ -63,10 +63,10 @@ class AnimatedCounter {
             } else {
                 displayValue = Math.floor(currentValue);
             }
-            
+
             // Update element
             this.element.textContent = this.prefix + displayValue + this.suffix;
-            
+
             if (progress < 1) {
                 requestAnimationFrame(animateFrame);
             } else {
@@ -81,7 +81,7 @@ class AnimatedCounter {
     }
 
     ease(t, easing) {
-        switch(easing) {
+        switch (easing) {
             case 'linear':
                 return t;
             case 'easeInQuad':
@@ -112,12 +112,16 @@ class AnimatedCounter {
 function initCounters() {
     const counterElements = document.querySelectorAll('.animate-counter, [data-counter]');
     const counters = [];
-    
+
     counterElements.forEach(element => {
         counters.push(new AnimatedCounter(element));
     });
-    
+
     return counters;
+}
+
+function animateCounters(elements) {
+    elements.forEach(el => new AnimatedCounter(el));
 }
 
 // Stats counter for dashboard
@@ -135,7 +139,7 @@ class StatsCounter {
 
     gatherStats() {
         const statElements = this.container.querySelectorAll('.stat-number');
-        
+
         statElements.forEach(element => {
             const counterElement = element.querySelector('.counter');
             if (counterElement) {
@@ -181,14 +185,14 @@ class StatsCounter {
         const animate = (currentTime) => {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
-            
+
             // Ease out cubic
             const easedProgress = 1 - Math.pow(1 - progress, 3);
-            
+
             const currentValue = Math.floor(startValue + (stat.target - startValue) * easedProgress);
-            
+
             stat.element.textContent = stat.prefix + currentValue.toLocaleString() + stat.suffix;
-            
+
             if (progress < 1) {
                 requestAnimationFrame(animate);
             }
@@ -268,7 +272,7 @@ class CharacterCounter {
         this.input = input;
         this.counter = counterElement;
         this.maxLength = maxLength || parseInt(input.getAttribute('maxlength')) || 0;
-        
+
         if (this.maxLength > 0) {
             this.init();
         }
@@ -282,9 +286,9 @@ class CharacterCounter {
     update() {
         const currentLength = this.input.value.length;
         const remaining = this.maxLength - currentLength;
-        
+
         this.counter.textContent = `${currentLength}/${this.maxLength}`;
-        
+
         if (remaining < 0) {
             this.counter.style.color = '#ef4444';
         } else if (remaining < 10) {
@@ -299,6 +303,7 @@ class CharacterCounter {
 export {
     AnimatedCounter,
     initCounters,
+    animateCounters,
     StatsCounter,
     CountdownTimer,
     CharacterCounter
@@ -308,12 +313,12 @@ export {
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize regular counters
     initCounters();
-    
+
     // Initialize stats counters
     document.querySelectorAll('.stats-section').forEach(section => {
         new StatsCounter(section);
     });
-    
+
     // Initialize countdown timers
     document.querySelectorAll('[data-end-time]').forEach(element => {
         new CountdownTimer(element);

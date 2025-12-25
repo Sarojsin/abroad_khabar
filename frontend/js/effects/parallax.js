@@ -42,7 +42,7 @@ class ParallaxController {
 
         // Enable hardware acceleration
         element.style.willChange = 'transform';
-        
+
         if (config.perspective) {
             element.parentElement.style.perspective = `${config.perspective}px`;
             element.parentElement.style.transformStyle = 'preserve-3d';
@@ -54,14 +54,14 @@ class ParallaxController {
     bindEvents() {
         window.addEventListener('scroll', this.onScroll.bind(this));
         window.addEventListener('resize', this.onResize.bind(this));
-        
+
         // Intersection Observer for performance
         this.setupIntersectionObserver();
     }
 
     onScroll() {
         this.lastScrollY = window.scrollY;
-        
+
         if (!this.ticking) {
             window.requestAnimationFrame(() => {
                 this.update();
@@ -106,13 +106,13 @@ class ParallaxController {
             const rect = item.element.getBoundingClientRect();
             const elementCenter = rect.top + rect.height / 2;
             const viewportCenter = viewportHeight / 2;
-            
+
             // Calculate distance from viewport center
             const distanceFromCenter = elementCenter - viewportCenter;
-            
+
             // Normalize value between -1 and 1
             const normalizedValue = distanceFromCenter / viewportHeight;
-            
+
             // Apply parallax effect based on configuration
             this.applyParallax(item, scrollY, normalizedValue);
         });
@@ -121,36 +121,36 @@ class ParallaxController {
     applyParallax(item, scrollY, normalizedValue) {
         const { config, element } = item;
         let transform = '';
-        
+
         // Base translation
         const translateY = scrollY * config.speed;
         const translateX = config.direction === 'horizontal' ? scrollY * config.speed : 0;
-        
+
         if (translateY !== 0 || translateX !== 0) {
             transform += `translate3d(${translateX}px, ${translateY}px, 0) `;
         }
-        
+
         // Scale effect
         if (config.scale !== 1) {
             const scaleValue = 1 + (config.scale - 1) * Math.abs(normalizedValue);
             transform += `scale3d(${scaleValue}, ${scaleValue}, 1) `;
         }
-        
+
         // Rotation effect
         if (config.rotate !== 0) {
             const rotateValue = config.rotate * normalizedValue;
             transform += `rotate3d(0, 1, 0, ${rotateValue}deg) `;
         }
-        
+
         // Apply transform
         element.style.transform = transform;
-        
+
         // Apply opacity if enabled
         if (config.opacity) {
             const opacity = 1 - Math.abs(normalizedValue) * 0.5;
             element.style.opacity = Math.max(opacity, 0.5);
         }
-        
+
         // Apply blur if enabled
         if (config.blur) {
             const blurAmount = Math.abs(normalizedValue) * 5;
@@ -165,7 +165,7 @@ class ParallaxController {
             originalTransform: element.style.transform,
             isVisible: true
         };
-        
+
         this.elements.push(item);
         this.update();
     }
@@ -187,7 +187,7 @@ class ParallaxController {
 
     disable() {
         this.isEnabled = false;
-        
+
         // Reset all elements
         this.elements.forEach(item => {
             item.element.style.transform = item.originalTransform;
@@ -220,25 +220,25 @@ class LayeredParallax {
 
     scanLayers() {
         const layerElements = this.container.querySelectorAll('[data-parallax-layer]');
-        
+
         layerElements.forEach((layer, index) => {
             const depth = parseFloat(layer.dataset.parallaxLayer) || (index + 1) * 100;
             const speed = depth / this.depth;
-            
+
             this.layers.push({
                 element: layer,
                 depth,
                 speed,
                 originalTransform: layer.style.transform
             });
-            
+
             layer.style.willChange = 'transform';
         });
     }
 
     bindEvents() {
         let ticking = false;
-        
+
         this.container.addEventListener('mousemove', (e) => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
@@ -248,7 +248,7 @@ class LayeredParallax {
                 ticking = true;
             }
         });
-        
+
         window.addEventListener('scroll', () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
@@ -264,28 +264,28 @@ class LayeredParallax {
         const rect = this.container.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        
+
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        
+
         const moveX = (x - centerX) / centerX;
         const moveY = (y - centerY) / centerY;
-        
+
         this.layers.forEach(layer => {
             const translateX = moveX * layer.depth * 0.1;
             const translateY = moveY * layer.depth * 0.1;
-            
-            layer.element.style.transform = 
+
+            layer.element.style.transform =
                 `translate3d(${translateX}px, ${translateY}px, 0) ${layer.originalTransform}`;
         });
     }
 
     onScroll() {
         const scrollY = window.scrollY;
-        
+
         this.layers.forEach(layer => {
             const translateY = scrollY * layer.speed;
-            layer.element.style.transform = 
+            layer.element.style.transform =
                 `${layer.originalTransform} translate3d(0, ${translateY}px, 0)`;
         });
     }
@@ -304,14 +304,14 @@ class TiltEffect {
             reset: options.reset || true,
             ...options
         };
-        
+
         this.init();
     }
 
     init() {
         this.element.style.transformStyle = 'preserve-3d';
         this.element.style.willChange = 'transform';
-        
+
         this.bindEvents();
     }
 
@@ -329,28 +329,28 @@ class TiltEffect {
         const rect = this.element.getBoundingClientRect();
         const width = rect.width;
         const height = rect.height;
-        
+
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        
+
         const percentageX = (x / width - 0.5) * 2;
         const percentageY = (y / height - 0.5) * 2;
-        
+
         const rotateY = this.settings.max * percentageX;
         const rotateX = this.settings.max * percentageY * -1;
-        
+
         let transform = `perspective(${this.settings.perspective}px) `;
         transform += `rotateX(${this.settings.axis === 'x' ? 0 : rotateX}deg) `;
         transform += `rotateY(${this.settings.axis === 'y' ? 0 : rotateY}deg) `;
         transform += `scale3d(${this.settings.scale}, ${this.settings.scale}, ${this.settings.scale})`;
-        
+
         this.element.style.transform = transform;
     }
 
     onMouseLeave() {
         if (this.settings.reset) {
             this.element.style.transition = `transform ${this.settings.speed}ms cubic-bezier(.03,.98,.52,.99)`;
-            this.element.style.transform = 
+            this.element.style.transform =
                 `perspective(${this.settings.perspective}px) rotateX(0) rotateY(0) scale3d(1, 1, 1)`;
         }
     }
@@ -376,7 +376,7 @@ class ScrollReveal {
             easing: options.easing || 'cubic-bezier(0.5, 0, 0, 1)',
             ...options
         };
-        
+
         this.init();
     }
 
@@ -389,9 +389,9 @@ class ScrollReveal {
         this.elements.forEach(element => {
             element.style.opacity = '0';
             element.style.willChange = 'transform, opacity';
-            
+
             let transform = '';
-            switch(this.options.origin) {
+            switch (this.options.origin) {
                 case 'bottom':
                     transform = `translateY(${this.options.distance})`;
                     break;
@@ -405,7 +405,7 @@ class ScrollReveal {
                     transform = `translateX(${this.options.distance})`;
                     break;
             }
-            
+
             element.style.transform = transform;
             element.style.transition = `opacity ${this.options.duration}ms ${this.options.easing}, 
                                        transform ${this.options.duration}ms ${this.options.easing}`;
@@ -435,7 +435,7 @@ class ScrollReveal {
     animateIn(element) {
         element.style.opacity = '1';
         element.style.transform = 'translate3d(0, 0, 0)';
-        
+
         element.addEventListener('transitionend', () => {
             element.style.willChange = '';
         }, { once: true });
@@ -447,19 +447,34 @@ export {
     ParallaxController,
     LayeredParallax,
     TiltEffect,
-    ScrollReveal
+    ScrollReveal,
+    initParallax,
+    setupParallax
 };
+
+function initParallax() {
+    return new ParallaxController();
+}
+
+function setupParallax(element, factor) {
+    if (window.parallaxController) {
+        window.parallaxController.refresh();
+    } else {
+        const controller = initParallax();
+        window.parallaxController = controller;
+    }
+}
 
 // Initialize parallax effects on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize parallax controller
     const parallaxController = new ParallaxController();
-    
+
     // Initialize layered parallax containers
     document.querySelectorAll('[data-parallax-depth]').forEach(container => {
         new LayeredParallax(container);
     });
-    
+
     // Initialize tilt effects
     document.querySelectorAll('[data-tilt]').forEach(element => {
         new TiltEffect(element, {
@@ -468,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
             scale: parseFloat(element.dataset.tiltScale) || 1.05
         });
     });
-    
+
     // Initialize scroll reveals
     document.querySelectorAll('[data-reveal]').forEach(element => {
         new ScrollReveal(element, {
@@ -477,7 +492,7 @@ document.addEventListener('DOMContentLoaded', () => {
             delay: parseFloat(element.dataset.revealDelay) || 0
         });
     });
-    
+
     // Make available globally
     window.parallaxController = parallaxController;
 });

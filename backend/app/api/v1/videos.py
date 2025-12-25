@@ -22,7 +22,7 @@ from app.schemas.video import (
 )
 from app.utils.response import custom_response
 from app.utils.file import save_video_file, validate_video_file, generate_thumbnail
-from app.core.security import get_current_user
+from app.api.v1.auth import get_current_user
 
 router = APIRouter()
 
@@ -234,6 +234,31 @@ async def update_video(
     return custom_response(
         message="Video updated successfully",
         data={"video": video_dict}
+    )
+
+@router.post("/submit", response_model=dict)
+async def submit_video(
+    video_data: VideoCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    """Submit a video for review (any user)"""
+    if not current_user:
+        raise HTTPException(status_code=401, detail="Authentication required")
+        
+    video = Video(
+        **video_data.dict(exclude={"uploaded_by_id", "status"}),
+        uploaded_by_id=current_user.id,
+        status=VideoStatus.DRAFT
+    )
+    
+    db.add(video)
+    db.commit()
+    db.refresh(video)
+    
+    return custom_response(
+        message="Video submitted successfully. It will be reviewed by our team.",
+        data={"video": VideoResponse.model_validate(video).model_dump()}
     )
 
 @router.delete("/{video_id}", response_model=dict)
@@ -501,4 +526,27 @@ async def track_video_view(
     return custom_response(
         message="View tracked",
         data={"views": video.views}
+    )
+
+@router.post("/submit", response_model=dict)
+async def submit_video(
+    video: VideoCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+) -> Any:
+    """Submit a video for review (draft status)"""
+    new_video = Video(
+        **video.model_dump(),
+        uploaded_by_id=current_user.id,
+        status=VideoStatus.DRAFT
+    )
+    db.add(new_video)
+    db.commit()
+    db.refresh(new_video)
+    
+    video_dict = VideoResponse.model_validate(new_video).model_dump()
+    
+    return custom_response(
+        message="Video submitted for review successfully",
+        data={"video": video_dict}
     )

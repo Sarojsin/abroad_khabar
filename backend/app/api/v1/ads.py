@@ -25,7 +25,7 @@ from app.schemas.ads import (
     AdDetailedStats
 )
 from app.utils.response import custom_response
-from app.core.security import get_current_user
+from app.api.v1.auth import get_current_user
 
 router = APIRouter()
 

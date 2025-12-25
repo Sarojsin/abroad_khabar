@@ -98,7 +98,7 @@ class AboutPage {
             // const response = await fetch('/api/v1/team');
             // const data = await response.json();
             // this.renderTeam(data);
-            
+
             // For now, we'll use static data
             console.log('Loading team data...');
         } catch (error) {
@@ -128,9 +128,5 @@ class AboutPage {
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new AboutPage();
-});
-
+// Export for module usage
 export default AboutPage;

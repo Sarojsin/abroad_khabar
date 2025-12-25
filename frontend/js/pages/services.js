@@ -14,7 +14,7 @@ class ServicesPage {
         this.hasMore = true;
         this.currentFilter = 'all';
         this.currentSearch = '';
-        
+
         this.init();
     }
 
@@ -62,17 +62,21 @@ class ServicesPage {
 
         // Service modal
         const serviceModal = document.getElementById('service-modal');
-        const modalClose = serviceModal.querySelector('.modal-close');
-        modalClose.addEventListener('click', () => {
-            serviceModal.classList.remove('active');
-        });
-
-        // Close modal on outside click
-        serviceModal.addEventListener('click', (e) => {
-            if (e.target === serviceModal) {
-                serviceModal.classList.remove('active');
+        if (serviceModal) {
+            const modalClose = serviceModal.querySelector('.modal-close');
+            if (modalClose) {
+                modalClose.addEventListener('click', () => {
+                    serviceModal.classList.remove('active');
+                });
             }
-        });
+
+            // Close modal on outside click
+            serviceModal.addEventListener('click', (e) => {
+                if (e.target === serviceModal) {
+                    serviceModal.classList.remove('active');
+                }
+            });
+        }
 
         // Package selection
         document.querySelectorAll('.package-btn').forEach(btn => {
@@ -120,7 +124,7 @@ class ServicesPage {
 
             question.addEventListener('click', () => {
                 const isOpen = answer.style.maxHeight;
-                
+
                 // Close all other items
                 faqItems.forEach(otherItem => {
                     if (otherItem !== item) {
@@ -146,9 +150,9 @@ class ServicesPage {
 
     async loadServices(append = false) {
         if (this.isLoading) return;
-        
+
         this.isLoading = true;
-        
+
         // Show loading skeleton
         if (!append) {
             const container = document.getElementById('services-container');
@@ -182,13 +186,13 @@ class ServicesPage {
             //     search: this.currentSearch
             // });
             // const data = await response.json();
-            
+
             // Mock data for demonstration
             const mockServices = this.generateMockServices();
-            
+
             this.renderServices(mockServices, append);
             this.hasMore = mockServices.length === 12; // Assuming 12 per page
-            
+
         } catch (error) {
             console.error('Error loading services:', error);
             this.showError('Failed to load services. Please try again.');
@@ -244,14 +248,14 @@ class ServicesPage {
         ];
 
         // Filter based on current filter
-        return services.filter(service => 
+        return services.filter(service =>
             this.currentFilter === 'all' || service.category === this.currentFilter
         );
     }
 
     renderServices(services, append) {
         const container = document.getElementById('services-container');
-        
+
         if (!append) {
             container.innerHTML = '';
         }
@@ -286,12 +290,12 @@ class ServicesPage {
                     View Details
                 </button>
             `;
-            
+
             // Add click event for service details
             serviceCard.querySelector('.service-view-btn').addEventListener('click', () => {
                 this.showServiceDetails(service);
             });
-            
+
             container.appendChild(serviceCard);
         });
 
@@ -308,7 +312,7 @@ class ServicesPage {
     showServiceDetails(service) {
         const modal = document.getElementById('service-modal');
         const content = document.getElementById('service-modal-content');
-        
+
         content.innerHTML = `
             <div class="service-modal-content">
                 <div class="service-modal-header">
@@ -354,7 +358,7 @@ class ServicesPage {
     selectPackage(packageType) {
         // In production, this would redirect to booking page or show booking modal
         console.log(`Selected package: ${packageType}`);
-        
+
         // Show confirmation message
         this.showToast(`Added ${packageType} package to cart`);
     }
@@ -385,7 +389,7 @@ class ServicesPage {
         toast.className = 'toast';
         toast.textContent = message;
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -394,9 +398,5 @@ class ServicesPage {
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new ServicesPage();
-});
-
+// Export for module usage
 export default ServicesPage;

@@ -16,7 +16,7 @@ class BlogsPage {
         this.currentSort = 'latest';
         this.currentSearch = '';
         this.blogs = [];
-        
+
         this.init();
     }
 
@@ -157,9 +157,9 @@ class BlogsPage {
 
     async loadBlogs() {
         if (this.isLoading) return;
-        
+
         this.isLoading = true;
-        
+
         // Show loading skeleton
         const container = document.getElementById('blogs-container');
         container.innerHTML = this.generateSkeletonGrid(6);
@@ -173,16 +173,16 @@ class BlogsPage {
             //     search: this.currentSearch
             // });
             // const data = await response.json();
-            
+
             // Mock data for demonstration
             const mockData = this.generateMockBlogs();
             this.blogs = mockData.blogs;
             this.totalPages = mockData.totalPages;
-            
+
             this.sortBlogs();
             this.renderBlogs();
             this.updatePagination();
-            
+
         } catch (error) {
             console.error('Error loading blogs:', error);
             this.showError('Failed to load blogs. Please try again.');
@@ -194,23 +194,23 @@ class BlogsPage {
     generateMockBlogs() {
         const categories = ['study-tips', 'visa-updates', 'scholarships', 'country-guides', 'success-stories'];
         const authors = [
-            { name: 'Dr. Sarah Johnson', role: 'CEO & Founder', image: '../assets/images/team/ceo.jpg' },
-            { name: 'Michael Chen', role: 'Visa Expert', image: '../assets/images/team/director.jpg' },
-            { name: 'Priya Sharma', role: 'Education Counselor', image: '../assets/images/team/counselor.jpg' }
+            { name: 'Dr. Sarah Johnson', role: 'CEO & Founder', image: '/assets/images/team/ceo.jpg' },
+            { name: 'Michael Chen', role: 'Visa Expert', image: '/assets/images/team/director.jpg' },
+            { name: 'Priya Sharma', role: 'Education Counselor', image: '/assets/images/team/counselor.jpg' }
         ];
-        
+
         const blogs = Array.from({ length: 12 }, (_, i) => ({
             id: i + 1,
             title: `The Ultimate Guide to ${i % 2 === 0 ? 'Study Abroad' : 'Visa Applications'} in 2024`,
             excerpt: 'Learn everything you need to know about studying abroad in 2024. From choosing the right country to visa application tips.',
             category: categories[i % categories.length],
             readTime: `${Math.floor(Math.random() * 10) + 3} min read`,
-            date: new Date(Date.now() - i * 86400000).toLocaleDateString('en-US', { 
-                month: 'short', 
+            date: new Date(Date.now() - i * 86400000).toLocaleDateString('en-US', {
+                month: 'short',
                 day: 'numeric',
                 year: 'numeric'
             }),
-            image: `../assets/images/blogs/blog${(i % 5) + 1}.jpg`,
+            image: `/assets/images/blogs/blog${(i % 5) + 1}.jpg`,
             author: authors[i % authors.length],
             featured: i < 3,
             views: Math.floor(Math.random() * 5000) + 1000,
@@ -267,15 +267,15 @@ class BlogsPage {
 
     renderBlogs() {
         const container = document.getElementById('blogs-container');
-        
+
         // Filter blogs by category
-        const filteredBlogs = this.currentCategory === 'all' 
-            ? this.blogs 
+        const filteredBlogs = this.currentCategory === 'all'
+            ? this.blogs
             : this.blogs.filter(blog => blog.category === this.currentCategory);
 
         // Filter by search
         const searchedBlogs = this.currentSearch
-            ? filteredBlogs.filter(blog => 
+            ? filteredBlogs.filter(blog =>
                 blog.title.toLowerCase().includes(this.currentSearch) ||
                 blog.excerpt.toLowerCase().includes(this.currentSearch) ||
                 blog.tags.some(tag => tag.toLowerCase().includes(this.currentSearch))
@@ -351,32 +351,32 @@ class BlogsPage {
         const prevBtn = document.querySelector('.pagination-btn.prev');
         const nextBtn = document.querySelector('.pagination-btn.next');
         const numbersContainer = document.querySelector('.pagination-numbers');
-        
+
         if (prevBtn) {
             prevBtn.disabled = this.currentPage === 1;
         }
-        
+
         if (nextBtn) {
             nextBtn.disabled = this.currentPage === this.totalPages;
         }
-        
+
         if (numbersContainer) {
             let paginationHTML = '';
             const maxVisible = 5;
             let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
             let end = Math.min(this.totalPages, start + maxVisible - 1);
-            
+
             if (end - start + 1 < maxVisible) {
                 start = Math.max(1, end - maxVisible + 1);
             }
-            
+
             if (start > 1) {
                 paginationHTML += '<button class="pagination-number">1</button>';
                 if (start > 2) {
                     paginationHTML += '<span class="pagination-ellipsis">...</span>';
                 }
             }
-            
+
             for (let i = start; i <= end; i++) {
                 paginationHTML += `
                     <button class="pagination-number ${i === this.currentPage ? 'active' : ''}">
@@ -384,16 +384,16 @@ class BlogsPage {
                     </button>
                 `;
             }
-            
+
             if (end < this.totalPages) {
                 if (end < this.totalPages - 1) {
                     paginationHTML += '<span class="pagination-ellipsis">...</span>';
                 }
                 paginationHTML += `<button class="pagination-number">${this.totalPages}</button>`;
             }
-            
+
             numbersContainer.innerHTML = paginationHTML;
-            
+
             // Re-attach event listeners
             numbersContainer.querySelectorAll('.pagination-number').forEach(btn => {
                 btn.addEventListener('click', (e) => {
@@ -413,11 +413,11 @@ class BlogsPage {
             newsletterForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('newsletter-email').value;
-                
+
                 try {
                     // In production, this would submit to API
                     // await API.post('/newsletter/subscribe', { email });
-                    
+
                     this.showToast('Successfully subscribed to newsletter!');
                     newsletterForm.reset();
                 } catch (error) {
@@ -432,31 +432,31 @@ class BlogsPage {
         const modal = document.getElementById('subscribe-modal');
         if (modal) {
             modal.classList.add('active');
-            
+
             const form = document.getElementById('subscribe-form');
             const closeBtn = modal.querySelector('.modal-close');
-            
+
             closeBtn.addEventListener('click', () => {
                 modal.classList.remove('active');
             });
-            
+
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) {
                     modal.classList.remove('active');
                 }
             });
-            
+
             form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const name = document.getElementById('subscriber-name').value;
                 const email = document.getElementById('subscriber-email').value;
                 const interests = Array.from(form.querySelectorAll('input[name="interests"]:checked'))
                     .map(checkbox => checkbox.value);
-                
+
                 try {
                     // In production, this would submit to API
                     // await API.post('/newsletter/subscribe-detailed', { name, email, interests });
-                    
+
                     this.showToast('Successfully subscribed! Check your email for confirmation.');
                     form.reset();
                     modal.classList.remove('active');
@@ -476,12 +476,12 @@ class BlogsPage {
             'Country Guides': 'country-guides',
             'Visa Success': 'visa-updates'
         };
-        
+
         const category = topicMap[topic];
         if (category) {
             this.currentCategory = category;
             this.currentPage = 1;
-            
+
             // Update active filter tab
             document.querySelectorAll('.filter-tab').forEach(tab => {
                 tab.classList.remove('active');
@@ -489,7 +489,7 @@ class BlogsPage {
                     tab.classList.add('active');
                 }
             });
-            
+
             this.loadBlogs();
         }
     }
@@ -515,7 +515,7 @@ class BlogsPage {
         toast.className = `toast ${type}`;
         toast.textContent = message;
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -524,9 +524,5 @@ class BlogsPage {
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new BlogsPage();
-});
-
+// Export for module usage
 export default BlogsPage;

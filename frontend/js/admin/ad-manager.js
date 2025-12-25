@@ -26,30 +26,38 @@ class AdManager {
 
     async loadAds(page = 1) {
         try {
-            const params = new URLSearchParams({
-                page,
+            const params = {
+                skip: (page - 1) * 10,
+                limit: 10,
                 ...this.filters
-            });
-            
-            const response = await fetch(`/api/v1/ads?${params}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to load ads');
-            
-            const data = await response.json();
+            };
+
+            const response = await API.get('/ads', params);
+            const data = response.data;
+
             this.ads = data.ads;
             this.currentPage = data.page;
-            this.totalPages = data.totalPages;
-            
+            this.totalPages = data.pages;
+
             this.renderAds();
-            this.renderPagination();
+            this.updatePagination();
             this.updateStats();
         } catch (error) {
             this.showError(error.message);
         }
+    }
+
+    updatePagination() {
+        const currentSpan = document.getElementById('current-page');
+        const totalSpan = document.getElementById('total-pages');
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+
+        if (currentSpan) currentSpan.textContent = this.currentPage;
+        if (totalSpan) totalSpan.textContent = this.totalPages;
+
+        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = this.currentPage >= this.totalPages;
     }
 
     renderAds() {
@@ -57,7 +65,7 @@ class AdManager {
         if (!container) return;
 
         container.innerHTML = '';
-        
+
         if (this.ads.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -82,11 +90,11 @@ class AdManager {
         const card = document.createElement('div');
         card.className = `ad-card ${ad.status} ${this.selectedAds.has(ad.id) ? 'selected' : ''}`;
         card.dataset.id = ad.id;
-        
+
         const isSelected = this.selectedAds.has(ad.id);
         const statusClass = `status-${ad.status}`;
         const typeIcon = this.getAdTypeIcon(ad.type);
-        
+
         card.innerHTML = `
             <div class="ad-card-header">
                 <div class="ad-checkbox">
@@ -155,17 +163,30 @@ class AdManager {
                 </button>
             </div>
         `;
-        
+
         return card;
     }
 
     setupEventListeners() {
         // Create ad button
-        document.getElementById('create-ad')?.addEventListener('click', () => {
+        document.getElementById('create-ad-btn')?.addEventListener('click', () => {
+            this.showCreateModal();
+        });
+
+        document.getElementById('create-ad-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
             this.showCreateModal();
         });
 
         // Bulk actions
+        document.getElementById('bulk-ad-actions')?.addEventListener('click', () => {
+            const tableActions = document.getElementById('table-actions');
+            if (tableActions) {
+                const isHidden = tableActions.style.display === 'none' || tableActions.style.display === '';
+                tableActions.style.display = isHidden ? 'flex' : 'none';
+            }
+        });
+
         document.getElementById('bulk-select-all')?.addEventListener('change', (e) => {
             this.toggleSelectAll(e.target.checked);
         });
@@ -182,28 +203,49 @@ class AdManager {
             this.toggleSelectedAdsStatus('paused');
         });
 
-        // Filters
-        document.getElementById('filter-status')?.addEventListener('change', (e) => {
-            this.filters.status = e.target.value;
-            this.loadAds(1);
-        });
+        // Search and Filters
+        const searchInput = document.getElementById('ad-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', this.debounce(() => {
+                this.filters.search = searchInput.value;
+                this.loadAds(1);
+            }, 500));
+        }
 
-        document.getElementById('filter-type')?.addEventListener('change', (e) => {
-            this.filters.type = e.target.value;
-            this.loadAds(1);
-        });
+        const typeFilter = document.getElementById('ad-type-filter');
+        if (typeFilter) {
+            typeFilter.addEventListener('change', () => {
+                this.filters.type = typeFilter.value;
+                this.loadAds(1);
+            });
+        }
+
+        const statusFilter = document.getElementById('ad-status-filter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => {
+                this.filters.status = statusFilter.value;
+                this.loadAds(1);
+            });
+        }
 
         document.getElementById('filter-position')?.addEventListener('change', (e) => {
             this.filters.position = e.target.value;
             this.loadAds(1);
         });
 
-        document.getElementById('filter-search')?.addEventListener('input', (e) => {
-            this.debounce(() => {
-                this.filters.search = e.target.value;
-                this.loadAds(1);
-            }, 300);
-        });
+        // Pagination
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (this.currentPage > 1) this.loadAds(this.currentPage - 1);
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (this.currentPage < this.totalPages) this.loadAds(this.currentPage + 1);
+            });
+        }
 
         // Ad card events (delegated)
         document.addEventListener('click', (e) => {
@@ -212,7 +254,7 @@ class AdManager {
                 const checkbox = e.target;
                 const card = checkbox.closest('.ad-card');
                 const adId = card.dataset.id;
-                
+
                 if (checkbox.checked) {
                     this.selectedAds.add(adId);
                     card.classList.add('selected');
@@ -222,28 +264,28 @@ class AdManager {
                 }
                 this.updateBulkActions();
             }
-            
+
             // Edit button
             if (e.target.closest('.btn-edit')) {
                 const button = e.target.closest('.btn-edit');
                 const adId = button.dataset.id;
                 this.editAd(adId);
             }
-            
+
             // Toggle status button
             if (e.target.closest('.btn-toggle')) {
                 const button = e.target.closest('.btn-toggle');
                 const adId = button.dataset.id;
                 this.toggleAdStatus(adId);
             }
-            
+
             // Stats button
             if (e.target.closest('.btn-stats')) {
                 const button = e.target.closest('.btn-stats');
                 const adId = button.dataset.id;
                 this.showAdStats(adId);
             }
-            
+
             // Delete button
             if (e.target.closest('.btn-delete')) {
                 const button = e.target.closest('.btn-delete');
@@ -261,7 +303,7 @@ class AdManager {
                 dateFormat: "Y-m-d H:i",
                 minDate: "today"
             });
-            
+
             flatpickr('#ad-end-date', {
                 enableTime: true,
                 dateFormat: "Y-m-d H:i",
@@ -281,7 +323,7 @@ class AdManager {
             const title = document.getElementById('ad-title')?.value;
             const description = document.getElementById('ad-description')?.value;
             const url = document.getElementById('ad-url')?.value;
-            
+
             previewContainer.innerHTML = this.generatePreview(type, position, {
                 title,
                 description,
@@ -304,8 +346,8 @@ class AdManager {
 
     generatePreview(type, position, data) {
         const previewClass = `ad-preview-${position}`;
-        
-        switch(type) {
+
+        switch (type) {
             case 'banner':
                 return `
                     <div class="ad-preview-banner ${previewClass}">
@@ -316,7 +358,7 @@ class AdManager {
                         </div>
                     </div>
                 `;
-                
+
             case 'sidebar':
                 return `
                     <div class="ad-preview-sidebar ${previewClass}">
@@ -327,7 +369,7 @@ class AdManager {
                         </div>
                     </div>
                 `;
-                
+
             case 'video':
                 return `
                     <div class="ad-preview-video ${previewClass}">
@@ -337,7 +379,7 @@ class AdManager {
                         </div>
                     </div>
                 `;
-                
+
             case 'popup':
                 return `
                     <div class="ad-preview-popup">
@@ -349,7 +391,7 @@ class AdManager {
                         </div>
                     </div>
                 `;
-                
+
             default:
                 return '<div class="ad-preview-default">Preview will appear here</div>';
         }
@@ -365,9 +407,9 @@ class AdManager {
                 },
                 body: JSON.stringify(formData)
             });
-            
+
             if (!response.ok) throw new Error('Failed to create ad');
-            
+
             const ad = await response.json();
             this.showSuccess('Advertisement created successfully');
             this.loadAds(this.currentPage);
@@ -381,21 +423,21 @@ class AdManager {
     async editAd(adId) {
         const ad = this.ads.find(a => a.id === adId);
         if (!ad) return;
-        
+
         const modal = this.createEditModal(ad);
         document.body.appendChild(modal);
-        
+
         // Show modal
         setTimeout(() => modal.classList.add('active'), 10);
-        
+
         // Handle form submission
         const form = modal.querySelector('.edit-ad-form');
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData(form);
             const updates = Object.fromEntries(formData);
-            
+
             try {
                 const response = await fetch(`/api/v1/ads/${adId}`, {
                     method: 'PUT',
@@ -405,9 +447,9 @@ class AdManager {
                     },
                     body: JSON.stringify(updates)
                 });
-                
+
                 if (!response.ok) throw new Error('Update failed');
-                
+
                 this.showSuccess('Advertisement updated successfully');
                 this.loadAds(this.currentPage);
                 modal.remove();
@@ -534,16 +576,16 @@ class AdManager {
                 </div>
             </div>
         `;
-        
+
         return modal;
     }
 
     async toggleAdStatus(adId) {
         const ad = this.ads.find(a => a.id === adId);
         if (!ad) return;
-        
+
         const newStatus = ad.status === 'active' ? 'paused' : 'active';
-        
+
         try {
             const response = await fetch(`/api/v1/ads/${adId}/status`, {
                 method: 'PATCH',
@@ -553,9 +595,9 @@ class AdManager {
                 },
                 body: JSON.stringify({ status: newStatus })
             });
-            
+
             if (!response.ok) throw new Error('Failed to update status');
-            
+
             this.showSuccess(`Ad ${newStatus === 'active' ? 'activated' : 'paused'} successfully`);
             this.loadAds(this.currentPage);
         } catch (error) {
@@ -568,22 +610,13 @@ class AdManager {
             this.showError('No ads selected');
             return;
         }
-        
+
         try {
-            const response = await fetch('/api/v1/ads/bulk-status', {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    ad_ids: Array.from(this.selectedAds),
-                    status: status
-                })
+            await API.post('/ads/bulk-update', {
+                ids: Array.from(this.selectedAds).map(Number),
+                status: status
             });
-            
-            if (!response.ok) throw new Error('Bulk update failed');
-            
+
             this.showSuccess(`${this.selectedAds.size} ads updated successfully`);
             this.selectedAds.clear();
             this.loadAds(this.currentPage);
@@ -595,7 +628,7 @@ class AdManager {
 
     async deleteAd(adId) {
         if (!confirm('Are you sure you want to delete this advertisement?')) return;
-        
+
         try {
             const response = await fetch(`/api/v1/ads/${adId}`, {
                 method: 'DELETE',
@@ -603,9 +636,9 @@ class AdManager {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            
+
             if (!response.ok) throw new Error('Delete failed');
-            
+
             this.showSuccess('Advertisement deleted successfully');
             this.loadAds(this.currentPage);
         } catch (error) {
@@ -618,21 +651,14 @@ class AdManager {
             this.showError('No ads selected');
             return;
         }
-        
+
         if (!confirm(`Delete ${this.selectedAds.size} selected ads?`)) return;
-        
+
         try {
-            const response = await fetch('/api/v1/ads/bulk-delete', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ ad_ids: Array.from(this.selectedAds) })
+            await API.post('/ads/bulk-delete', {
+                ids: Array.from(this.selectedAds).map(Number)
             });
-            
-            if (!response.ok) throw new Error('Bulk delete failed');
-            
+
             this.showSuccess(`${this.selectedAds.size} ads deleted successfully`);
             this.selectedAds.clear();
             this.loadAds(this.currentPage);
@@ -649,9 +675,9 @@ class AdManager {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            
+
             if (!response.ok) throw new Error('Failed to load statistics');
-            
+
             const stats = await response.json();
             this.displayStatsModal(stats);
         } catch (error) {
@@ -715,12 +741,12 @@ class AdManager {
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
-        
+
         // Show modal
         setTimeout(() => modal.classList.add('active'), 10);
-        
+
         // Initialize chart if Chart.js is available
         if (typeof Chart !== 'undefined' && stats.daily_data) {
             this.initializeStatsChart(stats.daily_data);
@@ -730,11 +756,11 @@ class AdManager {
     initializeStatsChart(dailyData) {
         const ctx = document.getElementById('stats-chart')?.getContext('2d');
         if (!ctx) return;
-        
+
         const dates = dailyData.map(day => this.formatDate(day.date, true));
         const impressions = dailyData.map(day => day.impressions);
         const clicks = dailyData.map(day => day.clicks);
-        
+
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -807,14 +833,14 @@ class AdManager {
     formatDate(dateString, short = false) {
         if (!dateString) return 'N/A';
         const date = new Date(dateString);
-        
+
         if (short) {
             return date.toLocaleDateString('en-US', {
                 month: 'short',
                 day: 'numeric'
             });
         }
-        
+
         return date.toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -836,7 +862,7 @@ class AdManager {
             checkbox.checked = selectAll;
             const card = checkbox.closest('.ad-card');
             const adId = card.dataset.id;
-            
+
             if (selectAll) {
                 this.selectedAds.add(adId);
                 card.classList.add('selected');
@@ -845,14 +871,14 @@ class AdManager {
                 card.classList.remove('selected');
             }
         });
-        
+
         this.updateBulkActions();
     }
 
     updateBulkActions() {
         const bulkActions = document.getElementById('bulk-actions');
         const selectedCount = document.getElementById('selected-count');
-        
+
         if (this.selectedAds.size > 0) {
             bulkActions?.classList.add('active');
             if (selectedCount) {
@@ -873,39 +899,39 @@ class AdManager {
             totalImpressions: this.ads.reduce((sum, ad) => sum + (ad.impressions || 0), 0),
             totalClicks: this.ads.reduce((sum, ad) => sum + (ad.clicks || 0), 0)
         };
-        
+
         // Update UI elements
         document.querySelectorAll('[data-stat="total-ads"]').forEach(el => {
-            el.textContent = stats.total;
+            if (el) el.textContent = stats.total;
         });
-        
+
         document.querySelectorAll('[data-stat="active-ads"]').forEach(el => {
-            el.textContent = stats.active;
+            if (el) el.textContent = stats.active;
         });
-        
+
         document.querySelectorAll('[data-stat="total-impressions"]').forEach(el => {
-            el.textContent = stats.totalImpressions.toLocaleString();
+            if (el) el.textContent = stats.totalImpressions.toLocaleString();
         });
-        
+
         document.querySelectorAll('[data-stat="total-clicks"]').forEach(el => {
-            el.textContent = stats.totalClicks.toLocaleString();
+            if (el) el.textContent = stats.totalClicks.toLocaleString();
         });
-        
-        const overallCTR = stats.totalImpressions > 0 
+
+        const overallCTR = stats.totalImpressions > 0
             ? ((stats.totalClicks / stats.totalImpressions) * 100).toFixed(2)
             : '0.00';
-            
+
         document.querySelectorAll('[data-stat="overall-ctr"]').forEach(el => {
-            el.textContent = `${overallCTR}%`;
+            if (el) el.textContent = `${overallCTR}%`;
         });
     }
 
     renderPagination() {
         const pagination = document.getElementById('pagination');
         if (!pagination) return;
-        
+
         pagination.innerHTML = '';
-        
+
         // Previous button
         const prevButton = document.createElement('button');
         prevButton.className = `pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}`;
@@ -917,11 +943,11 @@ class AdManager {
             }
         });
         pagination.appendChild(prevButton);
-        
+
         // Page numbers
         const startPage = Math.max(1, this.currentPage - 2);
         const endPage = Math.min(this.totalPages, startPage + 4);
-        
+
         for (let i = startPage; i <= endPage; i++) {
             const pageButton = document.createElement('button');
             pageButton.className = `pagination-btn ${i === this.currentPage ? 'active' : ''}`;
@@ -931,7 +957,7 @@ class AdManager {
             });
             pagination.appendChild(pageButton);
         }
-        
+
         // Next button
         const nextButton = document.createElement('button');
         nextButton.className = `pagination-btn ${this.currentPage === this.totalPages ? 'disabled' : ''}`;
@@ -965,11 +991,11 @@ class AdManager {
             <span>${message}</span>
         `;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
@@ -984,11 +1010,11 @@ class AdManager {
             <span>${message}</span>
         `;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);

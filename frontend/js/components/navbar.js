@@ -28,7 +28,7 @@ class Navbar {
                         <div class="navbar-logo-icon">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <span>EduConsult</span>
+                        <span>Abroad Khabar</span>
                     </a>
 
                     <!-- Mobile Menu Toggle -->
@@ -125,14 +125,24 @@ class Navbar {
             </nav>
         `;
 
-        this.navbarContainer.innerHTML = html;
+        if (this.navbarContainer) {
+            this.navbarContainer.innerHTML = html;
+        } else {
+            const container = document.getElementById('navbar-container');
+            if (container) {
+                this.navbarContainer = container;
+                this.navbarContainer.innerHTML = html;
+            } else {
+                console.warn('Navbar: #navbar-container not found');
+            }
+        }
     }
 
     bindEvents() {
         // Mobile menu toggle
         const toggleBtn = document.getElementById('mobile-menu-toggle');
         const menu = document.getElementById('main-menu');
-        
+
         if (toggleBtn) {
             toggleBtn.addEventListener('click', () => this.toggleMobileMenu());
         }
@@ -141,7 +151,7 @@ class Navbar {
         document.querySelectorAll('.navbar-dropdown').forEach(dropdown => {
             const toggle = dropdown.querySelector('.navbar-link');
             const menu = dropdown.querySelector('.navbar-dropdown-menu');
-            
+
             toggle.addEventListener('click', (e) => {
                 if (window.innerWidth <= 768) {
                     e.preventDefault();
@@ -177,7 +187,7 @@ class Navbar {
                     dropdown.classList.remove('active');
                 }
             });
-            
+
             // Close user dropdown
             const userDropdown = document.querySelector('.user-dropdown-menu');
             if (userDropdown && !userDropdown.parentElement.contains(e.target)) {
@@ -192,9 +202,9 @@ class Navbar {
     toggleMobileMenu() {
         const menu = document.getElementById('main-menu');
         const toggleBtn = document.getElementById('mobile-menu-toggle');
-        
+
         this.isMobileMenuOpen = !this.isMobileMenuOpen;
-        
+
         if (this.isMobileMenuOpen) {
             menu.classList.add('active');
             toggleBtn.classList.add('active');
@@ -227,7 +237,7 @@ class Navbar {
         document.querySelectorAll('[data-router-link]').forEach(link => {
             link.classList.remove('active');
         });
-        
+
         // Add active class to current link
         const activeLink = document.querySelector(`[data-router-link="${path}"]`);
         if (activeLink) {

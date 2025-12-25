@@ -28,43 +28,30 @@ class ServiceManager {
 
     async loadServices(page = 1) {
         try {
-            const params = new URLSearchParams({
-                page,
+            const params = {
+                skip: (page - 1) * 12,
+                limit: 12,
                 ...this.filters
-            });
-            
-            const response = await fetch(`/api/v1/services?${params}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to load services');
-            
-            const data = await response.json();
-            this.services = data.services;
-            this.currentPage = data.page;
-            this.totalPages = data.totalPages;
-            
+            };
+            const response = await API.get('/services', params);
+            const data = response.data;
+            this.services = data.services || data;
+            this.currentPage = data.page || 1;
+            this.totalPages = data.pages || 1;
+
             this.renderServices();
-            this.renderPagination();
+            this.updatePagination();
             this.updateStats();
         } catch (error) {
-            this.showError(error.message);
+            console.error('Error loading services:', error);
+            this.showError('Failed to load services. Please try again.');
         }
     }
 
     async loadCategories() {
         try {
-            const response = await fetch('/api/v1/services/categories', {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to load categories');
-            
-            this.categories = await response.json();
+            const data = await API.get('/services/categories');
+            this.categories = data;
             this.populateCategoryFilter();
         } catch (error) {
             console.error('Failed to load categories:', error);
@@ -74,7 +61,7 @@ class ServiceManager {
     populateCategoryFilter() {
         const filter = document.getElementById('filter-category');
         if (!filter) return;
-        
+
         filter.innerHTML = `
             <option value="all">All Categories</option>
             ${this.categories.map(cat => `
@@ -88,7 +75,7 @@ class ServiceManager {
         if (!container) return;
 
         container.innerHTML = '';
-        
+
         if (this.services.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -114,9 +101,9 @@ class ServiceManager {
         card.className = `service-card ${service.featured ? 'featured' : ''} ${this.selectedServices.has(service.id) ? 'selected' : ''}`;
         card.dataset.id = service.id;
         card.dataset.position = service.position;
-        
+
         const isSelected = this.selectedServices.has(service.id);
-        
+
         card.innerHTML = `
             <div class="service-card-header">
                 <div class="service-checkbox">
@@ -193,13 +180,18 @@ class ServiceManager {
                 </button>
             </div>
         `;
-        
+
         return card;
     }
 
     setupEventListeners() {
-        // Create service button
-        document.getElementById('create-service')?.addEventListener('click', () => {
+        // Create service buttons
+        document.getElementById('create-service-btn')?.addEventListener('click', () => {
+            this.showCreateModal();
+        });
+
+        document.getElementById('create-service-link')?.addEventListener('click', (e) => {
+            e.preventDefault();
             this.showCreateModal();
         });
 
@@ -209,7 +201,15 @@ class ServiceManager {
         });
 
         // Bulk actions
-        document.getElementById('bulk-select-all')?.addEventListener('change', (e) => {
+        document.getElementById('bulk-service-actions')?.addEventListener('click', () => {
+            const tableActions = document.getElementById('table-actions');
+            if (tableActions) {
+                const isHidden = tableActions.style.display === 'none' || tableActions.style.display === '';
+                tableActions.style.display = isHidden ? 'flex' : 'none';
+            }
+        });
+
+        document.getElementById('select-all-services')?.addEventListener('change', (e) => {
             this.toggleSelectAll(e.target.checked);
         });
 
@@ -225,23 +225,44 @@ class ServiceManager {
             this.toggleSelectedFeatured(false);
         });
 
-        // Filters
-        document.getElementById('filter-category')?.addEventListener('change', (e) => {
-            this.filters.category = e.target.value;
-            this.loadServices(1);
-        });
-
-        document.getElementById('filter-featured')?.addEventListener('change', (e) => {
-            this.filters.featured = e.target.value;
-            this.loadServices(1);
-        });
-
-        document.getElementById('filter-search')?.addEventListener('input', (e) => {
-            this.debounce(() => {
-                this.filters.search = e.target.value;
+        // Search and Filters
+        const searchInput = document.getElementById('service-search');
+        if (searchInput) {
+            searchInput.addEventListener('input', this.debounce(() => {
+                this.filters.search = searchInput.value;
                 this.loadServices(1);
-            }, 300);
-        });
+            }, 500));
+        }
+
+        const categoryFilter = document.getElementById('service-category-filter');
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', () => {
+                this.filters.category = categoryFilter.value;
+                this.loadServices(1);
+            });
+        }
+
+        const statusFilter = document.getElementById('service-status-filter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => {
+                this.filters.status = statusFilter.value;
+                this.loadServices(1);
+            });
+        }
+
+        // Pagination
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+        if (prevBtn) {
+            prevBtn.addEventListener('click', () => {
+                if (this.currentPage > 1) this.loadServices(this.currentPage - 1);
+            });
+        }
+        if (nextBtn) {
+            nextBtn.addEventListener('click', () => {
+                if (this.currentPage < this.totalPages) this.loadServices(this.currentPage + 1);
+            });
+        }
 
         document.getElementById('filter-sort')?.addEventListener('change', (e) => {
             this.filters.sort = e.target.value;
@@ -257,55 +278,50 @@ class ServiceManager {
         document.addEventListener('click', (e) => {
             // Checkbox selection
             if (e.target.closest('.service-checkbox input')) {
-                const checkbox = e.target;
+                const checkbox = e.target.closest('.service-checkbox input');
                 const card = checkbox.closest('.service-card');
                 const serviceId = card.dataset.id;
-                
+
                 if (checkbox.checked) {
                     this.selectedServices.add(serviceId);
-                    card.classList.add('selected');
                 } else {
                     this.selectedServices.delete(serviceId);
-                    card.classList.remove('selected');
                 }
+                card.classList.toggle('selected', checkbox.checked);
                 this.updateBulkActions();
             }
-            
+
             // Edit button
-            if (e.target.closest('.btn-edit')) {
-                const button = e.target.closest('.btn-edit');
-                const serviceId = button.dataset.id;
+            if (e.target.closest('.edit-service')) {
+                const serviceId = e.target.closest('.service-card').dataset.id;
                 this.editService(serviceId);
             }
-            
-            // Feature button
-            if (e.target.closest('.btn-feature')) {
-                const button = e.target.closest('.btn-feature');
-                const serviceId = button.dataset.id;
-                this.toggleFeatured(serviceId);
-            }
-            
-            // Duplicate button
-            if (e.target.closest('.btn-duplicate')) {
-                const button = e.target.closest('.btn-duplicate');
-                const serviceId = button.dataset.id;
-                this.duplicateService(serviceId);
-            }
-            
-            // Preview button
-            if (e.target.closest('.btn-preview')) {
-                const button = e.target.closest('.btn-preview');
-                const serviceId = button.dataset.id;
-                this.previewService(serviceId);
-            }
-            
+
             // Delete button
-            if (e.target.closest('.btn-delete')) {
-                const button = e.target.closest('.btn-delete');
-                const serviceId = button.dataset.id;
+            if (e.target.closest('.delete-service')) {
+                const serviceId = e.target.closest('.service-card').dataset.id;
                 this.deleteService(serviceId);
             }
+
+            // Toggle featured
+            if (e.target.closest('.toggle-featured')) {
+                const serviceId = e.target.closest('.service-card').dataset.id;
+                this.toggleFeatured(serviceId);
+            }
         });
+    }
+
+    updatePagination() {
+        const currentSpan = document.getElementById('current-page');
+        const totalSpan = document.getElementById('total-pages');
+        const prevBtn = document.getElementById('prev-page-btn');
+        const nextBtn = document.getElementById('next-page-btn');
+
+        if (currentSpan) currentSpan.textContent = this.currentPage;
+        if (totalSpan) totalSpan.textContent = this.totalPages;
+
+        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = this.currentPage >= this.totalPages;
     }
 
     setupSortable() {
@@ -321,7 +337,7 @@ class ServiceManager {
                 draggedItem = e.target.closest('.service-card');
                 draggedIndex = Array.from(container.children).indexOf(draggedItem);
                 draggedItem.classList.add('dragging');
-                
+
                 // Set drag image
                 e.dataTransfer.setData('text/plain', '');
                 e.dataTransfer.effectAllowed = 'move';
@@ -330,10 +346,10 @@ class ServiceManager {
 
         container.addEventListener('dragover', (e) => {
             e.preventDefault();
-            
+
             const afterElement = this.getDragAfterElement(container, e.clientY);
             const draggable = document.querySelector('.dragging');
-            
+
             if (afterElement == null) {
                 container.appendChild(draggable);
             } else {
@@ -345,10 +361,10 @@ class ServiceManager {
             const draggable = document.querySelector('.dragging');
             if (draggable) {
                 draggable.classList.remove('dragging');
-                
+
                 // Update position numbers
                 this.updatePositionNumbers();
-                
+
                 // Show save button
                 document.getElementById('save-order')?.classList.add('visible');
             }
@@ -362,11 +378,11 @@ class ServiceManager {
 
     getDragAfterElement(container, y) {
         const draggableElements = [...container.querySelectorAll('.service-card:not(.dragging)')];
-        
+
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
             const offset = y - box.top - box.height / 2;
-            
+
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
             } else {
@@ -404,12 +420,12 @@ class ServiceManager {
                 },
                 body: JSON.stringify({ order })
             });
-            
+
             if (!response.ok) throw new Error('Failed to save order');
-            
+
             this.showSuccess('Service order saved successfully');
             document.getElementById('save-order')?.classList.remove('visible');
-            
+
             // Reload services to reflect new order
             this.loadServices(this.currentPage);
         } catch (error) {
@@ -427,9 +443,9 @@ class ServiceManager {
                 },
                 body: JSON.stringify(formData)
             });
-            
+
             if (!response.ok) throw new Error('Failed to create service');
-            
+
             const service = await response.json();
             this.showSuccess('Service created successfully');
             this.loadServices(this.currentPage);
@@ -443,31 +459,31 @@ class ServiceManager {
     async editService(serviceId) {
         const service = this.services.find(s => s.id === serviceId);
         if (!service) return;
-        
+
         const modal = this.createEditModal(service);
         document.body.appendChild(modal);
-        
+
         // Show modal
         setTimeout(() => modal.classList.add('active'), 10);
-        
+
         // Handle form submission
         const form = modal.querySelector('.edit-service-form');
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData(form);
             const updates = Object.fromEntries(formData);
-            
+
             // Convert features from textarea
             if (updates.features) {
                 updates.features = updates.features.split('\n').filter(f => f.trim());
             }
-            
+
             // Convert price to number
             if (updates.price) {
                 updates.price = parseFloat(updates.price);
             }
-            
+
             try {
                 const response = await fetch(`/api/v1/services/${serviceId}`, {
                     method: 'PUT',
@@ -477,9 +493,9 @@ class ServiceManager {
                     },
                     body: JSON.stringify(updates)
                 });
-                
+
                 if (!response.ok) throw new Error('Update failed');
-                
+
                 this.showSuccess('Service updated successfully');
                 this.loadServices(this.currentPage);
                 modal.remove();
@@ -554,7 +570,6 @@ class ServiceManager {
                                 <input type="text" id="edit-service-icon" name="icon" 
                                        value="${service.icon || ''}"
                                        placeholder="e.g., icon-graduation-cap">
-                                <small>Font icon class name</small>
                             </div>
                             <div class="form-group">
                                 <label for="edit-service-image">Image URL</label>
@@ -638,14 +653,14 @@ class ServiceManager {
                 </div>
             </div>
         `;
-        
+
         return modal;
     }
 
     async toggleFeatured(serviceId) {
         const service = this.services.find(s => s.id === serviceId);
         if (!service) return;
-        
+
         try {
             const response = await fetch(`/api/v1/services/${serviceId}/feature`, {
                 method: 'PATCH',
@@ -655,9 +670,9 @@ class ServiceManager {
                 },
                 body: JSON.stringify({ featured: !service.featured })
             });
-            
+
             if (!response.ok) throw new Error('Failed to update featured status');
-            
+
             this.showSuccess(`Service ${!service.featured ? 'featured' : 'unfeatured'} successfully`);
             this.loadServices(this.currentPage);
         } catch (error) {
@@ -666,41 +681,31 @@ class ServiceManager {
     }
 
     async toggleSelectedFeatured(featured) {
-        if (this.selectedServices.size === 0) {
-            this.showError('No services selected');
+        const selectedIds = Array.from(this.selectedServices).map(Number);
+        if (selectedIds.length === 0) {
+            this.showToast('Please select services first', 'error');
             return;
         }
-        
+
         try {
-            const response = await fetch('/api/v1/services/bulk-feature', {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    service_ids: Array.from(this.selectedServices),
-                    featured: featured
-                })
+            await API.post('/services/bulk-update', {
+                ids: selectedIds,
+                is_featured: featured
             });
-            
-            if (!response.ok) throw new Error('Bulk update failed');
-            
-            this.showSuccess(`${this.selectedServices.size} services updated successfully`);
+            this.showToast(`Services ${featured ? 'featured' : 'unfeatured'} successfully`);
             this.selectedServices.clear();
-            this.loadServices(this.currentPage);
-            this.updateBulkActions();
+            this.loadServices();
         } catch (error) {
-            this.showError(error.message);
+            this.showToast('Failed to update services', 'error');
         }
     }
 
     async duplicateService(serviceId) {
         const service = this.services.find(s => s.id === serviceId);
         if (!service) return;
-        
+
         if (!confirm('Duplicate this service?')) return;
-        
+
         try {
             const response = await fetch(`/api/v1/services/${serviceId}/duplicate`, {
                 method: 'POST',
@@ -708,9 +713,9 @@ class ServiceManager {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            
+
             if (!response.ok) throw new Error('Failed to duplicate service');
-            
+
             this.showSuccess('Service duplicated successfully');
             this.loadServices(this.currentPage);
         } catch (error) {
@@ -720,7 +725,7 @@ class ServiceManager {
 
     async deleteService(serviceId) {
         if (!confirm('Are you sure you want to delete this service?')) return;
-        
+
         try {
             const response = await fetch(`/api/v1/services/${serviceId}`, {
                 method: 'DELETE',
@@ -728,9 +733,9 @@ class ServiceManager {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            
+
             if (!response.ok) throw new Error('Delete failed');
-            
+
             this.showSuccess('Service deleted successfully');
             this.loadServices(this.currentPage);
         } catch (error) {
@@ -739,37 +744,27 @@ class ServiceManager {
     }
 
     async deleteSelectedServices() {
-        if (this.selectedServices.size === 0) {
-            this.showError('No services selected');
+        const selectedIds = Array.from(this.selectedServices).map(Number);
+        if (selectedIds.length === 0) {
+            this.showToast('Please select services first', 'error');
             return;
         }
-        
-        if (!confirm(`Delete ${this.selectedServices.size} selected services?`)) return;
-        
+
+        if (!confirm(`Are you sure you want to delete ${selectedIds.length} services?`)) return;
+
         try {
-            const response = await fetch('/api/v1/services/bulk-delete', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ service_ids: Array.from(this.selectedServices) })
-            });
-            
-            if (!response.ok) throw new Error('Bulk delete failed');
-            
-            this.showSuccess(`${this.selectedServices.size} services deleted successfully`);
+            await API.post('/services/bulk-delete', { ids: selectedIds });
+            this.showToast('Services deleted successfully');
             this.selectedServices.clear();
-            this.loadServices(this.currentPage);
-            this.updateBulkActions();
+            this.loadServices();
         } catch (error) {
-            this.showError(error.message);
+            this.showToast('Failed to delete services', 'error');
         }
     }
 
     async importDefaultServices() {
         if (!confirm('Import default educational consultancy services? This will add 18 pre-defined services.')) return;
-        
+
         try {
             const response = await fetch('/api/v1/services/import-default', {
                 method: 'POST',
@@ -777,9 +772,9 @@ class ServiceManager {
                     'Authorization': `Bearer ${localStorage.getItem('token')}`
                 }
             });
-            
+
             if (!response.ok) throw new Error('Import failed');
-            
+
             const result = await response.json();
             this.showSuccess(`${result.count} services imported successfully`);
             this.loadServices(this.currentPage);
@@ -791,7 +786,7 @@ class ServiceManager {
     previewService(serviceId) {
         const service = this.services.find(s => s.id === serviceId);
         if (!service) return;
-        
+
         window.open(`/services/${service.slug}`, '_blank');
     }
 
@@ -807,7 +802,7 @@ class ServiceManager {
             checkbox.checked = selectAll;
             const card = checkbox.closest('.service-card');
             const serviceId = card.dataset.id;
-            
+
             if (selectAll) {
                 this.selectedServices.add(serviceId);
                 card.classList.add('selected');
@@ -816,14 +811,14 @@ class ServiceManager {
                 card.classList.remove('selected');
             }
         });
-        
+
         this.updateBulkActions();
     }
 
     updateBulkActions() {
         const bulkActions = document.getElementById('bulk-actions');
         const selectedCount = document.getElementById('selected-count');
-        
+
         if (this.selectedServices.size > 0) {
             bulkActions?.classList.add('active');
             if (selectedCount) {
@@ -843,45 +838,45 @@ class ServiceManager {
             totalViews: this.services.reduce((sum, service) => sum + (service.views || 0), 0),
             avgPrice: 0
         };
-        
+
         const pricedServices = this.services.filter(s => s.price && s.price > 0);
         if (pricedServices.length > 0) {
             const totalPrice = pricedServices.reduce((sum, service) => sum + service.price, 0);
             stats.avgPrice = totalPrice / pricedServices.length;
         }
-        
+
         // Update UI elements
         document.querySelectorAll('[data-stat="total-services"]').forEach(el => {
-            el.textContent = stats.total;
+            if (el) el.textContent = stats.total;
         });
-        
+
         document.querySelectorAll('[data-stat="active-services"]').forEach(el => {
-            el.textContent = stats.active;
+            if (el) el.textContent = stats.active;
         });
-        
+
         document.querySelectorAll('[data-stat="featured-services"]').forEach(el => {
-            el.textContent = stats.featured;
+            if (el) el.textContent = stats.featured;
         });
-        
+
         document.querySelectorAll('[data-stat="total-categories"]').forEach(el => {
-            el.textContent = stats.categories;
+            if (el) el.textContent = stats.categories;
         });
-        
+
         document.querySelectorAll('[data-stat="total-views"]').forEach(el => {
-            el.textContent = stats.totalViews.toLocaleString();
+            if (el) el.textContent = stats.totalViews.toLocaleString();
         });
-        
+
         document.querySelectorAll('[data-stat="avg-price"]').forEach(el => {
-            el.textContent = stats.avgPrice ? `$${stats.avgPrice.toFixed(2)}` : 'N/A';
+            if (el) el.textContent = stats.avgPrice ? `$${stats.avgPrice.toFixed(2)}` : 'N/A';
         });
     }
 
     renderPagination() {
         const pagination = document.getElementById('pagination');
         if (!pagination) return;
-        
+
         pagination.innerHTML = '';
-        
+
         // Previous button
         const prevButton = document.createElement('button');
         prevButton.className = `pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}`;
@@ -893,11 +888,11 @@ class ServiceManager {
             }
         });
         pagination.appendChild(prevButton);
-        
+
         // Page numbers
         const startPage = Math.max(1, this.currentPage - 2);
         const endPage = Math.min(this.totalPages, startPage + 4);
-        
+
         for (let i = startPage; i <= endPage; i++) {
             const pageButton = document.createElement('button');
             pageButton.className = `pagination-btn ${i === this.currentPage ? 'active' : ''}`;
@@ -907,7 +902,7 @@ class ServiceManager {
             });
             pagination.appendChild(pageButton);
         }
-        
+
         // Next button
         const nextButton = document.createElement('button');
         nextButton.className = `pagination-btn ${this.currentPage === this.totalPages ? 'disabled' : ''}`;
@@ -941,11 +936,11 @@ class ServiceManager {
             <span>${message}</span>
         `;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
@@ -960,11 +955,11 @@ class ServiceManager {
             <span>${message}</span>
         `;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);

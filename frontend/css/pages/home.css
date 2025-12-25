@@ -16,7 +16,7 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('../../assets/images/hero-bg.jpg') no-repeat center center;
+    background: url('/assets/images/hero-bg.png') no-repeat center center;
     background-size: cover;
     opacity: 0.1;
     z-index: 0;
@@ -452,7 +452,7 @@
     .hero-title {
         font-size: 3rem;
     }
-    
+
     .services-grid,
     .videos-grid,
     .blogs-grid {
@@ -464,39 +464,39 @@
     .hero-section {
         min-height: 80vh;
     }
-    
+
     .hero-title {
         font-size: 2.5rem;
     }
-    
+
     .hero-subtitle {
         font-size: 1.125rem;
     }
-    
+
     .hero-actions {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
     }
-    
+
     .services-grid,
     .videos-grid,
     .blogs-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .newsletter-form {
         flex-direction: column;
     }
-    
+
     .cta-buttons {
         flex-direction: column;
         align-items: center;
     }
-    
+
     .cta-title {
         font-size: 2rem;
     }
@@ -506,27 +506,27 @@
     .hero-title {
         font-size: 2rem;
     }
-    
+
     .hero-subtitle {
         font-size: 1rem;
     }
-    
+
     .stats-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .stat-item {
         padding: 1.5rem;
     }
-    
+
     .stat-number {
         font-size: 2.5rem;
     }
-    
+
     .testimonial-card {
         padding: 1.5rem;
     }
-    
+
     .cta-title {
         font-size: 1.75rem;
     }
@@ -537,17 +537,17 @@
     .hero-section {
         background: linear-gradient(135deg, var(--color-gray-900) 0%, var(--color-gray-800) 100%);
     }
-    
+
     .hero-bg {
         opacity: 0.05;
     }
-    
+
     .stats-section,
     .featured-videos,
     .latest-blogs {
         background: var(--color-gray-900);
     }
-    
+
     .stat-item,
     .service-preview-card,
     .video-preview-card,
@@ -556,7 +556,7 @@
         background: var(--color-gray-800);
         border-color: var(--color-gray-700);
     }
-    
+
     .cta-section {
         background: linear-gradient(135deg, var(--color-primary-800) 0%, var(--color-secondary-800) 100%);
     }

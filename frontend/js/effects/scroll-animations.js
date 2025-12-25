@@ -37,17 +37,17 @@ class ScrollAnimations {
         elements.forEach(element => {
             const animation = element.dataset.animate;
             const delay = element.dataset.delay || 0;
-            
+
             this.elements.set(element, { animation, delay, animated: false });
             this.observer.observe(element);
-            
+
             // Apply initial styles
             this.applyInitialState(element, animation);
         });
     }
 
     applyInitialState(element, animation) {
-        switch(animation) {
+        switch (animation) {
             case 'fade-up':
                 element.style.opacity = '0';
                 element.style.transform = 'translateY(30px)';
@@ -80,7 +80,7 @@ class ScrollAnimations {
             default:
                 element.style.opacity = '0';
         }
-        
+
         element.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     }
 
@@ -89,11 +89,11 @@ class ScrollAnimations {
         if (!elementData || elementData.animated) return;
 
         elementData.animated = true;
-        
+
         setTimeout(() => {
             element.style.opacity = '1';
             element.style.transform = '';
-            
+
             // Remove from observer after animation
             setTimeout(() => {
                 this.observer.unobserve(element);
@@ -145,7 +145,7 @@ class ScrollColorTransitions {
 
     setupScrollListener() {
         let ticking = false;
-        
+
         window.addEventListener('scroll', () => {
             if (!ticking) {
                 window.requestAnimationFrame(() => {
@@ -179,11 +179,11 @@ class ScrollColorTransitions {
 
     updateColors(color) {
         const root = document.documentElement;
-        
+
         // You can define color schemes in CSS variables
         // For example: data-bg-color="dark" would map to CSS variable --bg-color-dark
         root.style.setProperty('--current-section-color', `var(--bg-color-${color})`);
-        
+
         // Dispatch custom event for other components to react
         document.dispatchEvent(new CustomEvent('sectionChange', {
             detail: { color }
@@ -217,11 +217,11 @@ class StaggeredAnimations {
 
     animateItems() {
         const items = this.container.querySelectorAll(this.itemSelector);
-        
+
         items.forEach((item, index) => {
             item.setAttribute('data-animate', this.animation);
             item.setAttribute('data-delay', index * 100);
-            
+
             // Force reflow to trigger animation
             void item.offsetWidth;
         });
@@ -230,7 +230,7 @@ class StaggeredAnimations {
 
 // Smooth scroll to sections
 function smoothScrollTo(target, offset = 80) {
-    const element = typeof target === 'string' 
+    const element = typeof target === 'string'
         ? document.querySelector(target)
         : target;
 
@@ -266,7 +266,7 @@ class ScrollProgress {
             z-index: 9999;
             transition: width 0.1s ease;
         `;
-        
+
         document.body.appendChild(this.progressBar);
         this.setupScrollListener();
     }
@@ -281,30 +281,57 @@ class ScrollProgress {
     }
 }
 
+// Helper functions
+function lazyLoadImages() {
+    if (window.lazyLoader) {
+        window.lazyLoader.refresh();
+    }
+}
+
+function lazyLoadVideos() {
+    if (window.lazyLoader) {
+        window.lazyLoader.refresh();
+    }
+}
+
+function setupScrollAnimations() {
+    if (window.scrollAnimations) {
+        window.scrollAnimations.refresh();
+    } else {
+        initScrollAnimations();
+    }
+}
+
 // Export functions
 export {
-    ScrollAnimations,
-    ScrollColorTransitions,
-    StaggeredAnimations,
-    smoothScrollTo,
-    ScrollProgress
+    ScrollProgress,
+    initScrollAnimations,
+    lazyLoadImages,
+    lazyLoadVideos,
+    setupScrollAnimations
 };
+
+// Initialize helper
+function initScrollAnimations() {
+    if (window.scrollAnimations) return window.scrollAnimations;
+    return new ScrollAnimations();
+}
 
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
     // Initialize scroll animations
     const scrollAnimations = new ScrollAnimations();
-    
+
     // Initialize color transitions if needed
     if (document.querySelector('[data-bg-color]')) {
         new ScrollColorTransitions();
     }
-    
+
     // Initialize scroll progress if enabled
     if (document.body.dataset.scrollProgress === 'true') {
         new ScrollProgress();
     }
-    
+
     // Make available globally for dynamic content
     window.scrollAnimations = scrollAnimations;
 });

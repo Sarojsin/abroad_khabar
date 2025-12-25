@@ -1,7 +1,7 @@
 // API Service - Fetch wrapper with error handling and authentication
 class ApiService {
     constructor() {
-        this.baseURL = import.meta.env?.VITE_API_URL || '/api/v1';
+        this.baseURL = 'http://localhost:8002/api/v1';
         this.defaultHeaders = {
             'Content-Type': 'application/json',
             'Accept': 'application/json'
@@ -33,11 +33,18 @@ class ApiService {
 
     async request(endpoint, options = {}) {
         const url = endpoint.startsWith('http') ? endpoint : `${this.baseURL}${endpoint}`;
-        
+
         const headers = {
             ...this.defaultHeaders,
             ...options.headers
         };
+
+        // Debug logging
+        if (endpoint.includes('/auth/me')) {
+            console.log('[API] Request to /auth/me');
+            console.log('[API] Headers:', headers);
+            console.log('[API] Auth header:', headers['Authorization'] || 'MISSING');
+        }
 
         const config = {
             ...options,
@@ -47,7 +54,7 @@ class ApiService {
 
         try {
             const response = await fetch(url, config);
-            
+
             // Handle 401 Unauthorized
             if (response.status === 401) {
                 this.handleUnauthorized();
@@ -72,7 +79,7 @@ class ApiService {
             // Parse response
             const contentType = response.headers.get('content-type');
             let data;
-            
+
             if (contentType && contentType.includes('application/json')) {
                 data = await response.json();
             } else if (contentType && contentType.includes('text/')) {
@@ -93,19 +100,19 @@ class ApiService {
 
         } catch (error) {
             console.error('API Request failed:', error);
-            
+
             // Only show user-friendly messages for network errors
             if (error.name === 'TypeError' && error.message.includes('fetch')) {
                 throw new Error('Network error. Please check your connection.');
             }
-            
+
             throw error;
         }
     }
 
     handleUnauthorized() {
         this.removeAuthToken();
-        
+
         // Redirect to login if not already there
         if (!window.location.pathname.includes('/login.html')) {
             window.location.href = '/login.html';
@@ -151,7 +158,7 @@ class ApiService {
     async uploadFile(endpoint, file, fieldName = 'file', additionalData = {}) {
         const formData = new FormData();
         formData.append(fieldName, file);
-        
+
         // Append additional data
         Object.entries(additionalData).forEach(([key, value]) => {
             formData.append(key, value);
@@ -169,12 +176,12 @@ class ApiService {
     // Multiple File Upload
     async uploadFiles(endpoint, files, fieldName = 'files', additionalData = {}) {
         const formData = new FormData();
-        
+
         // Append all files
         files.forEach(file => {
             formData.append(fieldName, file);
         });
-        
+
         // Append additional data
         Object.entries(additionalData).forEach(([key, value]) => {
             formData.append(key, value);
@@ -234,25 +241,25 @@ class ApiService {
     // Retry failed requests
     async requestWithRetry(endpoint, options = {}, maxRetries = 3, retryDelay = 1000) {
         let lastError;
-        
+
         for (let i = 0; i < maxRetries; i++) {
             try {
                 return await this.request(endpoint, options);
             } catch (error) {
                 lastError = error;
-                
+
                 // Don't retry on 4xx errors (except 429 - Too Many Requests)
                 if (error.status && error.status >= 400 && error.status < 500 && error.status !== 429) {
                     break;
                 }
-                
+
                 // Wait before retrying
                 if (i < maxRetries - 1) {
                     await new Promise(resolve => setTimeout(resolve, retryDelay * Math.pow(2, i)));
                 }
             }
         }
-        
+
         throw lastError;
     }
 
@@ -289,7 +296,7 @@ class ApiService {
     async getWithCache(endpoint, params = {}, options = {}, cacheKey = null, ttl = 300000) {
         const key = cacheKey || `${endpoint}?${new URLSearchParams(params).toString()}`;
         const now = Date.now();
-        
+
         // Check cache
         const cached = localStorage.getItem(key);
         if (cached) {
@@ -298,17 +305,17 @@ class ApiService {
                 return data;
             }
         }
-        
+
         // Fetch fresh data
         try {
             const data = await this.get(endpoint, params, options);
-            
+
             // Cache the response
             localStorage.setItem(key, JSON.stringify({
                 data,
                 timestamp: now
             }));
-            
+
             return data;
         } catch (error) {
             // Return cached data even if stale

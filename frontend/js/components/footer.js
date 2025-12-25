@@ -17,7 +17,7 @@ class Footer {
                         <div class="navbar-logo-icon">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <span>EduConsult</span>
+                        <span>Abroad Khabar</span>
                     </div>
                     <div class="footer-links">
                         <a href="/about">About Us</a>
@@ -26,7 +26,7 @@ class Footer {
                         <a href="/privacy">Privacy Policy</a>
                     </div>
                     <div class="footer-copyright">
-                        &copy; ${year} Global Education Consultants. All rights reserved.
+                        &copy; ${year} Abroad Khabar. All rights reserved.
                     </div>
                 </div>
             </footer>

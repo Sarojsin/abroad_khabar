@@ -2,6 +2,9 @@
  * Image Manager for Admin Dashboard
  */
 
+import API from '../core/api.js';
+import Auth from '../core/auth.js';
+
 class ImageManager {
     constructor() {
         this.images = [];
@@ -24,26 +27,20 @@ class ImageManager {
 
     async loadImages(page = 1) {
         try {
-            const params = new URLSearchParams({
+            const params = {
                 page,
                 ...this.filters
-            });
-            
-            const response = await fetch(`/api/v1/images?${params}`, {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            
-            if (!response.ok) throw new Error('Failed to load images');
-            
-            const data = await response.json();
+            };
+
+            const response = await API.get('/images', params);
+            const data = response.data;
+
             this.images = data.images;
             this.currentPage = data.page;
-            this.totalPages = data.totalPages;
-            
+            this.totalPages = data.pages || data.totalPages;
+
             this.renderImages();
-            this.renderPagination();
+            this.updatePagination();
             this.updateStats();
         } catch (error) {
             this.showError(error.message);
@@ -55,7 +52,7 @@ class ImageManager {
         if (!container) return;
 
         container.innerHTML = '';
-        
+
         if (this.images.length === 0) {
             container.innerHTML = `
                 <div class="empty-state">
@@ -80,9 +77,9 @@ class ImageManager {
         const card = document.createElement('div');
         card.className = `image-card ${this.selectedImages.has(image.id) ? 'selected' : ''}`;
         card.dataset.id = image.id;
-        
+
         const isSelected = this.selectedImages.has(image.id);
-        
+
         card.innerHTML = `
             <div class="image-card-header">
                 <div class="image-checkbox">
@@ -112,7 +109,7 @@ class ImageManager {
             <div class="image-info">
                 <div class="image-name">${this.truncateText(image.filename, 20)}</div>
                 <div class="image-meta">
-                    <span class="image-size">${this.formatFileSize(image.size)}</span>
+                    <span class="image-size">${this.formatFileSize(image.file_size)}</span>
                     <span class="image-dimensions">${image.width}x${image.height}</span>
                 </div>
                 <div class="image-tags">
@@ -121,14 +118,17 @@ class ImageManager {
                 <div class="image-date">${this.formatDate(image.created_at)}</div>
             </div>
         `;
-        
+
         return card;
     }
 
     setupEventListeners() {
         // Upload button
-        document.getElementById('upload-images')?.addEventListener('click', () => {
-            this.showUploadModal();
+        document.getElementById('upload-images-btn')?.addEventListener('click', () => {
+            const uploadSection = document.getElementById('upload-section');
+            if (uploadSection) {
+                uploadSection.style.display = uploadSection.style.display === 'none' ? 'block' : 'none';
+            }
         });
 
         // Bulk actions
@@ -145,21 +145,35 @@ class ImageManager {
         });
 
         // Filters
-        document.getElementById('filter-category')?.addEventListener('change', (e) => {
+        document.getElementById('image-type-filter')?.addEventListener('change', (e) => {
             this.filters.category = e.target.value;
             this.loadImages(1);
         });
 
-        document.getElementById('filter-search')?.addEventListener('input', (e) => {
-            this.debounce(() => {
+        document.getElementById('image-search')?.addEventListener('input', (e) => {
+            if (this.searchTimeout) clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
                 this.filters.search = e.target.value;
                 this.loadImages(1);
             }, 300);
         });
 
-        document.getElementById('filter-sort')?.addEventListener('change', (e) => {
+        document.getElementById('image-sort')?.addEventListener('change', (e) => {
             this.filters.sort = e.target.value;
             this.loadImages(1);
+        });
+
+        // Pagination
+        document.querySelector('.pagination-btn.prev')?.addEventListener('click', () => {
+            if (this.currentPage > 1) {
+                this.loadImages(this.currentPage - 1);
+            }
+        });
+
+        document.querySelector('.pagination-btn.next')?.addEventListener('click', () => {
+            if (this.currentPage < this.totalPages) {
+                this.loadImages(this.currentPage + 1);
+            }
         });
 
         // Image card events (delegated)
@@ -169,7 +183,7 @@ class ImageManager {
                 const checkbox = e.target;
                 const card = checkbox.closest('.image-card');
                 const imageId = card.dataset.id;
-                
+
                 if (checkbox.checked) {
                     this.selectedImages.add(imageId);
                     card.classList.add('selected');
@@ -179,21 +193,21 @@ class ImageManager {
                 }
                 this.updateBulkActions();
             }
-            
+
             // Edit button
             if (e.target.closest('.btn-edit')) {
                 const button = e.target.closest('.btn-edit');
                 const imageId = button.dataset.id;
                 this.editImage(imageId);
             }
-            
+
             // Delete button
             if (e.target.closest('.btn-delete')) {
                 const button = e.target.closest('.btn-delete');
                 const imageId = button.dataset.id;
                 this.deleteImage(imageId);
             }
-            
+
             // View button
             if (e.target.closest('.btn-view')) {
                 const button = e.target.closest('.btn-view');
@@ -259,41 +273,31 @@ class ImageManager {
 
     async handleFiles(files) {
         if (files.length === 0) return;
-        
+
         const uploadModal = document.getElementById('upload-modal');
         if (uploadModal) {
             uploadModal.classList.add('active');
         }
-        
+
         const formData = new FormData();
         Array.from(files).forEach(file => {
             formData.append('images', file);
         });
-        
+
         // Add metadata if available
         const category = document.getElementById('upload-category')?.value;
         const tags = document.getElementById('upload-tags')?.value;
-        
+
         if (category) formData.append('category', category);
         if (tags) formData.append('tags', tags);
-        
+
         try {
-            const response = await fetch('/api/v1/images/upload', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: formData
-            });
-            
-            if (!response.ok) throw new Error('Upload failed');
-            
-            const result = await response.json();
-            this.showSuccess(`${result.uploaded} images uploaded successfully`);
-            
+            const result = await API.upload('/images/upload', formData);
+            this.showSuccess('Images uploaded successfully');
+
             // Refresh image list
             this.loadImages(this.currentPage);
-            
+
             // Close modal
             if (uploadModal) {
                 uploadModal.classList.remove('active');
@@ -306,33 +310,23 @@ class ImageManager {
     async editImage(imageId) {
         const image = this.images.find(img => img.id === imageId);
         if (!image) return;
-        
+
         const modal = this.createEditModal(image);
         document.body.appendChild(modal);
-        
+
         // Show modal
         setTimeout(() => modal.classList.add('active'), 10);
-        
+
         // Handle form submission
         const form = modal.querySelector('.edit-form');
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData(form);
             const updates = Object.fromEntries(formData);
-            
+
             try {
-                const response = await fetch(`/api/v1/images/${imageId}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(updates)
-                });
-                
-                if (!response.ok) throw new Error('Update failed');
-                
+                await API.put(`/images/${imageId}`, updates);
                 this.showSuccess('Image updated successfully');
                 this.loadImages(this.currentPage);
                 modal.remove();
@@ -399,23 +393,15 @@ class ImageManager {
                 </div>
             </div>
         `;
-        
+
         return modal;
     }
 
     async deleteImage(imageId) {
         if (!confirm('Are you sure you want to delete this image?')) return;
-        
+
         try {
-            const response = await fetch(`/api/v1/images/${imageId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-            
-            if (!response.ok) throw new Error('Delete failed');
-            
+            await API.delete(`/images/${imageId}`);
             this.showSuccess('Image deleted successfully');
             this.loadImages(this.currentPage);
         } catch (error) {
@@ -428,21 +414,14 @@ class ImageManager {
             this.showError('No images selected');
             return;
         }
-        
+
         if (!confirm(`Delete ${this.selectedImages.size} selected images?`)) return;
-        
+
         try {
-            const response = await fetch('/api/v1/images/bulk-delete', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ image_ids: Array.from(this.selectedImages) })
+            await API.post('/images/bulk-delete', {
+                ids: Array.from(this.selectedImages).map(id => parseInt(id))
             });
-            
-            if (!response.ok) throw new Error('Bulk delete failed');
-            
+
             this.showSuccess(`${this.selectedImages.size} images deleted successfully`);
             this.selectedImages.clear();
             this.loadImages(this.currentPage);
@@ -455,10 +434,10 @@ class ImageManager {
     viewImage(imageId) {
         const image = this.images.find(img => img.id === imageId);
         if (!image) return;
-        
+
         const lightbox = this.createLightbox(image);
         document.body.appendChild(lightbox);
-        
+
         // Show lightbox
         setTimeout(() => lightbox.classList.add('active'), 10);
     }
@@ -488,7 +467,7 @@ class ImageManager {
                     <div class="lightbox-info-grid">
                         <div class="info-item">
                             <span class="info-label">Size:</span>
-                            <span class="info-value">${this.formatFileSize(image.size)}</span>
+                            <span class="info-value">${this.formatFileSize(image.file_size)}</span>
                         </div>
                         <div class="info-item">
                             <span class="info-label">Dimensions:</span>
@@ -524,7 +503,7 @@ class ImageManager {
                 </div>
             </div>
         `;
-        
+
         // Add copy functionality
         lightbox.querySelectorAll('.btn-copy, .btn-copy-url').forEach(button => {
             button.addEventListener('click', () => {
@@ -534,7 +513,7 @@ class ImageManager {
                 });
             });
         });
-        
+
         return lightbox;
     }
 
@@ -544,7 +523,7 @@ class ImageManager {
             checkbox.checked = selectAll;
             const card = checkbox.closest('.image-card');
             const imageId = card.dataset.id;
-            
+
             if (selectAll) {
                 this.selectedImages.add(imageId);
                 card.classList.add('selected');
@@ -553,14 +532,14 @@ class ImageManager {
                 card.classList.remove('selected');
             }
         });
-        
+
         this.updateBulkActions();
     }
 
     updateBulkActions() {
         const bulkActions = document.getElementById('bulk-actions');
         const selectedCount = document.getElementById('selected-count');
-        
+
         if (this.selectedImages.size > 0) {
             bulkActions?.classList.add('active');
             if (selectedCount) {
@@ -578,70 +557,38 @@ class ImageManager {
             byCategory: {},
             totalSize: 0
         };
-        
+
         this.images.forEach(image => {
-            stats.totalSize += image.size;
-            
+            stats.totalSize += image.file_size || 0;
+
             if (image.category) {
                 stats.byCategory[image.category] = (stats.byCategory[image.category] || 0) + 1;
             }
         });
-        
+
         // Update UI elements
         const totalElements = document.querySelectorAll('[data-stat="total-images"]');
         totalElements.forEach(el => {
-            el.textContent = stats.total;
+            if (el) el.textContent = stats.total;
         });
-        
+
         const sizeElement = document.querySelector('[data-stat="total-size"]');
         if (sizeElement) {
             sizeElement.textContent = this.formatFileSize(stats.totalSize);
         }
     }
 
-    renderPagination() {
-        const pagination = document.getElementById('pagination');
-        if (!pagination) return;
-        
-        pagination.innerHTML = '';
-        
-        // Previous button
-        const prevButton = document.createElement('button');
-        prevButton.className = `pagination-btn ${this.currentPage === 1 ? 'disabled' : ''}`;
-        prevButton.innerHTML = '<i class="icon-chevron-left"></i>';
-        prevButton.disabled = this.currentPage === 1;
-        prevButton.addEventListener('click', () => {
-            if (this.currentPage > 1) {
-                this.loadImages(this.currentPage - 1);
-            }
-        });
-        pagination.appendChild(prevButton);
-        
-        // Page numbers
-        const startPage = Math.max(1, this.currentPage - 2);
-        const endPage = Math.min(this.totalPages, startPage + 4);
-        
-        for (let i = startPage; i <= endPage; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.className = `pagination-btn ${i === this.currentPage ? 'active' : ''}`;
-            pageButton.textContent = i;
-            pageButton.addEventListener('click', () => {
-                this.loadImages(i);
-            });
-            pagination.appendChild(pageButton);
-        }
-        
-        // Next button
-        const nextButton = document.createElement('button');
-        nextButton.className = `pagination-btn ${this.currentPage === this.totalPages ? 'disabled' : ''}`;
-        nextButton.innerHTML = '<i class="icon-chevron-right"></i>';
-        nextButton.disabled = this.currentPage === this.totalPages;
-        nextButton.addEventListener('click', () => {
-            if (this.currentPage < this.totalPages) {
-                this.loadImages(this.currentPage + 1);
-            }
-        });
-        pagination.appendChild(nextButton);
+    updatePagination() {
+        const currentSpan = document.getElementById('current-page');
+        const totalSpan = document.getElementById('total-pages');
+        const prevBtn = document.querySelector('.pagination-btn.prev');
+        const nextBtn = document.querySelector('.pagination-btn.next');
+
+        if (currentSpan) currentSpan.textContent = this.currentPage;
+        if (totalSpan) totalSpan.textContent = this.totalPages;
+
+        if (prevBtn) prevBtn.disabled = this.currentPage <= 1;
+        if (nextBtn) nextBtn.disabled = this.currentPage >= this.totalPages;
     }
 
     // Utility methods
@@ -688,11 +635,11 @@ class ImageManager {
             <span>${message}</span>
         `;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
@@ -707,11 +654,11 @@ class ImageManager {
             <span>${message}</span>
         `;
         document.body.appendChild(notification);
-        
+
         setTimeout(() => {
             notification.classList.add('show');
         }, 10);
-        
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link rel="stylesheet" href="../css/main.css">
     <link rel="icon" href="../public/favicon.ico">
 </head>
+
 <body class="admin-dashboard">
     <div id="app">
         <!-- Admin Header -->
@@ -15,7 +17,8 @@
             <div class="header-left">
                 <button class="sidebar-toggle" id="sidebar-toggle">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16" />
                     </svg>
                 </button>
                 <div class="admin-brand">
@@ -23,7 +26,7 @@
                     <p class="brand-subtitle">Manage consultancy services and packages</p>
                 </div>
             </div>
-            
+
             <div class="header-right">
                 <div class="service-stats">
                     <div class="stat-item">
@@ -46,69 +49,79 @@
                         <h3 class="nav-title">Service Management</h3>
                         <a href="services.html" class="nav-link active">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
                             <span>All Services</span>
                         </a>
                         <a href="#create" class="nav-link" id="create-service-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                             <span>Add Service</span>
                         </a>
                         <a href="#categories" class="nav-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                             </svg>
                             <span>Categories</span>
                         </a>
                     </div>
-                    
+
                     <div class="nav-section">
                         <h3 class="nav-title">Packages & Pricing</h3>
                         <a href="#packages" class="nav-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>Packages</span>
                         </a>
                         <a href="#pricing" class="nav-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <span>Pricing</span>
                         </a>
                         <a href="#discounts" class="nav-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2zM10 8.5a.5.5 0 11-1 0 .5.5 0 011 0zm5 5a.5.5 0 11-1 0 .5.5 0 011 0z" />
                             </svg>
                             <span>Discounts</span>
                         </a>
                     </div>
-                    
+
                     <div class="nav-section">
                         <h3 class="nav-title">Service Categories</h3>
                         <a href="#pre-departure" class="nav-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             <span>Pre-Departure</span>
                         </a>
                         <a href="#application" class="nav-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                             <span>Application</span>
                         </a>
                         <a href="#visa" class="nav-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                             </svg>
                             <span>Visa & Immigration</span>
                         </a>
                         <a href="#post-arrival" class="nav-link">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                             <span>Post-Arrival</span>
                         </a>
@@ -127,12 +140,13 @@
                             <button class="btn btn-primary btn-sm" id="publish-service">Publish Service</button>
                             <button class="btn-icon close-editor">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </button>
                         </div>
                     </div>
-                    
+
                     <form id="service-form">
                         <div class="editor-main">
                             <div class="editor-sidebar">
@@ -160,7 +174,8 @@
                                         <label for="service-icon">Icon</label>
                                         <div class="icon-selector">
                                             <div class="selected-icon" id="selected-icon">🎓</div>
-                                            <button type="button" class="btn btn-outline btn-sm" id="change-icon">Change Icon</button>
+                                            <button type="button" class="btn btn-outline btn-sm" id="change-icon">Change
+                                                Icon</button>
                                         </div>
                                         <div class="icon-picker" id="icon-picker" style="display: none;">
                                             <div class="icon-grid">
@@ -183,7 +198,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                
+
                                 <div class="sidebar-section">
                                     <h4>Pricing</h4>
                                     <div class="form-group">
@@ -205,7 +220,7 @@
                                         <input type="text" id="service-duration" placeholder="e.g., 4-6 weeks">
                                     </div>
                                 </div>
-                                
+
                                 <div class="sidebar-section">
                                     <h4>SEO Settings</h4>
                                     <div class="form-group">
@@ -222,18 +237,20 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <div class="editor-content">
                                 <div class="form-group">
-                                    <input type="text" id="service-name" class="service-title-input" placeholder="Service Name" required>
+                                    <input type="text" id="service-name" class="service-title-input"
+                                        placeholder="Service Name" required>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="service-excerpt">Short Description</label>
-                                    <textarea id="service-excerpt" rows="3" placeholder="Brief description of the service..." maxlength="200"></textarea>
+                                    <textarea id="service-excerpt" rows="3"
+                                        placeholder="Brief description of the service..." maxlength="200"></textarea>
                                     <div class="char-count"><span id="excerpt-chars">0</span>/200</div>
                                 </div>
-                                
+
                                 <div class="form-group">
                                     <label for="service-description">Full Description</label>
                                     <div class="rich-text-editor">
@@ -244,41 +261,49 @@
                                             <button type="button" class="toolbar-btn" data-format="link">Link</button>
                                         </div>
                                         <div class="editor-textarea">
-                                            <textarea id="service-description" rows="10" placeholder="Detailed description of the service..."></textarea>
+                                            <textarea id="service-description" rows="10"
+                                                placeholder="Detailed description of the service..."></textarea>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <div class="form-section">
                                     <h4>What's Included</h4>
                                     <div class="included-items" id="included-items">
                                         <div class="included-item">
                                             <input type="text" placeholder="Feature or benefit" class="included-input">
                                             <button type="button" class="btn-icon remove-included">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-outline btn-sm" id="add-included-item">+ Add Item</button>
+                                    <button type="button" class="btn btn-outline btn-sm" id="add-included-item">+ Add
+                                        Item</button>
                                 </div>
-                                
+
                                 <div class="form-section">
                                     <h4>Requirements</h4>
                                     <div class="requirements-items" id="requirements-items">
                                         <div class="requirement-item">
-                                            <input type="text" placeholder="Required document or condition" class="requirement-input">
+                                            <input type="text" placeholder="Required document or condition"
+                                                class="requirement-input">
                                             <button type="button" class="btn-icon remove-requirement">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-outline btn-sm" id="add-requirement-item">+ Add Requirement</button>
+                                    <button type="button" class="btn btn-outline btn-sm" id="add-requirement-item">+ Add
+                                        Requirement</button>
                                 </div>
-                                
+
                                 <div class="form-section">
                                     <h4>FAQ</h4>
                                     <div class="faq-items" id="faq-items">
@@ -286,13 +311,16 @@
                                             <input type="text" placeholder="Question" class="faq-question-input">
                                             <textarea placeholder="Answer" class="faq-answer-input" rows="2"></textarea>
                                             <button type="button" class="btn-icon remove-faq">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                    viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                        stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                                 </svg>
                                             </button>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn btn-outline btn-sm" id="add-faq-item">+ Add FAQ</button>
+                                    <button type="button" class="btn btn-outline btn-sm" id="add-faq-item">+ Add
+                                        FAQ</button>
                                 </div>
                             </div>
                         </div>
@@ -306,7 +334,8 @@
                             <input type="text" placeholder="Search services..." id="service-search">
                             <button class="search-btn">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                                 </svg>
                             </button>
                         </div>
@@ -328,17 +357,28 @@
                     <div class="toolbar-right">
                         <button class="btn btn-primary" id="create-service-btn">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                             Add Service
                         </button>
-                        <button class="btn btn-outline" id="manage-packages-btn">
+                        <button class="btn btn-outline" id="bulk-service-actions">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
                             </svg>
-                            Manage Packages
+                            Bulk Actions
                         </button>
                     </div>
+                </div>
+
+                <!-- Bulk Actions Bar -->
+                <div class="table-actions glass-card mb-6" id="table-actions"
+                    style="display: none; padding: 1rem; align-items: center; gap: 1rem;">
+                    <span class="selected-count">0 items selected</span>
+                    <button class="btn btn-outline btn-sm" id="bulk-feature">Feature</button>
+                    <button class="btn btn-outline btn-sm" id="bulk-unfeature">Unfeature</button>
+                    <button class="btn btn-outline btn-sm danger" id="bulk-delete">Delete</button>
                 </div>
 
                 <!-- Services Grid -->
@@ -352,18 +392,37 @@
                     </div>
                 </div>
 
+                <!-- Pagination -->
+                <div class="pagination-container glass-card mt-6" id="pagination-container"
+                    style="display: flex; justify-content: space-between; align-items: center; padding: 1rem;">
+                    <button class="btn btn-icon" id="prev-page-btn" disabled>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <div class="pagination-info">
+                        Page <span id="current-page">1</span> of <span id="total-pages">1</span>
+                    </div>
+                    <button class="btn btn-icon" id="next-page-btn" disabled>
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
                 <!-- Packages Management -->
                 <div class="packages-management glass-card mt-6" id="packages-section" style="display: none;">
                     <div class="packages-header">
                         <h3>Service Packages</h3>
                         <button class="btn btn-primary btn-sm" id="create-package-btn">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 4v16m8-8H4" />
                             </svg>
                             Create Package
                         </button>
                     </div>
-                    
+
                     <div class="packages-grid" id="packages-container">
                         <!-- Packages will be loaded dynamically -->
                     </div>
@@ -391,4 +450,5 @@
     <script src="../js/main.js" type="module"></script>
     <script src="../js/admin/service-manager.js" type="module"></script>
 </body>
+
 </html>

@@ -41,10 +41,10 @@ class FilterSystem {
         document.querySelectorAll('[data-filter]').forEach(filter => {
             filter.addEventListener('change', (e) => {
                 const filterName = e.target.name;
-                const filterValue = e.target.type === 'checkbox' 
+                const filterValue = e.target.type === 'checkbox'
                     ? e.target.checked ? e.target.value : null
                     : e.target.value;
-                
+
                 this.updateFilter(filterName, filterValue);
                 this.applyFilters();
             });
@@ -91,8 +91,8 @@ class FilterSystem {
         if (this.searchTerm) {
             filteredItems = filteredItems.filter(item => {
                 return item.data.title.toLowerCase().includes(this.searchTerm) ||
-                       item.data.tags.some(tag => tag.toLowerCase().includes(this.searchTerm)) ||
-                       item.data.category.some(cat => cat.toLowerCase().includes(this.searchTerm));
+                    item.data.tags.some(tag => tag.toLowerCase().includes(this.searchTerm)) ||
+                    item.data.category.some(cat => cat.toLowerCase().includes(this.searchTerm));
             });
         }
 
@@ -121,8 +121,8 @@ class FilterSystem {
 
     sortItems(items) {
         const sorted = [...items];
-        
-        switch(this.sortBy) {
+
+        switch (this.sortBy) {
             case 'date-desc':
                 return sorted.sort((a, b) => b.data.date - a.data.date);
             case 'date-asc':
@@ -151,7 +151,7 @@ class FilterSystem {
     renderResults(items) {
         // Clear container
         this.container.innerHTML = '';
-        
+
         if (items.length === 0) {
             this.showNoResults();
             return;
@@ -162,7 +162,7 @@ class FilterSystem {
             item.element.style.opacity = '0';
             item.element.style.transform = 'translateY(20px)';
             this.container.appendChild(item.element);
-            
+
             // Animate in
             setTimeout(() => {
                 item.element.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
@@ -193,31 +193,31 @@ class FilterSystem {
 
     updateURL() {
         if (!history.pushState) return;
-        
+
         const params = new URLSearchParams();
-        
+
         // Add search term
         if (this.searchTerm) {
             params.set('search', this.searchTerm);
         }
-        
+
         // Add filters
         Object.entries(this.filters).forEach(([key, value]) => {
             params.set(key, value);
         });
-        
+
         // Add sort
         if (this.sortBy && this.sortBy !== 'default') {
             params.set('sort', this.sortBy);
         }
-        
+
         const url = `${window.location.pathname}?${params.toString()}`;
         history.replaceState(null, '', url);
     }
 
     loadFromURL() {
         const params = new URLSearchParams(window.location.search);
-        
+
         // Load search
         const search = params.get('search');
         if (search) {
@@ -226,12 +226,12 @@ class FilterSystem {
                 input.value = search;
             });
         }
-        
+
         // Load filters
         params.forEach((value, key) => {
             if (key !== 'search' && key !== 'sort') {
                 this.filters[key] = value;
-                
+
                 // Update UI
                 const filterElement = document.querySelector(`[name="${key}"]`);
                 if (filterElement) {
@@ -243,7 +243,7 @@ class FilterSystem {
                 }
             }
         });
-        
+
         // Load sort
         const sort = params.get('sort');
         if (sort) {
@@ -252,7 +252,7 @@ class FilterSystem {
                 select.value = sort;
             });
         }
-        
+
         // Apply filters
         this.applyFilters();
     }
@@ -261,7 +261,7 @@ class FilterSystem {
         this.filters = {};
         this.searchTerm = '';
         this.sortBy = 'default';
-        
+
         // Reset UI
         document.querySelectorAll('[data-filter]').forEach(filter => {
             if (filter.type === 'checkbox') {
@@ -270,18 +270,18 @@ class FilterSystem {
                 filter.value = '';
             }
         });
-        
+
         document.querySelectorAll('[data-search]').forEach(search => {
             search.value = '';
         });
-        
+
         document.querySelectorAll('[data-sort]').forEach(sort => {
             sort.value = 'default';
         });
-        
+
         // Update URL
         history.replaceState(null, '', window.location.pathname);
-        
+
         // Apply filters
         this.applyFilters();
     }
@@ -325,7 +325,7 @@ class TagFilter {
     renderTagCloud() {
         const tagCloud = document.createElement('div');
         tagCloud.className = 'tag-cloud';
-        
+
         Array.from(this.tags).forEach(tag => {
             const button = document.createElement('button');
             button.className = 'tag';
@@ -333,7 +333,7 @@ class TagFilter {
             button.dataset.tag = tag;
             tagCloud.appendChild(button);
         });
-        
+
         this.container.appendChild(tagCloud);
     }
 
@@ -343,10 +343,10 @@ class TagFilter {
                 const tag = e.target.dataset.tag;
                 this.toggleTag(tag);
                 e.target.classList.toggle('active');
-                
+
                 // Dispatch custom event
                 this.container.dispatchEvent(new CustomEvent('tagChange', {
-                    detail: { 
+                    detail: {
                         tag,
                         active: this.activeTags.has(tag),
                         activeTags: Array.from(this.activeTags)
@@ -398,11 +398,11 @@ class RangeFilter {
         this.minInput.min = this.rangeMin;
         this.minInput.max = this.rangeMax;
         this.minInput.value = this.currentMin;
-        
+
         this.maxInput.min = this.rangeMin;
         this.maxInput.max = this.rangeMax;
         this.maxInput.value = this.currentMax;
-        
+
         this.minInput.addEventListener('input', (e) => {
             this.currentMin = parseInt(e.target.value);
             if (this.currentMin > this.currentMax) {
@@ -412,7 +412,7 @@ class RangeFilter {
             this.updateRange();
             this.dispatchChange();
         });
-        
+
         this.maxInput.addEventListener('input', (e) => {
             this.currentMax = parseInt(e.target.value);
             if (this.currentMax < this.currentMin) {
@@ -433,7 +433,7 @@ class RangeFilter {
             <div class="range-thumb max-thumb"></div>
         `;
         this.container.appendChild(slider);
-        
+
         this.setupDragEvents(slider);
     }
 
@@ -441,29 +441,29 @@ class RangeFilter {
         const minThumb = slider.querySelector('.min-thumb');
         const maxThumb = slider.querySelector('.max-thumb');
         const track = slider.querySelector('.range-track');
-        
+
         this.setupThumbDrag(minThumb, 'min');
         this.setupThumbDrag(maxThumb, 'max');
-        
+
         // Update slider position from inputs
         this.updateRange();
     }
 
     setupThumbDrag(thumb, type) {
         let isDragging = false;
-        
+
         thumb.addEventListener('mousedown', (e) => {
             isDragging = true;
             document.body.style.userSelect = 'none';
         });
-        
+
         document.addEventListener('mousemove', (e) => {
             if (!isDragging) return;
-            
+
             const sliderRect = this.container.querySelector('.range-slider').getBoundingClientRect();
             const position = (e.clientX - sliderRect.left) / sliderRect.width;
             const value = Math.round(this.rangeMin + position * (this.rangeMax - this.rangeMin));
-            
+
             if (type === 'min') {
                 this.currentMin = Math.min(Math.max(value, this.rangeMin), this.currentMax);
                 this.minInput.value = this.currentMin;
@@ -471,11 +471,11 @@ class RangeFilter {
                 this.currentMax = Math.max(Math.min(value, this.rangeMax), this.currentMin);
                 this.maxInput.value = this.currentMax;
             }
-            
+
             this.updateRange();
             this.dispatchChange();
         });
-        
+
         document.addEventListener('mouseup', () => {
             if (isDragging) {
                 isDragging = false;
@@ -487,7 +487,7 @@ class RangeFilter {
     updateRange() {
         const minPercent = ((this.currentMin - this.rangeMin) / (this.rangeMax - this.rangeMin)) * 100;
         const maxPercent = ((this.currentMax - this.rangeMin) / (this.rangeMax - this.rangeMin)) * 100;
-        
+
         const slider = this.container.querySelector('.range-slider');
         if (slider) {
             slider.style.setProperty('--min-percent', `${minPercent}%`);
@@ -525,8 +525,13 @@ class RangeFilter {
 export {
     FilterSystem,
     TagFilter,
-    RangeFilter
+    RangeFilter,
+    setupFilter
 };
+
+function setupFilter(container, options = {}) {
+    return new FilterSystem(container, options);
+}
 
 // Initialize filter systems on page load
 document.addEventListener('DOMContentLoaded', () => {
@@ -535,12 +540,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const filterSystem = new FilterSystem(container);
         filterSystem.loadFromURL();
     });
-    
+
     // Initialize tag filters
     document.querySelectorAll('[data-tag-filter]').forEach(container => {
         new TagFilter(container);
     });
-    
+
     // Initialize range filters
     document.querySelectorAll('[data-range-filter]').forEach(container => {
         new RangeFilter(container, {

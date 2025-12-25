@@ -14,7 +14,7 @@ class CountriesPage {
         this.currentContinent = 'all';
         this.currentSort = 'popular';
         this.currentSearch = '';
-        
+
         this.init();
     }
 
@@ -106,14 +106,14 @@ class CountriesPage {
             // In production, this would fetch from API
             // const response = await API.get('/countries');
             // this.countries = await response.json();
-            
+
             // Mock data for demonstration
             this.countries = this.generateMockCountries();
             this.filteredCountries = [...this.countries];
             this.sortCountries();
             this.renderCountries();
             this.updateComparisonTable();
-            
+
         } catch (error) {
             console.error('Error loading countries:', error);
             this.showError('Failed to load countries. Please try again.');
@@ -126,7 +126,7 @@ class CountriesPage {
                 id: 1,
                 name: 'Canada',
                 continent: 'north-america',
-                flag: '../assets/images/flags/canada.png',
+                flag: '/assets/images/flags/canada.png',
                 description: 'World-class education with excellent post-study work opportunities',
                 tuition: 'CAD $15,000 - $30,000',
                 livingCost: '$1,200 - $2,000/month',
@@ -140,7 +140,7 @@ class CountriesPage {
                 id: 2,
                 name: 'United States',
                 continent: 'north-america',
-                flag: '../assets/images/flags/usa.png',
+                flag: '/assets/images/flags/usa.png',
                 description: 'Top-ranked universities with diverse cultural experiences',
                 tuition: '$20,000 - $50,000',
                 livingCost: '$1,500 - $3,000/month',
@@ -154,7 +154,7 @@ class CountriesPage {
                 id: 3,
                 name: 'United Kingdom',
                 continent: 'europe',
-                flag: '../assets/images/flags/uk.png',
+                flag: '/assets/images/flags/uk.png',
                 description: 'Prestigious universities with rich historical heritage',
                 tuition: '£18,000 - £35,000',
                 livingCost: '£1,000 - £2,000/month',
@@ -168,7 +168,7 @@ class CountriesPage {
                 id: 4,
                 name: 'Australia',
                 continent: 'australia',
-                flag: '../assets/images/flags/australia.png',
+                flag: '/assets/images/flags/australia.png',
                 description: 'High quality of life with excellent work opportunities',
                 tuition: 'AUD $20,000 - $40,000',
                 livingCost: '$1,500 - $2,500/month',
@@ -182,7 +182,7 @@ class CountriesPage {
                 id: 5,
                 name: 'Germany',
                 continent: 'europe',
-                flag: '../assets/images/flags/germany.png',
+                flag: '/assets/images/flags/germany.png',
                 description: 'Tuition-free education with strong engineering programs',
                 tuition: '€0 - €20,000',
                 livingCost: '€800 - €1,500/month',
@@ -196,7 +196,7 @@ class CountriesPage {
                 id: 6,
                 name: 'New Zealand',
                 continent: 'australia',
-                flag: '../assets/images/flags/newzealand.png',
+                flag: '/assets/images/flags/newzealand.png',
                 description: 'Safe and welcoming environment with excellent education',
                 tuition: 'NZD $22,000 - $35,000',
                 livingCost: '$1,200 - $2,000/month',
@@ -213,16 +213,16 @@ class CountriesPage {
         this.filteredCountries = this.countries.filter(country => {
             // Filter by continent
             const continentMatch = this.currentContinent === 'all' || country.continent === this.currentContinent;
-            
+
             // Filter by search
-            const searchMatch = !this.currentSearch || 
+            const searchMatch = !this.currentSearch ||
                 country.name.toLowerCase().includes(this.currentSearch) ||
                 country.description.toLowerCase().includes(this.currentSearch) ||
                 country.universities.toLowerCase().includes(this.currentSearch);
-            
+
             return continentMatch && searchMatch;
         });
-        
+
         this.sortCountries();
         this.renderCountries();
     }
@@ -259,7 +259,8 @@ class CountriesPage {
 
     renderCountries() {
         const container = document.getElementById('countries-container');
-        
+        if (!container) return;
+
         if (this.filteredCountries.length === 0) {
             container.innerHTML = `
                 <div class="no-results glass-card">
@@ -385,14 +386,14 @@ class CountriesPage {
             3: ['Pathway to permanent residency', 'Excellent post-study work', 'Good post-study options', 'Good work opportunities', 'Good job market', 'Good career prospects'],
             4: ['Safe and welcoming environment', 'High quality of life', 'Good living standards', 'Affordable living costs', 'Beautiful landscapes', 'Friendly people']
         };
-        
+
         return features[index][countryId - 1] || 'Excellent education opportunities';
     }
 
     showCountryDetails(country) {
         const modal = document.getElementById('country-modal');
         const content = document.getElementById('country-modal-content');
-        
+
         content.innerHTML = `
             <div class="country-details-modal">
                 <div class="country-details-header">
@@ -511,7 +512,7 @@ class CountriesPage {
         if (!tableBody) return;
 
         const topCountries = this.countries.slice(0, 4); // Show top 4 countries
-        
+
         tableBody.innerHTML = topCountries.map(country => `
             <tr>
                 <td>
@@ -560,7 +561,7 @@ class CountriesPage {
         toast.className = 'toast';
         toast.textContent = message;
         document.body.appendChild(toast);
-        
+
         setTimeout(() => toast.classList.add('show'), 100);
         setTimeout(() => {
             toast.classList.remove('show');
@@ -569,9 +570,5 @@ class CountriesPage {
     }
 }
 
-// Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', () => {
-    new CountriesPage();
-});
-
+// Export for module usage
 export default CountriesPage;
