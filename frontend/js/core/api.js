@@ -114,8 +114,8 @@ class ApiService {
         this.removeAuthToken();
 
         // Redirect to login if not already there
-        if (!window.location.pathname.includes('/login.html')) {
-            window.location.href = '/login.html';
+        if (!window.location.pathname.startsWith('/login')) {
+            window.location.href = '/login';
         }
     }
 

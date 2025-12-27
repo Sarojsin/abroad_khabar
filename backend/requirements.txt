@@ -4,7 +4,7 @@ python-multipart
 python-jose[cryptography]
 passlib[bcrypt]
 python-magic
-python-magic-bin
+python-magic-bin; sys_platform == "win32"
 Pillow>=10.1.0
 imageio
 imageio-ffmpeg
