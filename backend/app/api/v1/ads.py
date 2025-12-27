@@ -25,7 +25,7 @@ from app.schemas.ads import (
     AdDetailedStats
 )
 from app.utils.response import custom_response
-from app.api.v1.auth import get_current_user
+from app.api.v1.auth import get_current_user, get_optional_user
 
 router = APIRouter()
 
@@ -41,7 +41,7 @@ async def get_ads(
     page: Optional[str] = None,
     country: Optional[str] = None,
     is_active: Optional[bool] = None,
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get advertisements with filtering and pagination"""
@@ -178,7 +178,7 @@ async def get_active_ads(
 @router.get("/{ad_id}", response_model=dict)
 async def get_ad(
     ad_id: int,
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get advertisement by ID"""

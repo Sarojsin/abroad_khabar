@@ -46,7 +46,7 @@ async def get_blogs(
     
     return custom_response(
         data={
-            "blogs": [BlogResponse.model_validate(b).model_dump() for b in blogs],
+            "blogs": [{**BlogResponse.model_validate(b).model_dump(), "category": b.category.slug if b.category else None} for b in blogs],
             "total": total,
             "page": (skip // limit) + 1 if limit > 0 else 1,
             "pages": (total + limit - 1) // limit if limit > 0 else 1
@@ -64,7 +64,12 @@ async def get_blog(
     blog = db.query(Blog).filter(Blog.id == id).first()
     if not blog:
         raise HTTPException(status_code=404, detail="Blog not found")
-    return custom_response(data={"blog": BlogResponse.model_validate(blog).model_dump()})
+    
+    blog_data = BlogResponse.model_validate(blog).model_dump()
+    if blog.category:
+        blog_data["category"] = blog.category.slug
+        
+    return custom_response(data={"blog": blog_data})
 
 @router.post("/", status_code=status.HTTP_201_CREATED, response_model=dict)
 async def create_blog(
@@ -87,8 +92,19 @@ async def create_blog(
         import uuid
         slug = f"{slug}-{uuid.uuid4().hex[:6]}"
 
+    # Handle category lookup by slug if category_id is missing
+    category_id = blog_data.category_id
+    if not category_id and blog_data.category:
+        db_category = db.query(BlogCategory).filter(BlogCategory.slug == blog_data.category).first()
+        if db_category:
+            category_id = db_category.id
+
+    # Create blog
+    blog_dict = blog_data.model_dump(exclude={"slug", "author_id", "category"})
+    blog_dict["category_id"] = category_id
+    
     new_blog = Blog(
-        **blog_data.model_dump(exclude={"slug", "author_id"}),
+        **blog_dict,
         slug=slug,
         author_id=current_user.id
     )
@@ -96,9 +112,14 @@ async def create_blog(
     db.add(new_blog)
     db.commit()
     db.refresh(new_blog)
+    
+    blog_data = BlogResponse.model_validate(new_blog).model_dump()
+    if new_blog.category:
+        blog_data["category"] = new_blog.category.slug
+
     return custom_response(
         message="Blog created successfully",
-        data={"blog": BlogResponse.model_validate(new_blog).model_dump()}
+        data={"blog": blog_data}
     )
 
 @router.put("/{id}", response_model=dict)
@@ -116,15 +137,27 @@ async def update_blog(
         raise HTTPException(status_code=404, detail="Blog not found")
         
     # Update fields
-    update_data = blog_data.model_dump(exclude_unset=True)
+    update_data = blog_data.model_dump(exclude_unset=True, exclude={"category"})
+    
+    # Handle category lookup by slug
+    if "category" in blog_data.model_dump(exclude_unset=True) and not blog_data.category_id:
+        db_category = db.query(BlogCategory).filter(BlogCategory.slug == blog_data.category).first()
+        if db_category:
+            update_data["category_id"] = db_category.id
+
     for key, value in update_data.items():
         setattr(blog, key, value)
             
     db.commit()
     db.refresh(blog)
+    
+    blog_data = BlogResponse.model_validate(blog).model_dump()
+    if blog.category:
+        blog_data["category"] = blog.category.slug
+
     return custom_response(
         message="Blog updated successfully",
-        data={"blog": BlogResponse.model_validate(blog).model_dump()}
+        data={"blog": blog_data}
     )
 
 @router.delete("/{id}", response_model=dict)

@@ -23,7 +23,7 @@ class Settings(BaseSettings):
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
     
     # CORS
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+    BACKEND_CORS_ORIGINS: Union[List[str], str] = [
         "http://localhost:3000",
         "http://localhost:8080",
         "http://127.0.0.1:3000",
@@ -59,8 +59,14 @@ class Settings(BaseSettings):
     
     # File upload
     MAX_UPLOAD_SIZE: int = 100 * 1024 * 1024  # 100MB
-    ALLOWED_IMAGE_TYPES: List[str] = ["jpg", "jpeg", "png", "gif", "webp"]
-    ALLOWED_VIDEO_TYPES: List[str] = ["mp4", "avi", "mov", "wmv", "webm"]
+    ALLOWED_IMAGE_TYPES: Union[List[str], str] = ["jpg", "jpeg", "png", "gif", "webp"]
+    ALLOWED_VIDEO_TYPES: Union[List[str], str] = ["mp4", "avi", "mov", "wmv", "webm"]
+    
+    @validator("ALLOWED_IMAGE_TYPES", "ALLOWED_VIDEO_TYPES", pre=True)
+    def handle_list_parsing(cls, v: Union[str, List[str]]) -> List[str]:
+        if isinstance(v, str):
+            return [i.strip() for i in v.split(",") if i.strip()]
+        return v
     UPLOAD_DIR: str = "media"
     
     # Media paths

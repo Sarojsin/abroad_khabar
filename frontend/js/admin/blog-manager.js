@@ -1,6 +1,7 @@
 /**
  * Blog Manager for Admin Dashboard
  */
+import API from '../core/api.js';
 
 class BlogManager {
     constructor() {
@@ -23,6 +24,7 @@ class BlogManager {
         this.setupEventListeners();
         this.initializeEditor();
         this.setupImageUpload();
+        this.setupTagHandling();
         this.checkUrlHash(); // Check hash on load
     }
 
@@ -286,6 +288,51 @@ class BlogManager {
                 this.deleteBlog(blogId);
             }
         });
+
+        this.setupTagHandling();
+    }
+
+    setupTagHandling() {
+        const tagInput = document.getElementById('tag-input');
+        const tagsContainer = document.getElementById('tags-container');
+        if (!tagInput || !tagsContainer) return;
+
+        tagInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ',') {
+                e.preventDefault();
+                const tag = tagInput.value.trim().replace(/,/g, '');
+                if (tag) {
+                    this.addTag(tag);
+                    tagInput.value = '';
+                }
+            }
+        });
+
+        // Delegate tag removal
+        tagsContainer.addEventListener('click', (e) => {
+            if (e.target.closest('.remove-tag')) {
+                const tagItem = e.target.closest('.tag-item');
+                tagItem.remove();
+            }
+        });
+    }
+
+    addTag(tag) {
+        const tagsContainer = document.getElementById('tags-container');
+        if (!tagsContainer) return;
+
+        // Prevent duplicates
+        const existingTags = Array.from(tagsContainer.querySelectorAll('.tag-item')).map(t => t.dataset.tag);
+        if (existingTags.includes(tag)) return;
+
+        const tagEl = document.createElement('div');
+        tagEl.className = 'tag-item';
+        tagEl.dataset.tag = tag;
+        tagEl.innerHTML = `
+            <span>${tag}</span>
+            <button type="button" class="remove-tag">&times;</button>
+        `;
+        tagsContainer.appendChild(tagEl);
     }
 
     initializeEditor() {
@@ -385,17 +432,13 @@ class BlogManager {
         formData.append('image', file);
 
         try {
-            const response = await fetch('/api/v1/images/upload', {
-                method: 'POST',
+            const response = await API.post('/images/upload', formData, {
                 headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                },
-                body: formData
+                    'Content-Type': 'multipart/form-data'
+                }
             });
 
-            if (!response.ok) throw new Error('Upload failed');
-
-            const result = await response.json();
+            const result = response.data || response;
 
             // Update featured image preview
             const preview = document.getElementById('featured-image-preview');
@@ -447,18 +490,9 @@ class BlogManager {
 
     async createBlog(formData) {
         try {
-            const response = await fetch('/api/v1/blogs', {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+            const response = await API.post('/blogs', formData);
 
-            if (!response.ok) throw new Error('Failed to create blog');
-
-            await response.json();
+            const result = response.data || response;
             this.showSuccess('Blog post created successfully');
             this.loadBlogs(this.currentPage);
         } catch (error) {
@@ -469,18 +503,9 @@ class BlogManager {
 
     async updateBlog(blogId, formData) {
         try {
-            const response = await fetch(`/api/v1/blogs/${blogId}`, {
-                method: 'PUT',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+            const response = await API.put(`/blogs/${blogId}`, formData);
 
-            if (!response.ok) throw new Error('Failed to update blog');
-
-            await response.json();
+            const result = response.data || response;
             this.showSuccess('Blog post updated successfully');
             this.loadBlogs(this.currentPage);
         } catch (error) {
@@ -496,6 +521,9 @@ class BlogManager {
 
         const preview = document.getElementById('featured-image-preview');
         if (preview) preview.innerHTML = '<i class="icon-image"></i><span>Upload Image</span>';
+
+        const tagsContainer = document.getElementById('tags-container');
+        if (tagsContainer) tagsContainer.innerHTML = '';
 
         const editor = document.getElementById('blog-editor');
         if (editor) editor.style.display = 'block';
@@ -526,6 +554,14 @@ class BlogManager {
         document.getElementById('meta-title').value = blog.meta_title || '';
         document.getElementById('meta-description').value = blog.meta_description || '';
 
+        const tagsContainer = document.getElementById('tags-container');
+        if (tagsContainer) {
+            tagsContainer.innerHTML = '';
+            if (blog.tags && Array.isArray(blog.tags)) {
+                blog.tags.forEach(tag => this.addTag(tag));
+            }
+        }
+
         const preview = document.getElementById('featured-image-preview');
         if (preview && blog.featured_image) {
             preview.innerHTML = `<img src="${blog.featured_image}" alt="Featured Image"><input type="hidden" name="featured_image" value="${blog.featured_image}">`;
@@ -544,16 +580,7 @@ class BlogManager {
         const newStatus = blog.status === 'published' ? 'draft' : 'published';
 
         try {
-            const response = await fetch(`/api/v1/blogs/${blogId}/status`, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('auth_token')}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ status: newStatus })
-            });
-
-            if (!response.ok) throw new Error('Failed to update status');
+            await API.patch(`/blogs/${blogId}/status`, { status: newStatus });
 
             this.showSuccess(`Blog ${newStatus === 'published' ? 'published' : 'unpublished'} successfully`);
             this.loadBlogs(this.currentPage);
@@ -590,14 +617,7 @@ class BlogManager {
         if (!confirm('Duplicate this blog post?')) return;
 
         try {
-            const response = await fetch(`/api/v1/blogs/${blogId}/duplicate`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-
-            if (!response.ok) throw new Error('Failed to duplicate blog');
+            await API.post(`/blogs/${blogId}/duplicate`);
 
             this.showSuccess('Blog post duplicated successfully');
             this.loadBlogs(this.currentPage);
@@ -610,14 +630,7 @@ class BlogManager {
         if (!confirm('Are you sure you want to delete this blog post?')) return;
 
         try {
-            const response = await fetch(`/api/v1/blogs/${blogId}`, {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`
-                }
-            });
-
-            if (!response.ok) throw new Error('Delete failed');
+            await API.delete(`/blogs/${blogId}`);
 
             this.showSuccess('Blog post deleted successfully');
             this.loadBlogs(this.currentPage);
@@ -635,16 +648,9 @@ class BlogManager {
         if (!confirm(`Delete ${this.selectedBlogs.size} selected blog posts?`)) return;
 
         try {
-            const response = await fetch('/api/v1/blogs/bulk-delete', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    'Content-Type': 'application/json'
-                },
+            await API.delete('/blogs/bulk-delete', {
                 body: JSON.stringify({ blog_ids: Array.from(this.selectedBlogs) })
             });
-
-            if (!response.ok) throw new Error('Bulk delete failed');
 
             this.showSuccess(`${this.selectedBlogs.size} blog posts deleted successfully`);
             this.selectedBlogs.clear();

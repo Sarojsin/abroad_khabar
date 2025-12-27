@@ -24,7 +24,7 @@ from app.schemas.service import (
     ServiceCategoryResponse
 )
 from app.utils.response import custom_response
-from app.api.v1.auth import get_current_user
+from app.api.v1.auth import get_current_user, get_optional_user
 
 router = APIRouter()
 
@@ -262,7 +262,7 @@ async def get_services(
     max_price: Optional[float] = Query(None, ge=0),
     sort_by: str = Query("position", regex="^(position|title|price|views|created_at)$"),
     sort_order: str = Query("asc", regex="^(asc|desc)$"),
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get services with filtering and pagination"""
@@ -371,7 +371,7 @@ async def get_popular_services(
 @router.get("/{service_id}", response_model=dict)
 async def get_service(
     service_id: int,
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get service by ID"""
@@ -402,7 +402,7 @@ async def get_service(
 @router.get("/slug/{slug}", response_model=dict)
 async def get_service_by_slug(
     slug: str,
-    current_user: Optional[User] = Depends(get_current_user),
+    current_user: Optional[User] = Depends(get_optional_user),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get service by slug"""

@@ -31,6 +31,35 @@ from app.utils.response import custom_response
 
 router = APIRouter()
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
+oauth2_scheme_optional = OAuth2PasswordBearer(
+    tokenUrl=f"{settings.API_V1_STR}/auth/login",
+    auto_error=False
+)
+
+async def get_optional_user(
+    token: Optional[str] = Depends(oauth2_scheme_optional),
+    db: Session = Depends(get_db)
+) -> Optional[User]:
+    """Get current authenticated user if token is present, otherwise return None"""
+    if not token:
+        return None
+    
+    try:
+        payload = verify_token(token)
+        if payload is None:
+            return None
+        
+        user_id = payload.get("sub")
+        if user_id is None:
+            return None
+        
+        user = db.query(User).filter(User.id == int(user_id)).first()
+        if user is None or user.status != UserStatus.ACTIVE:
+            return None
+        
+        return user
+    except Exception:
+        return None
 
 async def get_current_user(
     token: str = Depends(oauth2_scheme),

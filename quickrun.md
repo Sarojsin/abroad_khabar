@@ -35,7 +35,7 @@ Use this for active development with **Instant Cache-Busting** and hot-reload-fr
 
 ### 2. Frontend Setup (SPA Mode)
 The frontend now includes a dedicated server to handle **SPA routing** and **prevention of 304 caching**.
-
+  npm install
 1. **Navigate and Run:**
    ```bash
    cd frontend

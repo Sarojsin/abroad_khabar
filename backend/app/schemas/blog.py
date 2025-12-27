@@ -10,6 +10,7 @@ class BlogStatus(str, Enum):
     DRAFT = "draft"
     PUBLISHED = "published"
     ARCHIVED = "archived"
+    SCHEDULED = "scheduled"
 
 class BlogBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=500)
@@ -19,6 +20,7 @@ class BlogBase(BaseModel):
     featured_image: Optional[str] = None
     status: BlogStatus = BlogStatus.DRAFT
     category_id: Optional[int] = None
+    category: Optional[str] = None
     meta_title: Optional[str] = None
     meta_description: Optional[str] = None
     tags: Optional[List[str]] = None
