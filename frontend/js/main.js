@@ -6,6 +6,10 @@ import { loadFooter } from './components/footer.js';
 import { initModalSystem } from './components/modal.js';
 import { initScrollAnimations } from './effects/scroll-animations.js';
 import { initLazyMedia } from './effects/lazy-media.js';
+import { initPageTransitions } from './effects/page-transitions.js';
+import { initRippleEffects } from './effects/ripple.js';
+import toast, { initToastSystem } from './components/toast.js';
+import { initRouteEnhancers } from './effects/route-enhancers.js';
 
 class AbroadKhabarApp {
     constructor() {
@@ -56,11 +60,21 @@ class AbroadKhabarApp {
         // Initialize lazy loading for media
         initLazyMedia();
 
+        // Initialize route transitions (fade + directional slide)
+        initPageTransitions(this.router);
+
+        // Initialize ripple click feedback
+        initRippleEffects();
+
+        // Initialize toast notifications (also exposed globally for existing page scripts)
+        initToastSystem();
+        window.toast = toast;
+
+        // Route-specific enhancements (reading progress, network status)
+        initRouteEnhancers(this.router);
+
         // Initialize back to top button
         this.initBackToTop();
-
-        // Initialize page transitions
-        this.initPageTransitions();
     }
 
     initLoadingState() {
@@ -90,22 +104,7 @@ class AbroadKhabarApp {
         });
     }
 
-    initPageTransitions() {
-        // Handle internal link clicks for smooth transitions
-        document.addEventListener('click', (e) => {
-            const link = e.target.closest('a');
-            if (!link) return;
-
-            const href = link.getAttribute('href');
-            if (!href || href.startsWith('#') || href.startsWith('http') || href.startsWith('mailto:') || href.startsWith('tel:')) {
-                return;
-            }
-
-            // Handle internal navigation
-            e.preventDefault();
-            this.router.navigate(href);
-        });
-    }
+    initPageTransitions() {}
 
     showError(message) {
         const errorDiv = document.createElement('div');

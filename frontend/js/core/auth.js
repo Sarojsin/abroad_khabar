@@ -177,9 +177,8 @@ class AuthService {
         this.dispatchAuthChange();
 
         // Redirect to login if not already there
-        if (!window.location.pathname.includes('/login.html') &&
-            !window.location.pathname.includes('/register.html')) {
-            window.location.href = '/login.html';
+        if (!window.location.pathname.startsWith('/login')) {
+            window.location.href = '/login';
         }
     }
 

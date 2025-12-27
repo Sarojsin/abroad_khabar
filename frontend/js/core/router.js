@@ -345,7 +345,7 @@ class Router {
     }
 
     redirectToLogin() {
-        window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.pathname);
+        window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
     }
 
     async load404() {

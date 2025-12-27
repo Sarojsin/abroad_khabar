@@ -14,12 +14,17 @@
 @import url('./components/gallery.css');
 @import url('./components/video-player.css');
 @import url('./components/ads.css');
+@import url('./components/toasts.css');
 
 @import url('./animations/fade.css');
 @import url('./animations/slide.css');
 @import url('./animations/hover-effects.css');
 @import url('./animations/scroll-reveal.css');
 @import url('./animations/loaders.css');
+@import url('./animations/ripple.css');
+@import url('./animations/route-transitions.css');
+@import url('./animations/accessibility.css');
+@import url('./animations/reading-progress.css');
 
 @import url('./pages/home.css');
 @import url('./pages/services.css');
