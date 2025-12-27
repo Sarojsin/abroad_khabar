@@ -1,0 +1,16 @@
+.reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 0%;
+    background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    z-index: 9999;
+    transition: width 0.08s linear;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .reading-progress {
+        display: none !important;
+    }
+}

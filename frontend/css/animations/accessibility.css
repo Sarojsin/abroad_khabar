@@ -1,0 +1,24 @@
+/* Accessibility-first micro-interactions */
+
+:focus {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 3px solid rgba(79, 70, 229, 0.55);
+    outline-offset: 3px;
+}
+
+/* Ensure clickable elements always show pointer */
+button,
+[role="button"],
+.navbar-link,
+.auth-btn {
+    cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
