@@ -2,13 +2,10 @@ from sqlalchemy.orm import Session
 from typing import Optional
 from datetime import datetime
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
 
 from ..models.user import User, UserRole
 from ..schemas.user import UserCreate
-from ..core.security import hash_password, verify_password
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/login")
+from ..core.security import get_password_hash, verify_password
 
 class AuthService:
     def __init__(self, db: Session):
@@ -33,7 +30,7 @@ class AuthService:
     
     def create_user(self, user_data: UserCreate) -> User:
         """Create a new user"""
-        hashed_password = hash_password(user_data.password)
+        hashed_password = get_password_hash(user_data.password)
         db_user = User(
             email=user_data.email,
             username=user_data.username,
@@ -57,41 +54,11 @@ class AuthService:
         return True
     
     @staticmethod
-    def get_current_user(
-        token: str = Depends(oauth2_scheme),
-        db: Session = Depends(get_db)
-    ) -> User:
-        """Get current user from token"""
-        from ..core.security import verify_token
-        
-        credentials_exception = HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-        
-        payload = verify_token(token)
-        if not payload:
-            raise credentials_exception
-        
-        email: str = payload.get("sub")
-        if email is None:
-            raise credentials_exception
-        
-        user = db.query(User).filter(User.email == email).first()
-        if user is None:
-            raise credentials_exception
-        
-        return user
+    def verify_password(plain_password: str, hashed_password: str) -> bool:
+        """Verify password"""
+        return verify_password(plain_password, hashed_password)
     
     @staticmethod
-    def get_current_admin_user(
-        current_user: User = Depends(get_current_user)
-    ) -> User:
-        """Get current admin user"""
-        if current_user.role != UserRole.ADMIN:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Insufficient permissions"
-            )
-        return current_user
+    def get_password_hash(password: str) -> str:
+        """Hash password"""
+        return hash_password(password)

@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Any
 from app.db.session import get_db
-from app.api.v1.auth import get_current_active_user
+from app.auth.dependencies import get_current_active_user
 from app.models.user import User, UserRole
 from app.models.service import Service
 from app.models.video import Video

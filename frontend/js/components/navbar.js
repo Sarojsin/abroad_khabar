@@ -6,6 +6,7 @@ class Navbar {
     constructor() {
         this.navbarContainer = document.getElementById('navbar-container');
         this.isMobileMenuOpen = false;
+        this.handleScroll = this.handleScroll.bind(this); // Bind once
         this.init();
     }
 
@@ -196,7 +197,8 @@ class Navbar {
         });
 
         // Navbar scroll effect
-        window.addEventListener('scroll', this.handleScroll.bind(this));
+        window.removeEventListener('scroll', this.handleScroll); // Remove existing to prevent duplicates
+        window.addEventListener('scroll', this.handleScroll);
     }
 
     toggleMobileMenu() {
@@ -218,6 +220,8 @@ class Navbar {
 
     handleScroll() {
         const navbar = document.querySelector('.navbar');
+        if (!navbar) return; // Add null check
+
         if (window.scrollY > 50) {
             navbar.classList.add('scrolled');
         } else {

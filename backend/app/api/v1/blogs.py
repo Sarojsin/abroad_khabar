@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from app.db.session import get_db
-from app.api.v1.auth import get_current_active_user
+from app.auth.dependencies import get_current_active_user
 from app.models.blog import Blog, BlogCategory, BlogStatus
 from app.models.user import User, UserRole
 from app.schemas.blog import BlogCreate, BlogUpdate, BlogResponse, BlogBulkUpdate, BlogBulkDelete
@@ -92,12 +92,24 @@ async def create_blog(
         import uuid
         slug = f"{slug}-{uuid.uuid4().hex[:6]}"
 
-    # Handle category lookup by slug if category_id is missing
+    # Handle category lookup
     category_id = blog_data.category_id
+    # Treat 0 as None (common issue with frontend dropdowns)
+    if category_id == 0:
+        category_id = None
+        
     if not category_id and blog_data.category:
         db_category = db.query(BlogCategory).filter(BlogCategory.slug == blog_data.category).first()
         if db_category:
             category_id = db_category.id
+    
+    # Validate category exists if provided
+    if category_id:
+        category_exists = db.query(BlogCategory).filter(BlogCategory.id == category_id).first()
+        if not category_exists:
+            # If category ID provided is invalid, revert to None rather than failing
+            # or raise error depending on strictness. Here we'll treat as uncategorized.
+            category_id = None
 
     # Create blog
     blog_dict = blog_data.model_dump(exclude={"slug", "author_id", "category"})
@@ -139,8 +151,18 @@ async def update_blog(
     # Update fields
     update_data = blog_data.model_dump(exclude_unset=True, exclude={"category"})
     
-    # Handle category lookup by slug
-    if "category" in blog_data.model_dump(exclude_unset=True) and not blog_data.category_id:
+    # Handle category_id 0 -> None
+    if "category_id" in update_data:
+        if update_data["category_id"] == 0:
+            update_data["category_id"] = None
+        elif update_data["category_id"]:
+             # Verify it exists
+             category_exists = db.query(BlogCategory).filter(BlogCategory.id == update_data["category_id"]).first()
+             if not category_exists:
+                 update_data["category_id"] = None
+
+    # Handle category lookup by slug if category_id not in update data or is None
+    if "category" in blog_data.model_dump(exclude_unset=True) and not update_data.get("category_id"):
         db_category = db.query(BlogCategory).filter(BlogCategory.slug == blog_data.category).first()
         if db_category:
             update_data["category_id"] = db_category.id

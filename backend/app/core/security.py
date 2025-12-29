@@ -3,7 +3,6 @@ Security configuration and middleware
 """
 import time
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from typing import Optional
@@ -13,7 +12,6 @@ from app.core.config import settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # JWT
-security = HTTPBearer()
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Verify a password against its hash"""

@@ -10,7 +10,7 @@ from app.auth.jwt import verify_jwt_token, get_user_id_from_token
 from app.db.session import get_db
 from app.models.user import User, UserStatus
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 async def get_current_user(
     credentials: HTTPAuthorizationCredentials = Depends(security),

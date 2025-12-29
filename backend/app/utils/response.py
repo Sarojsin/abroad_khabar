@@ -4,6 +4,7 @@ Custom response utilities
 from typing import Any, Optional, Dict
 from fastapi.responses import JSONResponse
 from fastapi import status
+from fastapi.encoders import jsonable_encoder
 
 def custom_response(
     message: Optional[str] = None,
@@ -45,7 +46,7 @@ def custom_response(
         response_data["meta"] = meta
     
     return JSONResponse(
-        content=response_data,
+        content=jsonable_encoder(response_data),
         status_code=status_code
     )
 

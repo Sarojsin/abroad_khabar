@@ -22,7 +22,7 @@ from app.schemas.video import (
 )
 from app.utils.response import custom_response
 from app.utils.file import save_video_file, validate_video_file, generate_thumbnail
-from app.api.v1.auth import get_current_user, get_optional_user
+from app.auth.dependencies import get_current_user
 
 router = APIRouter()
 
@@ -40,7 +40,7 @@ async def get_videos(
     tags: Optional[List[str]] = Query(None),
     sort_by: str = Query("created_at", regex="^(created_at|title|views|published_at)$"),
     sort_order: str = Query("desc", regex="^(asc|desc)$"),
-    current_user: Optional[User] = Depends(get_optional_user),
+    current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get videos with filtering and pagination"""
@@ -126,7 +126,7 @@ async def get_featured_videos(
 @router.get("/{video_id}", response_model=dict)
 async def get_video(
     video_id: int,
-    current_user: Optional[User] = Depends(get_optional_user),
+    current_user: Optional[User] = Depends(get_current_user),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get video by ID"""

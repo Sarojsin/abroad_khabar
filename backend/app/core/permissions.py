@@ -4,7 +4,7 @@ Permission and role-based access control
 from enum import Enum
 from fastapi import HTTPException, status, Depends
 from typing import List, Optional, Any
-from app.api.v1.auth import get_current_user
+from app.auth.dependencies import get_current_user
 
 class UserRole(str, Enum):
     """User roles"""

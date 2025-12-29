@@ -4,7 +4,6 @@ Authentication API endpoints
 from datetime import timedelta
 from typing import Any, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from jose import JWTError
@@ -28,71 +27,9 @@ from app.schemas.user import (
     RefreshTokenRequest
 )
 from app.utils.response import custom_response
+from app.auth.dependencies import get_current_active_user, get_current_admin_user
 
 router = APIRouter()
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_V1_STR}/auth/login")
-oauth2_scheme_optional = OAuth2PasswordBearer(
-    tokenUrl=f"{settings.API_V1_STR}/auth/login",
-    auto_error=False
-)
-
-async def get_optional_user(
-    token: Optional[str] = Depends(oauth2_scheme_optional),
-    db: Session = Depends(get_db)
-) -> Optional[User]:
-    """Get current authenticated user if token is present, otherwise return None"""
-    if not token:
-        return None
-    
-    try:
-        payload = verify_token(token)
-        if payload is None:
-            return None
-        
-        user_id = payload.get("sub")
-        if user_id is None:
-            return None
-        
-        user = db.query(User).filter(User.id == int(user_id)).first()
-        if user is None or user.status != UserStatus.ACTIVE:
-            return None
-        
-        return user
-    except Exception:
-        return None
-
-async def get_current_user(
-    token: str = Depends(oauth2_scheme),
-    db: Session = Depends(get_db)
-) -> User:
-    """Get current authenticated user"""
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    
-    payload = verify_token(token)
-    if payload is None:
-        raise credentials_exception
-    
-    user_id: int = payload.get("sub")
-    if user_id is None:
-        raise credentials_exception
-    
-    user = db.query(User).filter(User.id == user_id).first()
-    if user is None or user.status != UserStatus.ACTIVE:
-        raise credentials_exception
-    
-    return user
-
-async def get_current_active_user(
-    current_user: User = Depends(get_current_user),
-) -> User:
-    """Get current active user"""
-    if current_user.status != UserStatus.ACTIVE:
-        raise HTTPException(status_code=400, detail="Inactive user")
-    return current_user
 
 @router.post("/register", response_model=dict)
 async def register_user(
@@ -364,15 +301,11 @@ async def get_users(
     role: Optional[str] = None,
     status: Optional[str] = None,
     search: Optional[str] = None,
-    current_user: User = Depends(get_current_active_user),
+    current_user: User = Depends(get_current_admin_user),
     db: Session = Depends(get_db)
 ) -> Any:
     """Get all users (admin only)"""
-    if current_user.role != UserRole.ADMIN:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Not enough permissions"
-        )
+    # current_user is already validated as admin by get_current_admin_user dependency
     
     query = db.query(User)
     
